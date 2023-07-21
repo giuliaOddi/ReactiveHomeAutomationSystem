@@ -1,0 +1,122 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SOI - Lab</title>
+  <meta name="description" content="Laboratory of Sistemi Orientati ad Internet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Lab of Sistemi Orientati ad Internet">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="./icon.png">
+
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/eos-icons.css">
+
+  <meta name="theme-color" content="#fafafa">
+</head>
+<body>
+
+<div class="content">
+
+  <!-- Header -->
+  <div class="header">
+    <h1 class="text-center"><img class="logo" src="icon.png" width="52" alt="UniPR Logo">Things to do</h1>
+  </div>
+
+  <div id="root"></div>
+</div>
+
+<script type="text/html" id="login-template">
+  <div class="panel">
+    <label>Sign in with Google</label> &nbsp;
+    <button class="outline clickable">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48" class="abcRioButtonSvg">
+        <g>
+          <path fill="#EA4335"
+                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+          <path fill="#4285F4"
+                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+          <path fill="#FBBC05"
+                d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+          <path fill="#34A853"
+                d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+          <path fill="none" d="M0 0h48v48H0z"></path>
+        </g>
+      </svg>
+      <span>Sign In</span>
+    </button>
+  </div>
+</script>
+
+<script type="text/html" id="tasks-template">
+  <!-- Panels -->
+  <div class="panel">
+    <h3>Enter new things to do</h3>
+
+    <form name="new-task">
+      <div class="form-group">
+        <div class="input-group">
+          <input name="task" type="text" value="" placeholder="Type some task">
+          <button type="submit">
+            <i class="eos-icons">add</i>
+            <span>Add</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3><i class="eos-icons">list</i> Your pending tasks</h3>
+
+    <div class="panel-commands">
+      <a href="#" data-action="complete-selected" title="Mark tasks as complete">Complete selected</a>
+    </div>
+
+    <!-- Tasks -->
+    <div class="tasks"></div>
+  </div>
+</script>
+
+<script type="text/html" id="task-template">
+  <div class="task-left">
+    <input type="checkbox" id="" name="">
+    <label for="" class="task-item"></label>
+  </div>
+
+  <div class="task-right">
+    <button class="task-btn" name="edit" title="Edit this task"><i class="eos-icons">edit</i></button>
+    <button class="task-btn" name="complete" title="Complete this task"><i class="eos-icons">done</i></button>
+  </div>
+</script>
+
+<script type="text/html" id="task-edit-template">
+  <div class="form-group">
+    <div class="input-group">
+      <input type="text" placeholder="Please enter some description">
+      <button name="save" class="primary"><i class="eos-icons">save</i></button>
+      <button name="cancel" class="warn"><i class="eos-icons">cancel</i></button>
+    </div>
+  </div>
+</script>
+
+<script src="js/vendor/modernizr-3.11.2.min.js"></script>
+<script src="js/plugins.js"></script>
+<script src="js/commons.js"></script>
+<script src="js/rest-client.js"></script>
+<script src="js/models.js"></script>
+<script src="js/login.component.js"></script>
+<script src="js/task.component.js"></script>
+<script src="js/tasks.component.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>

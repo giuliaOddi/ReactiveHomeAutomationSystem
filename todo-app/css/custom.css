@@ -1,0 +1,211 @@
+/* Write here anything required to complete the laboratory */
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #ccdae3;
+  --bgLight: #edf0f2;
+  --text: #444;
+  --primary: #6577c9;
+  --primaryContrast: white;
+  --secondary: #f8c82a;
+  --secondaryContrast: #6577c9;
+  --accent: #2AF8C8;
+  --warn: #C82AF8;
+  --warnContrast: white;
+  --error: #dc143ce0;
+  --errorContrast: #222222;
+}
+
+h1, h2, h3, h4, h5, label, input, button, select, option, p, textarea {
+  color: var(--text);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.text-center {
+  text-align: center;
+}
+
+button i.eos-icons ~ span {
+  line-height: 1.5rem;
+  margin-left: 0.5rem;
+  height: 24px;
+  display: inline-block;
+}
+
+button {
+  line-height: 24px;
+  border-inline: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  background-color: var(--primary);
+  box-shadow: none;
+  border: 1px solid var(--primary);
+  color: var(--primaryContrast);
+}
+
+button.outline {
+  background-color: var(--bgLight);
+  border-color: var(--primary);
+  color: var(--text);
+}
+button.outline:hover {
+  color: var(--primaryContrast);
+}
+
+button:hover, button:focus {
+  background-color: var(--secondary);
+  border-color: var(--secondary);
+}
+
+button.warn {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+button.warn:hover, button.warn:focus {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+input[type=text] {
+  border-inline: none;
+  border: 1px solid var(--primary);
+  border-radius: 3px;
+  padding: 3px 5px;
+}
+
+input[type=text]:focus {
+  border-color: var(--secondary);
+}
+
+.input-group input[type=text] ~ button {
+  margin-left: 0;
+  border-left: none;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.input-group input[type=text] ~ button ~ button {
+  margin-left: -3px;
+  border-left: none;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.input-group input[type=text] {
+  margin-right: -1px;
+  border-right: none;
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* Layout */
+
+.content {
+  margin: 1rem auto;
+  min-width: 80%;
+  max-width: 90%;
+}
+
+.header {
+}
+
+.header h1 {
+  /*TODO*/
+}
+
+.header img.logo {
+  margin-right: 1rem;
+}
+
+.panel {
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--bg);
+  background-color: var(--bgLight);
+  margin: 1rem auto 0;
+  width: 90%;
+}
+
+/* Input fields */
+
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.form-group .input-group {
+  width: 90%;
+  display: flex;
+}
+
+.input-group input[type=text] {
+  flex-grow: 10;
+}
+
+/* Tasks */
+
+.tasks {
+  padding-top: 1rem;
+}
+
+.tasks:first-child {
+  border-top: none;
+}
+
+.task {
+  padding: 0.5rem;
+  border-top: 1px solid var(--bg);
+  border-radius: 1px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.task:first-of-type {
+  border-top: none;
+}
+
+.task-left {
+  flex-grow: 10;
+  display: flex;
+  align-items: center;
+}
+
+.task-left label {
+  margin-left: 1rem;
+}
+
+.task-right {
+}
+
+.task-edit {
+  width: 100%;
+}
+
+/* Toast */
+
+.toast {
+  width: 100%;
+  padding: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.toast.error {
+  background-color: var(--error);
+  color: var(--errorContrast);
+}
