@@ -1,0 +1,28 @@
+version: "3.9"
+services: 
+  # Frontend
+  todo-app:
+    build: ./frontend
+    ports: 
+      - 8080:80
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.21"
+      
+  # Backend
+  todo-server:
+    build: ./backend
+    ports: 
+      - 8000:8000
+    networks:
+      todo-app-network:
+        #bind to apache proxy pass
+        ipv4_address: "10.88.0.11"
+
+networks:
+  todo-app-network:    
+      name: todo-app-network
+      driver: bridge
+      ipam:
+        config:
+          - subnet: "10.88.0.0/16"
