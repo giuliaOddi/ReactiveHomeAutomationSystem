@@ -74,7 +74,7 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
-    const ws = new WebSocket('ws://127.0.0.1');
+    const ws = new WebSocket('ws://localhost:5000');
 
     ws.on('error', console.error);
 
