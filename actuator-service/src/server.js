@@ -26,38 +26,10 @@ function init(app) {
 
   // sets the correlation id of any incoming requests
   app.use((req, res, next) => {
-    req.correlationId = req.get('X-Request-ID') || uuid();
-    res.set('X-Request-ID', req.correlationId);
-    next();
+      req.correlationId = req.get('X-Request-ID') || uuid();
+      res.set('X-Request-ID', req.id);
+      next();
   });
-}
-
-/**
- * Initializes the WebSocket server.
- * @param {Server} server HTTP server
- * @param {{iface: string, port: number}} config Configuration options
- * @return {WebSocketServer} A WebSocket server
- */
-function initWss(server, config) {
-  // configuration taken from: https://www.npmjs.com/package/ws#websocket-compression
-  const perMessageDeflate = {
-    zlibDeflateOptions: {
-      chunkSize: 1024,
-      memLevel: 7,
-      level: 3
-    },
-    zlibInflateOptions: {
-      chunkSize: 10 * 1024
-    },
-    clientNoContextTakeover: true, // Defaults to negotiated value
-    serverNoContextTakeover: true, // Defaults to negotiated value
-    serverMaxWindowBits: 10, // Defaults to negotiated value
-    concurrencyLimit: 10, // Limits zlib concurrency for perf
-    threshold: 1024 // Size (in bytes) below which messages should not be compressed if context takeover is disabled
-  };
-
-  const opts = {server, perMessageDeflate};
-  return new WebSocketServer(opts);
 }
 
 /**
@@ -71,19 +43,19 @@ function fallbacks(app) {
   // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
   /* eslint-disable-next-line no-unused-vars */
   app.use((err, req, res, next) => {
-    const errmsg = err.message || util.inspect(err);
-    console.error(`💥 Unexpected error occurred while calling ${req.path}: ${errmsg}`);
-    res.status(err.status || 500);
-    res.json({error: err.message || 'Internal server error'});
+      const errmsg = err.message || util.inspect(err);
+      console.error(`💥 Unexpected error occurred while calling ${req.path}: ${errmsg}`);
+      res.status(err.status || 500);
+      res.json({error: err.message || 'Internal server error'});
   });
 
   // if we are here, then there's no valid route => 400 + json
   // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
   /* eslint-disable no-unused-vars */
   app.use((req, res, next) => {
-    console.error(`💥 Route not found to ${req.path}`);
-    res.status(404);
-    res.json({error: 'Not found'});
+      console.error(`💥 Route not found to ${req.path}`);
+      res.status(404);
+      res.json({error: 'Not found'});
   });
 }
 
@@ -97,17 +69,23 @@ async function run() {
   init(app);
 
   const {iface, port} = options.config;
-  const server = app.listen(port, iface, () => {
-    // noinspection HttpUrlsUsage
-    console.info(`🏁 Server listening: http://${iface}:${port}`);
+
+  routes(app, oidc, options.config);
+  fallbacks(app);
+
+  app.listen(port, iface, () => {
+      // noinspection HttpUrlsUsage
+      console.info(`🏁 Server listening: http://${iface}:${port}`);
   });
 
-  console.debug(`🔧 Initializing WSS...`);
-  const wss = initWss(server, options.config);
+  // console.debug(`🔧 Initializing WSS...`);
+  
+  
+  // const wss = initWss(server, options.config);
 
-  console.debug(`🔧 Initializing routes...`);
-  routes(app, wss, options.config);
-  fallbacks(app);
+  // console.debug(`🔧 Initializing routes...`);
+  // routes(app, wss, options.config);
+  // fallbacks(app);
 }
 
 run().then(() => {
