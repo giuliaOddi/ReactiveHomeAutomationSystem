@@ -16,8 +16,16 @@ services:
       - 5000:5000
     networks:
       todo-app-network:
-        #bind to apache proxy pass
         ipv4_address: "10.88.0.31"
+        
+  # Actuator-service
+  actuator-service:
+    build: ./actuator-service
+    ports: 
+      - 3000:3000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.41"
       
   # Backend
   todo-server:
