@@ -74,8 +74,9 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
-    const ws = new WebSocket('ws://10.88.0.31:5000');
 
+
+    const ws = new WebSocket('ws://10.88.0.31:5000');
     let count = 0;
 
     ws.on('error', console.error);
@@ -89,6 +90,24 @@ async function run() {
       console.log('received: %s', data);
       if (count == 5){
         ws.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
+    });
+
+    const ws1 = new WebSocket('ws://10.88.0.41:3000');
+
+    let count1 = 0;
+
+    ws1.on('error', console.error);
+
+    ws1.on('open', function open() {
+      ws1.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws1.on('message', function message(data) {
+      count1++;
+      console.log('received: %s', data);
+      if (count1 == 5){
+        ws1.send('{"type": "unsubscribe", "target": "temperature"}');
       }
     });
 
