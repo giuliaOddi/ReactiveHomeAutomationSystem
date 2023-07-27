@@ -74,16 +74,22 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
-    const ws = new WebSocket('ws://localhost:5000');
+    const ws = new WebSocket('ws://10.88.0.31:5000');
+
+    let count = 0;
 
     ws.on('error', console.error);
 
     ws.on('open', function open() {
-      ws.send({"type": "subscribe", "target": "temperature"});
+      ws.send('{"type": "subscribe", "target": "temperature"}');
     });
     
     ws.on('message', function message(data) {
+      count++;
       console.log('received: %s', data);
+      if (count == 5){
+        ws.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
     });
 
     const app = express();

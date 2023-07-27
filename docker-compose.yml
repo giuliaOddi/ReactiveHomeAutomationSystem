@@ -8,6 +8,16 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.21"
+
+  # Weather-service
+  weather-service:
+    build: ./weather-service
+    ports: 
+      - 5000:5000
+    networks:
+      todo-app-network:
+        #bind to apache proxy pass
+        ipv4_address: "10.88.0.31"
       
   # Backend
   todo-server:

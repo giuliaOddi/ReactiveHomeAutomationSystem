@@ -72,5 +72,9 @@ export function routes(app, wss, config) {
       console.error('💥 Failed to register WS handler, closing connection', e);
       ws.close();
     }
+    ws.on('message', function message(data) {
+      console.log('received: %s', data);
+    });
   });
+  
 }
