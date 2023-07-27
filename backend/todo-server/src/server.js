@@ -16,6 +16,8 @@ import opts from './options.js';
 import {routes} from './routes.js';
 import {OIDCMiddleware} from './openid.js';
 
+import {WebSocket} from 'ws';
+
 /**
  * Initializes the application middlewares.
  *
@@ -72,6 +74,18 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
+    const ws = new WebSocket('ws://127.0.0.1');
+
+    ws.on('error', console.error);
+
+    ws.on('open', function open() {
+      ws.send({"type": "subscribe", "target": "temperature"});
+    });
+    
+    ws.on('message', function message(data) {
+      console.log('received: %s', data);
+    });
+
     const app = express();
     init(app);
     routes(app, oidc, options.config);
