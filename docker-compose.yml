@@ -26,6 +26,15 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.41"
+        
+  # Sensor-service
+  sensor-service:
+    build: ./sensor-service
+    ports: 
+      - 4000:4000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.51"
       
   # Backend
   todo-server:

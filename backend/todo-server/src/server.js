@@ -78,22 +78,40 @@ async function run() {
 
     console.debug(`🔧 Initializing routes...`);
 
-
+    // comunicazione con weather service
     const ws = new WebSocket('ws://10.88.0.31:5000');
     let count = 0;
 
     ws.on('error', console.error);
 
     ws.on('open', function open() {
-      ws.send('{"type": "subscribe", "target": "temperature"}');
+        ws.send('{"type": "subscribe", "target": "temperature"}');
     });
     
     ws.on('message', function message(data) {
-      count++;
-      console.log('received: %s', data);
-      if (count == 5){
-        ws.send('{"type": "unsubscribe", "target": "temperature"}');
-      }
+        count++;
+        console.log('received: %s', data);
+        if (count == 5){
+            ws.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
+    });
+
+    // comunicazione con sensor service
+    const ws_sensor = new WebSocket('ws://10.88.0.51:4000');
+    let count2 = 0;
+
+    ws_sensor.on('error', console.error);
+
+    ws_sensor.on('open', function open() {
+        ws_sensor.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_sensor.on('message', function message(data) {
+        count2++;
+        console.log('received: %s', data);
+        if (count2 == 5){
+            ws_sensor.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
     });
 
     const app = express();
