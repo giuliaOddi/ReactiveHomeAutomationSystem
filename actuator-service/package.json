@@ -4,6 +4,7 @@
   "description": "A microservice that provides an actuator",
   "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -13,6 +14,8 @@
   "author": "Giulia Oddi & Luca Taverna",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "xmlhttprequest-ssl": "^2.1.1"
   }
 }

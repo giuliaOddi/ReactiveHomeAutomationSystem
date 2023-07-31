@@ -1,17 +1,24 @@
 const express = require('express');
 
-const app = express ();
-app.use(express.json());
+async function run() {
+    const app = express();
+    app.use(express.json());
 
-app.listen(PORT, () => {
-    console.log("Server Listening on PORT:", port);
-});
+    const port = 3000;
 
-// NB sostituire get con post
-app.get("/status", (request, response) => {
-    const status = {
-        "Status": "Running"
-    };
+    app.listen(port, () => {
+        console.log("Server Listening on PORT:", port);
+    });
 
-    response.send(status);
-});
+    // Modifica il metodo da get a post e l'endpoint in "/api/dati"
+    app.post("/status", (request, response) => {
+        // Accedi ai dati inviati nel corpo della richiesta POST
+        const postData = request.body;
+
+        // Puoi eseguire ulteriori operazioni con i dati inviati...
+        console.log('Dati ricevuti:', postData);
+        response.sendStatus(200);
+    });
+}
+
+run();

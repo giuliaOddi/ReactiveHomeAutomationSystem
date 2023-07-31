@@ -18,6 +18,9 @@ import {OIDCMiddleware} from './openid.js';
 
 import {WebSocket} from 'ws';
 
+import fetch from 'node-fetch';
+
+
 /**
  * Initializes the application middlewares.
  *
@@ -104,12 +107,42 @@ async function run() {
         console.info(`🏁 Server listening: http://${iface}:${port}`);
     });
 
-    // comunicazione con actuator 
-    (async function () {
-        const client = new RestClient('/api');
+    // comunicazione con actuator
+    const serverAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
-        const {status} = await client.get('/status');
-    })();
+    // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+    const postData = {
+      action: 'open',
+      sensor: "door",
+    };
+
+    // Configura la richiesta HTTP POST
+    fetch(serverAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+
+
+
+
 
 }
 
