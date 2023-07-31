@@ -103,6 +103,14 @@ async function run() {
         // noinspection HttpUrlsUsage
         console.info(`🏁 Server listening: http://${iface}:${port}`);
     });
+
+    // comunicazione con actuator 
+    (async function () {
+        const client = new RestClient('/api');
+
+        const {status} = await client.get('/status');
+    })();
+
 }
 
 // noinspection JSIgnoredPromiseFromCall
