@@ -66,10 +66,10 @@ export function routes(app, wss, config) {
 
   wss.on('connection', ws => {
     try {
-      const handler = new SensorHandler(ws, config, `weather:${uuid()}`);
+      const handler = new SensorHandler(ws, config, `sensor:${uuid()}`);
       registerHandler(ws, handler);
     } catch (e) {
-      console.error('💥 Failed to register WS handler, closing connection', e);
+      console.error('💥 Failed to register handler, closing connection', e);
       ws.close();
     }
     ws.on('message', function message(data) {
