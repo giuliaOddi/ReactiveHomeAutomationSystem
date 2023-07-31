@@ -70,7 +70,7 @@ async function run() {
 
   const {iface, port} = options.config;
 
-  routes(app, oidc, options.config);
+  routes(app, options.config);
   fallbacks(app);
 
   app.listen(port, iface, () => {
