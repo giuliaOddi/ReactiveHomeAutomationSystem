@@ -24,7 +24,7 @@ async function run() {
     });
 
     // backchannel with sensor
-    const serverAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+    const serverAddress = 'http://10.88.0.51:3000'; // Indirizzo del tuo server
     const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
