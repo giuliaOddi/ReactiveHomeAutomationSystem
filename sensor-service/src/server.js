@@ -102,12 +102,38 @@ async function run() {
     console.info(`🏁 Server listening: http://${iface}:${port}`);
   });
 
+  // comunication with backend
+
   console.debug(`🔧 Initializing WSS...`);
   const wss = initWss(server, options.config);
 
   console.debug(`🔧 Initializing routes...`);
   routes(app, wss, options.config);
   fallbacks(app);
+
+  // backchannel with actuator
+  const appBack = express();
+  appBack.use(express.json());
+
+  const portBack = 3000;
+
+  appBack.listen(portBack, () => {
+      console.log("Server Listening on PORT:", portBack);
+  });
+
+
+  // Modifica il metodo da get a post e l'endpoint in "/api/dati"
+  appBack.post("/status", (request, response) => {
+      // Accedi ai dati inviati nel corpo della richiesta POST
+      const postData = request.body;
+
+      // Puoi eseguire ulteriori operazioni con i dati inviati...
+      console.log('Dati ricevuti:', postData);
+      response.sendStatus(200);
+  });
+
+  
+
 }
 
 run().then(() => {
