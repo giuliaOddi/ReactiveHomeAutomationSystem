@@ -114,6 +114,24 @@ async function run() {
         }
     });
 
+    // comunicazione con sensor service
+    const ws_heat = new WebSocket('ws://10.88.0.52:4000');
+    let count3 = 0;
+
+    ws_heat.on('error', console.error);
+
+    ws_heat.on('open', function open() {
+      ws_heat.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_heat.on('message', function message(data) {
+      count3++;
+        console.log('received: %s', data);
+        if (count3 == 5){
+          ws_heat.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
+    });
+
     const app = express();
     init(app);
     routes(app, oidc, options.config);

@@ -55,6 +55,37 @@ async function run() {
         console.error('Si è verificato un errore:', error);
       });
 
+      // comunication with heat pump
+      const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
+      const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+  
+      // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+      const heatpumpData = {
+        action: 'sensorOpen',
+        sensor: "door",
+      };
+  
+      // Configura la richiesta HTTP POST
+      fetch(heatpumpAddress + heatpumpEndpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify(heatpumpData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
 
 }
 
