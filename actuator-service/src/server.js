@@ -13,7 +13,6 @@ async function run() {
         console.log("Server Listening on PORT:", port);
     });
 
-    // Modifica il metodo da get a post e l'endpoint in "/api/dati"
     app.post("/status", (request, response) => {
         // Accedi ai dati inviati nel corpo della richiesta POST
         const postData = request.body;
