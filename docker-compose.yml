@@ -18,15 +18,6 @@ services:
       todo-app-network:
         ipv4_address: "10.88.0.31"
         
-  # Actuator-service
-  actuator-service:
-    build: ./actuator-service
-    ports: 
-      - 3000:3000
-    networks:
-      todo-app-network:
-        ipv4_address: "10.88.0.41"
-        
   # Window-service
   window-service:
     build: ./sensor-service/window-door
@@ -46,6 +37,15 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.52"
+          
+  # Actuator-service
+  actuator-service:
+    build: ./actuator-service
+    ports: 
+      - 3000:3000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.41"
       
   # Backend
   todo-server:
