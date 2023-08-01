@@ -10,7 +10,7 @@ import {resolve, dirname} from 'path';
 const {merge} = lodash;
 
 const IFACE = '0.0.0.0';
-const PORT = 5000;
+const PORT = 4000;
 const ERROR_PROB = 0.1;
 const DELAY_PROB = 0.2;
 const FREQ_MS = 2000;

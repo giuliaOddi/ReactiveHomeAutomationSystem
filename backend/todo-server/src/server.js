@@ -18,6 +18,9 @@ import {OIDCMiddleware} from './openid.js';
 
 import {WebSocket} from 'ws';
 
+import fetch from 'node-fetch';
+
+
 /**
  * Initializes the application middlewares.
  *
@@ -75,40 +78,58 @@ async function run() {
 
     console.debug(`🔧 Initializing routes...`);
 
-
+    // comunicazione con weather service
     const ws = new WebSocket('ws://10.88.0.31:5000');
     let count = 0;
 
     ws.on('error', console.error);
 
     ws.on('open', function open() {
-      ws.send('{"type": "subscribe", "target": "temperature"}');
+        ws.send('{"type": "subscribe", "target": "temperature"}');
     });
     
     ws.on('message', function message(data) {
-      count++;
-      console.log('received: %s', data);
-      if (count == 5){
-        ws.send('{"type": "unsubscribe", "target": "temperature"}');
-      }
+        count++;
+        console.log('received: %s', data);
+        if (count == 5){
+            ws.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
     });
 
-    const ws1 = new WebSocket('ws://10.88.0.41:3000');
+    // comunicazione con sensor service
+    const ws_sensor = new WebSocket('ws://10.88.0.51:4000');
+    let count2 = 0;
 
-    let count1 = 0;
+    ws_sensor.on('error', console.error);
 
-    ws1.on('error', console.error);
-
-    ws1.on('open', function open() {
-      ws1.send('{"type": "subscribe", "target": "temperature"}');
+    ws_sensor.on('open', function open() {
+        ws_sensor.send('{"type": "subscribe", "target": "temperature"}');
     });
     
-    ws1.on('message', function message(data) {
-      count1++;
-      console.log('received: %s', data);
-      if (count1 == 5){
-        ws1.send('{"type": "unsubscribe", "target": "temperature"}');
-      }
+    ws_sensor.on('message', function message(data) {
+        count2++;
+        console.log('received: %s', data);
+        if (count2 == 5){
+            ws_sensor.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
+    });
+
+    // comunicazione con sensor service
+    const ws_heat = new WebSocket('ws://10.88.0.52:4000');
+    let count3 = 0;
+
+    ws_heat.on('error', console.error);
+
+    ws_heat.on('open', function open() {
+      ws_heat.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_heat.on('message', function message(data) {
+      count3++;
+        console.log('received: %s', data);
+        if (count3 == 5){
+          ws_heat.send('{"type": "unsubscribe", "target": "temperature"}');
+        }
     });
 
     const app = express();
@@ -121,6 +142,40 @@ async function run() {
         // noinspection HttpUrlsUsage
         console.info(`🏁 Server listening: http://${iface}:${port}`);
     });
+
+    // comunicazione con actuator
+    const serverAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+    // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+    const postData = {
+      action: 'open',
+      sensor: "door",
+    };
+
+    // Configura la richiesta HTTP POST
+    fetch(serverAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+
 }
 
 // noinspection JSIgnoredPromiseFromCall

@@ -18,11 +18,34 @@ services:
       todo-app-network:
         ipv4_address: "10.88.0.31"
         
+  # Window-service
+  window-service:
+    build: ./sensor-service/window-door
+    ports: 
+      - 4000:4000
+      - 3000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.51"
+        
+  # HeatPump-service
+  heatpump-service:
+    build: ./sensor-service/heat-pump
+    ports: 
+      - 4001:4000
+      - 3000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.52"
+          
   # Actuator-service
   actuator-service:
     build: ./actuator-service
     ports: 
       - 3000:3000
+    depends_on:
+      - window-service
+      - heatpump-service
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.41"
@@ -32,6 +55,8 @@ services:
     build: ./backend
     ports: 
       - 8000:8000
+    depends_on:
+      - actuator-service
     networks:
       todo-app-network:
         #bind to apache proxy pass
