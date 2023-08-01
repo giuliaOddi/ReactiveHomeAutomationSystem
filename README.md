@@ -14,7 +14,8 @@ http://oddi-taverna.soi2223.unipr.it:8080/
 
 ## Per rimuovere i container 
 ```shell
-    docker-compose down
+    docker-compose down --remove-orphans
+
 ```
 
 ## P.S:
