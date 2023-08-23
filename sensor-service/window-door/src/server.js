@@ -18,6 +18,8 @@ const OPEN = 0;
 const CLOSE = 1;
 const ERROR = -1;
 
+var state = OPEN;       //////// NB PORTA E FINESTRA SARANNO DIVERSE??? ////////////////
+
 /**
  * Initializes the application middlewares.
  *
@@ -134,6 +136,19 @@ async function run() {
 
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
+      
+      // Cambio stato in base a comandi ricevuti
+      if (postData.action == 'open' && state == CLOSE){
+        console.log('Current state: ', state, ' CLOSE');
+        state = OPEN; 
+        console.log('Current state: ', state, ' OPEN');
+      }
+      else if (postData.action == 'close' && state == OPEN){
+        console.log('Current state: ', state, ' OPEN');
+        state = OPEN; 
+        console.log('Current state: ', state, ' CLOSE');
+      }
+
       response.sendStatus(200);
   });
 
