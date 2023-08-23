@@ -147,23 +147,33 @@ async function run() {
     const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
     const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
+    // Backend invia comandi all'attuatore 
+
+    ////// NB SARA' UN FORWARD DEI COMANDI DATI DA WEB APP //////
+
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
     const openDoor = {
       action: 'open',
-      sensor: "door-sensor",
+      sensor: 'door-sensor',
     };
 
     const closeWindow = {
       action: 'close',
-      sensor: "window-sensor",
+      sensor: 'window-sensor',
     };
 
     const offHeatPump = {
       action: 'off',
-      sensor: "heat-pump",
+      sensor: 'heat-pump',
     };
 
-    // Configura la richiesta HTTP POST
+    const setTemperature = {
+      action: 'temperature',
+      sensor: 'thermometer',
+      degrees: 22, 
+    };
+
+    // Invio comando per aprire la porta
     fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
@@ -171,19 +181,85 @@ async function run() {
       },
       body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
-      .then((response) => {
-        if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
-        }
-        return response; 
-      })
-      .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
-      })
-      .catch((error) => {
-        console.error('Si è verificato un errore:', error);
-      });
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // Invio comando per chiudere la finestra
+    fetch(actuatorAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // Invio comando per spegnere la pompa di calore 
+    fetch(actuatorAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // Invio comando per cambio temperature
+    fetch(actuatorAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
 }
 
 // noinspection JSIgnoredPromiseFromCall
