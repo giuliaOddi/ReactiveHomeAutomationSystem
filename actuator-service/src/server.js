@@ -18,7 +18,7 @@ async function run() {
         const postData = request.body;
 
         // Puoi eseguire ulteriori operazioni con i dati inviati...
-        console.log('Dati ricevuti:', postData);
+        console.log('Dati ricevuti da backend:', postData);
         response.sendStatus(200);
     });
 

@@ -144,22 +144,32 @@ async function run() {
     });
 
     // comunicazione con actuator
-    const serverAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+    const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
     const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
-    const postData = {
+    const openDoor = {
       action: 'open',
-      sensor: "door",
+      sensor: "door-sensor",
+    };
+
+    const closeWindow = {
+      action: 'close',
+      sensor: "window-sensor",
+    };
+
+    const offHeatPump = {
+      action: 'off',
+      sensor: "heat-pump",
     };
 
     // Configura la richiesta HTTP POST
-    fetch(serverAddress + endpoint, {
+    fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
         'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
       },
-      body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
       .then((response) => {
         if (!response.status) {
@@ -174,8 +184,6 @@ async function run() {
       .catch((error) => {
         console.error('Si è verificato un errore:', error);
       });
-
-
 }
 
 // noinspection JSIgnoredPromiseFromCall
