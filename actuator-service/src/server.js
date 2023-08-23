@@ -22,23 +22,59 @@ async function run() {
         response.sendStatus(200);
     });
 
-    // backchannel with sensor
-    const serverAddress = 'http://10.88.0.51:3000'; // Indirizzo del tuo server
-    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
-
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
-    const postData = {
-      action: 'sensorOpen',
-      sensor: "door",
+    const openDoor = {
+      action: 'open',
+      sensor: "door-sensor",
     };
 
+    const closeWindow = {
+      action: 'close',
+      sensor: "window-sensor",
+    };
+
+    const offHeatPump = {
+      action: 'off',
+      sensor: "heat-pump",
+    };
+
+    // backchannel with sensor
+    const windowAddress = 'http://10.88.0.51:3000'; // Indirizzo del sensor window
+    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
     // Configura la richiesta HTTP POST
-    fetch(serverAddress + endpoint, {
+    fetch(windowAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
         'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
       },
-      body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // comunication with heat pump
+    const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
+    const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+    // Configura la richiesta HTTP POST
+    fetch(heatpumpAddress + heatpumpEndpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
       .then((response) => {
         if (!response.status) {
@@ -54,38 +90,33 @@ async function run() {
         console.error('Si è verificato un errore:', error);
       });
 
-      // comunication with heat pump
-      const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
-      const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
-  
-      // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
-      const heatpumpData = {
-        action: 'sensorOpen',
-        sensor: "door",
-      };
-  
-      // Configura la richiesta HTTP POST
-      fetch(heatpumpAddress + heatpumpEndpoint, {
-        method: 'POST', // Metodo della richiesta
-        headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-        },
-        body: JSON.stringify(heatpumpData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-      })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
 
-}
+    // comunication with door
+    const doorAddress = 'http://10.88.0.53:3000'; // Indirizzo del tuo server
+    const doorEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+    // Configura la richiesta HTTP POST
+    fetch(doorAddress + doorEndpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+  }
 
 run();

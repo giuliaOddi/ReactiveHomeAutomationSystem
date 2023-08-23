@@ -132,7 +132,7 @@ export class SensorHandler extends EventEmitter {
    */
   _sendTemperature() {
     const value = temperatureAt(DateTime.now());
-    const msg = {type: 'temperature', dateTime: DateTime.now().toISO(), value};
+    const msg = {type: 'thermometer temperature', dateTime: DateTime.now().toISO(), value};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);
