@@ -25,17 +25,23 @@ async function run() {
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
     const openDoor = {
       action: 'open',
-      sensor: "door-sensor",
+      sensor: 'door-sensor',
     };
 
     const closeWindow = {
       action: 'close',
-      sensor: "window-sensor",
+      sensor: 'window-sensor',
     };
 
     const offHeatPump = {
       action: 'off',
-      sensor: "heat-pump",
+      sensor: 'heat-pump',
+    };
+
+    const setTemperature = {
+      action: 'temperature',
+      sensor: 'thermometer',
+      degrees: 22, 
     };
 
     // backchannel with window sensor 1
@@ -128,6 +134,32 @@ async function run() {
         'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
       },
       body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // backchannel with thermometer
+    const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor window
+    const termEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+    // Configura la richiesta HTTP POST
+    fetch(termAddress + termEndpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
       if (!response.status) {

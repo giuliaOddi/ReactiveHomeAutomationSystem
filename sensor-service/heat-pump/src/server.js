@@ -18,6 +18,8 @@ const ON = 0;
 const OFF = 1;
 const ERROR = -1;
 
+var state = ON; 
+
 /**
  * Initializes the application middlewares.
  *
@@ -132,8 +134,24 @@ async function run() {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
 
+      console.log('Current state: ', state);
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
+
+      // Cambio stato in base a comandi ricevuti
+      if (postData.action == 'off' && state == ON){
+        state = OFF; 
+        console.log('Current state: ', state, ' OFF');
+      }
+      else if (postData.action == 'on' && state == OFF){
+        state = ON; 
+        console.log('Current state: ', state, ' ON');
+      }
+      else if ((postData.action == 'off' && state == OFF) || (postData.action == 'on' && state == ON)){
+        console.log('Not changing the state');
+        ////// ERRORE /////////
+      }
+
       response.sendStatus(200);
   });
 

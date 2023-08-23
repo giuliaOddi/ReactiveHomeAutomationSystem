@@ -57,6 +57,16 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.53"
+        
+  # thermometer-service
+  thermometer-service:
+    build: ./sensor-service/thermometer
+    ports: 
+      - 4004:4000
+      - 3000
+    networks:
+      todo-app-network:
+        ipv4_address: "10.88.0.54"
           
   # Actuator-service
   actuator-service:

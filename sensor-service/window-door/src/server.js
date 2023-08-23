@@ -134,19 +134,22 @@ async function run() {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
 
+      console.log('Current state: ', state);
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
       
       // Cambio stato in base a comandi ricevuti
       if (postData.action == 'open' && state == CLOSE){
-        console.log('Current state: ', state, ' CLOSE');
         state = OPEN; 
         console.log('Current state: ', state, ' OPEN');
       }
       else if (postData.action == 'close' && state == OPEN){
-        console.log('Current state: ', state, ' OPEN');
-        state = OPEN; 
+        state = CLOSE; 
         console.log('Current state: ', state, ' CLOSE');
+      }
+      else if ((postData.action == 'open' && state == OPEN) || (postData.action == 'close' && state == CLOSE)){
+        console.log('Not changing the state');
+        ////// ERRORE /////////
       }
 
       response.sendStatus(200);

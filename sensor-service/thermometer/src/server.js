@@ -13,6 +13,9 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// temperature in °C 
+var temperature = 20; 
+
 /**
  * Initializes the application middlewares.
  *
@@ -128,7 +131,12 @@ async function run() {
       const postData = request.body;
 
       // Puoi eseguire ulteriori operazioni con i dati inviati...
+      console.log('Current temperature: ', temperature);
       console.log('Dati ricevuti:', postData);
+      if (postData.action == 'temperature' && postData.degrees != temperature){
+        temperature = postData.degrees; 
+        console.log('Current temperature: ', temperature);
+      }
       response.sendStatus(200);
   });
 
