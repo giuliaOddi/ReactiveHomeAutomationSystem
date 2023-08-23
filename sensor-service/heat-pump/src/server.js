@@ -13,6 +13,11 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// states of heat pump
+const ON = 0;
+const OFF = 1;
+const ERROR = -1;
+
 /**
  * Initializes the application middlewares.
  *

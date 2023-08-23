@@ -13,6 +13,11 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// states of windows and door
+const OPEN = 0;
+const CLOSE = 1;
+const ERROR = -1;
+
 /**
  * Initializes the application middlewares.
  *
