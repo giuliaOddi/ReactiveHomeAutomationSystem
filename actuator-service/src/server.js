@@ -38,12 +38,38 @@ async function run() {
       sensor: "heat-pump",
     };
 
-    // backchannel with sensor
-    const windowAddress = 'http://10.88.0.51:3000'; // Indirizzo del sensor window
+    // backchannel with window sensor 1
+    const windowAddress = 'http://10.88.0.50:3000'; // Indirizzo del sensor window
     const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
     // Configura la richiesta HTTP POST
     fetch(windowAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+    // backchannel with window sensor 2
+    const windowAddress1 = 'http://10.88.0.51:3000'; // Indirizzo del sensor window
+    const endpoint1 = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+    // Configura la richiesta HTTP POST
+    fetch(windowAddress1 + endpoint1, {
       method: 'POST', // Metodo della richiesta
       headers: {
         'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON

@@ -26,13 +26,23 @@ services:
       - 3000
     networks:
       todo-app-network:
+        ipv4_address: "10.88.0.50"
+        
+  # Window-service
+  window-service_2:
+    build: ./sensor-service/window-door
+    ports: 
+      - 4001:4000
+      - 3000
+    networks:
+      todo-app-network:
         ipv4_address: "10.88.0.51"
         
   # HeatPump-service
   heatpump-service:
     build: ./sensor-service/heat-pump
     ports: 
-      - 4001:4000
+      - 4002:4000
       - 3000
     networks:
       todo-app-network:
@@ -42,7 +52,7 @@ services:
   door-service:
     build: ./sensor-service/window-door
     ports: 
-      - 4002:4000
+      - 4003:4000
       - 3000
     networks:
       todo-app-network:
