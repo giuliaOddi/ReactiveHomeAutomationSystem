@@ -113,7 +113,10 @@ export class SensorHandler extends EventEmitter {
     if (json.type !== 'subscribe' && json.type !== 'unsubscribe') {
       throw new ValidationError('Invalid message type');
     }
-    if (json.target !== 'temperature') {
+    /* if (json.target !== 'temperature') {
+      throw new ValidationError('Invalid subscription target');
+    } */
+    if (json.target !== 'state_window') {
       throw new ValidationError('Invalid subscription target');
     }
     return json;
@@ -152,7 +155,7 @@ export class SensorHandler extends EventEmitter {
   } */
 
   _sendState() {
-    const msg = {type: 'state', dateTime: DateTime.now().toISO(), state};
+    const msg = {type: 'state_window', dateTime: DateTime.now().toISO(), state};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);

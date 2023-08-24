@@ -85,7 +85,7 @@ async function run() {
     ws.on('error', console.error);
 
     ws.on('open', function open() {
-        ws.send('{"type": "subscribe", "target": "temperature"}');
+      ws.send('{"type": "subscribe", "target": "temperature"}');
     });
     
     ws.on('message', function message(data) {
@@ -103,14 +103,15 @@ async function run() {
     ws_sensor.on('error', console.error);
 
     ws_sensor.on('open', function open() {
-        ws_sensor.send('{"type": "subscribe", "target": "state"}');
+      ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
+      ws_sensor.send('{"type": "subscribe", "target": "state_window"}');
     });
     
     ws_sensor.on('message', function message(data) {
       count2++;
       console.log('received: %s', data);
       if (count2 == 5){
-          ws_sensor.send('{"type": "unsubscribe", "target": "state"}');
+          ws_sensor.send('{"type": "unsubscribe", "target": "state_window"}');
       }
     });
 
@@ -118,17 +119,17 @@ async function run() {
     const ws_sensor_2 = new WebSocket('ws://10.88.0.51:4000');
     let count_2 = 0;
 
-    ws_sensor_2.on('error', console.error);
+    ws_sensor_2.on('error', console.error); 
 
     ws_sensor_2.on('open', function open() {
-      ws_sensor_2.send('{"type": "subscribe", "target": "state"}');
+      ws_sensor_2.send('{"type": "subscribe", "target": "state_window"}');
     });
     
     ws_sensor_2.on('message', function message(data) {
       count_2++;
       console.log('received: %s', data);
       if (count_2 == 5){
-        ws_sensor_2.send('{"type": "unsubscribe", "target": "state"}');
+        ws_sensor_2.send('{"type": "unsubscribe", "target": "state_window"}');
       }
     });
 
@@ -139,14 +140,14 @@ async function run() {
     ws_heat.on('error', console.error);
 
     ws_heat.on('open', function open() {
-      ws_heat.send('{"type": "subscribe", "target": "state"}');
+      ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
     });
     
     ws_heat.on('message', function message(data) {
       count3++;
       console.log('received: %s', data);
       if (count3 == 5){
-        ws_heat.send('{"type": "unsubscribe", "target": "state"}');
+        ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
       }
     });
 
@@ -157,14 +158,14 @@ async function run() {
     ws_door.on('error', console.error);
 
     ws_door.on('open', function open() {
-      ws_door.send('{"type": "subscribe", "target": "state"}');
+      ws_door.send('{"type": "subscribe", "target": "state_window"}');
     });
     
     ws_door.on('message', function message(data) {
       count_door++;
       console.log('received: %s', data);
       if (count_door == 5){
-        ws_door.send('{"type": "unsubscribe", "target": "state"}');
+        ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
       }
     });
 
@@ -175,14 +176,14 @@ async function run() {
     ws_therm.on('error', console.error);
 
     ws_therm.on('open', function open() {
-      ws_therm.send('{"type": "subscribe", "target": "temperature"}');
+      ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
     });
     
     ws_therm.on('message', function message(data) {
       count_therm++;
       console.log('received: %s', data);
       if (count_therm == 5){
-        ws_therm.send('{"type": "unsubscribe", "target": "temperature"}');
+        ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
       }
     });
 

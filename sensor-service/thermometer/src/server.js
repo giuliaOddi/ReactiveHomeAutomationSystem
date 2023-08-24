@@ -14,7 +14,7 @@ import opts from './options.js';
 import {routes} from './routes.js';
 
 // temperature in °C 
-var temperature = 20; 
+export var temperature = 20; 
 
 /**
  * Initializes the application middlewares.
