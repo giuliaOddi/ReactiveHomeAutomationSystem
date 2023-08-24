@@ -90,7 +90,41 @@ async function run() {
     
     ws.on('message', function message(data) {
         count++;
+
+        // Ricevo temperatura da wheater service 
         console.log('received: %s', data);
+
+        var temp = JSON.parse(data); 
+
+        // Inoltro temperatura a termometro 
+        const setTemperature = {
+          action: 'temperature',
+          sensor: 'thermometer',
+          degrees: temp.value, 
+        };
+
+        // Invio comando per cambio temperature
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+
         if (count == 5){
             ws.send('{"type": "unsubscribe", "target": "temperature"}');
         }
@@ -222,12 +256,6 @@ async function run() {
       sensor: 'heat-pump',
     };
 
-    const setTemperature = {
-      action: 'temperature',
-      sensor: 'thermometer',
-      degrees: 22, 
-    };
-
     // Invio comando per aprire la porta
     fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
@@ -294,27 +322,7 @@ async function run() {
       console.error('Si è verificato un errore:', error);
     });
 
-    // Invio comando per cambio temperature
-    fetch(actuatorAddress + endpoint, {
-      method: 'POST', // Metodo della richiesta
-      headers: {
-        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-      },
-      body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    })
-    .then((response) => {
-      if (!response.status) {
-        throw new Error('Errore nella richiesta HTTP: ' + response);
-      }
-      return response; 
-    })
-    .then((data) => {
-      // Usa i dati ottenuti dalla risposta
-      console.log('Risposta POST ricevuta:');
-    })
-    .catch((error) => {
-      console.error('Si è verificato un errore:', error);
-    });
+    
 }
 
 // noinspection JSIgnoredPromiseFromCall

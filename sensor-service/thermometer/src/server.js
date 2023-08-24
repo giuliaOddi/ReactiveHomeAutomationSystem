@@ -133,14 +133,17 @@ async function run() {
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Current temperature: ', temperature);
       console.log('Dati ricevuti:', postData);
+
+      // Modifichiamo la temperatura mettendola uguale a quella generata da wheater service 
+
+      ////// NB VA MODIFICATA ANCHE IN BASE A STATI SENSORI VEDERE COME ///// 
+
       if (postData.action == 'temperature' && postData.degrees != temperature){
         temperature = postData.degrees; 
         console.log('Current temperature: ', temperature);
       }
       response.sendStatus(200);
   });
-
-  
 
 }
 
