@@ -5,6 +5,8 @@ import {anIntegerWithPrecision} from './random.js';
 import {temperatureAt} from './temperatures.js';
 import {EventEmitter} from 'events';
 
+import {state} from './server.js'; 
+
 class ValidationError extends Error {
   #message;
 
@@ -130,7 +132,7 @@ export class SensorHandler extends EventEmitter {
    * Sends the temperature message.
    * @private
    */
-  _sendTemperature() {
+  /* _sendTemperature() {
     const value = temperatureAt(DateTime.now());
     const msg = {type: 'temperature', dateTime: DateTime.now().toISO(), value};
 
@@ -147,7 +149,27 @@ export class SensorHandler extends EventEmitter {
     } else {
       console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
     }
-  }
+  } */
+
+
+  _sendState() {
+    const msg = {type: 'state', dateTime: DateTime.now().toISO(), state};
+
+    // message is always appended to the buffer
+    this.#buffer.push(msg);
+
+    // messages are dispatched immediately if delays are disabled or a random number is
+    // generated greater than `delayProb` messages
+    if (!this.#config.delays || Math.random() > this.#config.delayProb) {
+      for (const bMsg of this.#buffer) {
+        this._send(bMsg);
+      }
+      this.#buffer = [];
+    } else {
+      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
+    }
+  } 
+
 
   /**
    * Sends any message through the WebSocket channel.
@@ -169,9 +191,13 @@ export class SensorHandler extends EventEmitter {
       return;
     }
 
-    console.debug('🌡  Subscribing to temperature', {handler: this.#name});
+    //////// MODIFICATO ////////
+    // Per heat pump sensor si sottoscrive allo stato, non alla temperatura // 
+    //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
+    console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      this._sendTemperature();
+      //this._sendTemperature();
+      this._sendState(); 
       this.#timeout = setTimeout(callback, this._someMillis());
     };
     this.#timeout = setTimeout(callback, 0);

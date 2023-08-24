@@ -18,7 +18,7 @@ const ON = 0;
 const OFF = 1;
 const ERROR = -1;
 
-var state = ON; 
+export var state = ON; 
 
 /**
  * Initializes the application middlewares.

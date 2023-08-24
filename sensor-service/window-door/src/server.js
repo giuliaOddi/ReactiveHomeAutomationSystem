@@ -14,11 +14,12 @@ import opts from './options.js';
 import {routes} from './routes.js';
 
 // states of windows and door
+/////// NB FORSE MEGLIO STRINGHE??? ///////
 const OPEN = 0;
 const CLOSE = 1;
 const ERROR = -1;
 
-var state = OPEN;       //////// NB PORTA E FINESTRA SARANNO DIVERSE??? ////////////////
+export var state = OPEN;       //////// NB PORTA E FINESTRA SARANNO DIVERSE??? ////////////////
 
 /**
  * Initializes the application middlewares.
@@ -154,9 +155,6 @@ async function run() {
 
       response.sendStatus(200);
   });
-
-  
-
 }
 
 run().then(() => {

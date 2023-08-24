@@ -103,14 +103,14 @@ async function run() {
     ws_sensor.on('error', console.error);
 
     ws_sensor.on('open', function open() {
-        ws_sensor.send('{"type": "subscribe", "target": "temperature"}');
+        ws_sensor.send('{"type": "subscribe", "target": "state"}');
     });
     
     ws_sensor.on('message', function message(data) {
       count2++;
       console.log('received: %s', data);
       if (count2 == 5){
-          ws_sensor.send('{"type": "unsubscribe", "target": "temperature"}');
+          ws_sensor.send('{"type": "unsubscribe", "target": "state"}');
       }
     });
 
@@ -121,14 +121,14 @@ async function run() {
     ws_sensor_2.on('error', console.error);
 
     ws_sensor_2.on('open', function open() {
-      ws_sensor_2.send('{"type": "subscribe", "target": "temperature"}');
+      ws_sensor_2.send('{"type": "subscribe", "target": "state"}');
     });
     
     ws_sensor_2.on('message', function message(data) {
       count_2++;
       console.log('received: %s', data);
       if (count_2 == 5){
-        ws_sensor_2.send('{"type": "unsubscribe", "target": "temperature"}');
+        ws_sensor_2.send('{"type": "unsubscribe", "target": "state"}');
       }
     });
 
@@ -139,14 +139,14 @@ async function run() {
     ws_heat.on('error', console.error);
 
     ws_heat.on('open', function open() {
-      ws_heat.send('{"type": "subscribe", "target": "temperature"}');
+      ws_heat.send('{"type": "subscribe", "target": "state"}');
     });
     
     ws_heat.on('message', function message(data) {
       count3++;
       console.log('received: %s', data);
       if (count3 == 5){
-        ws_heat.send('{"type": "unsubscribe", "target": "temperature"}');
+        ws_heat.send('{"type": "unsubscribe", "target": "state"}');
       }
     });
 
@@ -157,14 +157,14 @@ async function run() {
     ws_door.on('error', console.error);
 
     ws_door.on('open', function open() {
-      ws_door.send('{"type": "subscribe", "target": "temperature"}');
+      ws_door.send('{"type": "subscribe", "target": "state"}');
     });
     
     ws_door.on('message', function message(data) {
       count_door++;
       console.log('received: %s', data);
       if (count_door == 5){
-        ws_door.send('{"type": "unsubscribe", "target": "temperature"}');
+        ws_door.send('{"type": "unsubscribe", "target": "state"}');
       }
     });
 
