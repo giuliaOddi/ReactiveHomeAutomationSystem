@@ -96,8 +96,8 @@ async function run() {
         }
     });
 
-    // comunicazione con sensor service
-    const ws_sensor = new WebSocket('ws://10.88.0.51:4000');
+    // comunicazione con window sensor service
+    const ws_sensor = new WebSocket('ws://10.88.0.50:4000');
     let count2 = 0;
 
     ws_sensor.on('error', console.error);
@@ -107,14 +107,32 @@ async function run() {
     });
     
     ws_sensor.on('message', function message(data) {
-        count2++;
-        console.log('received: %s', data);
-        if (count2 == 5){
-            ws_sensor.send('{"type": "unsubscribe", "target": "temperature"}');
-        }
+      count2++;
+      console.log('received: %s', data);
+      if (count2 == 5){
+          ws_sensor.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
     });
 
-    // comunicazione con sensor service
+    // comunicazione con window sensor 2 service
+    const ws_sensor_2 = new WebSocket('ws://10.88.0.51:4000');
+    let count_2 = 0;
+
+    ws_sensor_2.on('error', console.error);
+
+    ws_sensor_2.on('open', function open() {
+      ws_sensor_2.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_sensor_2.on('message', function message(data) {
+      count_2++;
+      console.log('received: %s', data);
+      if (count_2 == 5){
+        ws_sensor_2.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
+    });
+
+    // comunicazione con heat pump sensor service
     const ws_heat = new WebSocket('ws://10.88.0.52:4000');
     let count3 = 0;
 
@@ -126,10 +144,46 @@ async function run() {
     
     ws_heat.on('message', function message(data) {
       count3++;
-        console.log('received: %s', data);
-        if (count3 == 5){
-          ws_heat.send('{"type": "unsubscribe", "target": "temperature"}');
-        }
+      console.log('received: %s', data);
+      if (count3 == 5){
+        ws_heat.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
+    });
+
+    // comunicazione con door sensor service
+    const ws_door = new WebSocket('ws://10.88.0.53:4000');
+    let count_door = 0;
+
+    ws_door.on('error', console.error);
+
+    ws_door.on('open', function open() {
+      ws_door.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_door.on('message', function message(data) {
+      count_door++;
+      console.log('received: %s', data);
+      if (count_door == 5){
+        ws_door.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
+    });
+
+    // comunicazione con thermometer sensor service
+    const ws_therm = new WebSocket('ws://10.88.0.54:4000');
+    let count_therm = 0;
+
+    ws_therm.on('error', console.error);
+
+    ws_therm.on('open', function open() {
+      ws_therm.send('{"type": "subscribe", "target": "temperature"}');
+    });
+    
+    ws_therm.on('message', function message(data) {
+      count_therm++;
+      console.log('received: %s', data);
+      if (count_therm == 5){
+        ws_therm.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
     });
 
     const app = express();
