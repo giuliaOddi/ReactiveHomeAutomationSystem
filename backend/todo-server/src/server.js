@@ -86,6 +86,23 @@ async function run() {
 
     console.debug(`🔧 Initializing routes...`);
 
+
+    const app = express();
+    init(app);
+    routes(app, oidc, options.config);
+    fallbacks(app);
+
+    const {iface, port} = options.config;
+    app.listen(port, iface, () => {
+        // noinspection HttpUrlsUsage
+        console.info(`🏁 Server listening: http://${iface}:${port}`);
+    });
+
+    // comunicazione con actuator
+    const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+
     // comunicazione con weather service
     const ws = new WebSocket('ws://10.88.0.31:5000');
     let count = 0;
@@ -154,7 +171,7 @@ async function run() {
 
     ws_sensor.on('open', function open() {
       // Salvataggio window sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "window-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE 
+      sensor_properties.push({"name" : "window-sensor", "property" : ON_OPEN}); // Di default: state = CLOSE 
       ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
       ws_sensor.send('{"type": "subscribe", "target": "state_window"}');
     });
@@ -165,6 +182,29 @@ async function run() {
       var tmp = JSON.parse(data); 
       if (tmp.type == "state_window"){
         sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+
+        // Inoltro stato ad attuatore
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify({"name" : "window-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+
       }
       console.log(sensor_properties); 
       if (count2 == 5){
@@ -180,7 +220,7 @@ async function run() {
 
     ws_sensor_2.on('open', function open() {
       // Salvataggio window sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "window-sensor_2", "property" : OFF_CLOSE}); // Di default: state = CLOSE
+      sensor_properties.push({"name" : "window-sensor_2", "property" : ON_OPEN}); // Di default: state = CLOSE
       ws_sensor_2.send('{"type": "subscribe", "target": "state_window"}');
     });
     
@@ -190,6 +230,29 @@ async function run() {
       var tmp = JSON.parse(data); 
       if (tmp.type == "state_window"){
         sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
+
+        // Inoltro stato ad attuatore
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify({"name" : "window-sensor_2", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+
       }
       console.log(sensor_properties); 
       if (count_2 == 5){
@@ -215,6 +278,28 @@ async function run() {
       var tmp = JSON.parse(data); 
       if (tmp.type == "state_heatpump"){
         sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state } : item ); 
+        // Inoltro stato ad attuatore
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+
       }
       console.log(sensor_properties); 
       if (count3 == 5){
@@ -241,6 +326,28 @@ async function run() {
       var tmp = JSON.parse(data); 
       if (tmp.type == "state_window"){
         sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+        // Inoltro stato ad attuatore
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify({"name" : "door-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+
       }
       console.log(sensor_properties);
       if (count_door == 5){
@@ -273,21 +380,6 @@ async function run() {
       }
     });
 
-    const app = express();
-    init(app);
-    routes(app, oidc, options.config);
-    fallbacks(app);
-
-    const {iface, port} = options.config;
-    app.listen(port, iface, () => {
-        // noinspection HttpUrlsUsage
-        console.info(`🏁 Server listening: http://${iface}:${port}`);
-    });
-
-    // comunicazione con actuator
-    const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
-
     // Backend invia comandi all'attuatore 
 
     ////// NB SARA' UN FORWARD DEI COMANDI DATI DA WEB APP //////
@@ -301,6 +393,11 @@ async function run() {
     const closeWindow = {
       action: 'close',
       sensor: 'window-sensor',
+    };
+
+    const closeWindow2 = {
+      action: 'close',
+      sensor: 'window-sensor_2',
     };
 
     const offHeatPump = {
@@ -337,6 +434,28 @@ async function run() {
         'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
       },
       body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Errore nella richiesta HTTP: ' + response);
+      }
+      return response; 
+    })
+    .then((data) => {
+      // Usa i dati ottenuti dalla risposta
+      console.log('Risposta POST ricevuta:');
+    })
+    .catch((error) => {
+      console.error('Si è verificato un errore:', error);
+    });
+
+     // Invio comando per chiudere la finestra
+     fetch(actuatorAddress + endpoint, {
+      method: 'POST', // Metodo della richiesta
+      headers: {
+        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+      },
+      body: JSON.stringify(closeWindow2), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
       if (!response.status) {

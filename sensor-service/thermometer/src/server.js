@@ -138,6 +138,19 @@ async function run() {
 
       ////// NB VA MODIFICATA ANCHE IN BASE A STATI SENSORI VEDERE COME ///// 
 
+      /*
+      var tmp = JSON.parse(postData); 
+      if (tmp.sensor == "heat-pump" || tmp.sensor == "window-sensor" || tmp.sensor == "door-sensor" || tmp.sensor == "window-sensor_2"){
+        if (sensor_properties.some(item => item.sensor == tmp.sensor)){
+          sensor_properties = sensor_properties.map(item => item.name == tmp.sensor ? { "name" : item.name, "property" : tmp.action } : item ); 
+        }
+        else {
+          sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0
+        }
+      }
+      */
+      
+
       if (postData.action == 'temperature' && postData.degrees != temperature){
         temperature = postData.degrees; 
         console.log('Current temperature: ', temperature);
