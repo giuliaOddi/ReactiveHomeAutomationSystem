@@ -100,14 +100,15 @@ async function run() {
     });
     
     ws.on('message', function message(data) {
-        count++;
+      count++;
 
-        // Ricevo temperatura da wheater service 
-        console.log('received: %s', data);
+      // Ricevo temperatura da wheater service 
+      console.log('received: %s', data);
 
-        var tmp = JSON.parse(data); 
-
+      var tmp = JSON.parse(data); 
+      if (tmp.type == "temperature"){
         sensor_properties = sensor_properties.map(item => item.name == "weather-service" ? { "name" : item.name, "property" : tmp.value } : item ); 
+      
         console.log(sensor_properties); 
 
         // Inoltro temperatura a termometro 
@@ -142,6 +143,7 @@ async function run() {
         if (count == 5){
             ws.send('{"type": "unsubscribe", "target": "temperature"}');
         }
+      }
     });
 
     // comunicazione con window sensor service
@@ -161,7 +163,9 @@ async function run() {
       count2++;
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
-      sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      if (tmp.type == "state_window"){
+        sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      }
       console.log(sensor_properties); 
       if (count2 == 5){
           ws_sensor.send('{"type": "unsubscribe", "target": "state_window"}');
@@ -184,7 +188,9 @@ async function run() {
       count_2++;
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
-      sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      if (tmp.type == "state_window"){
+        sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      }
       console.log(sensor_properties); 
       if (count_2 == 5){
         ws_sensor_2.send('{"type": "unsubscribe", "target": "state_window"}');
@@ -207,7 +213,9 @@ async function run() {
       count3++;
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
-      sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      if (tmp.type == "state_heatpump"){
+        sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      }
       console.log(sensor_properties); 
       if (count3 == 5){
         ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
@@ -231,7 +239,9 @@ async function run() {
       count_door++;
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
-      sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      if (tmp.type == "state_window"){
+        sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      }
       console.log(sensor_properties);
       if (count_door == 5){
         ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
@@ -254,7 +264,9 @@ async function run() {
       count_therm++;
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
-      sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
+      if (tmp.type == "thermometer_temperature"){
+        sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
+      }
       console.log(sensor_properties);
       if (count_therm == 5){
         ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');

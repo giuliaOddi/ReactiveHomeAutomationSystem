@@ -142,7 +142,7 @@ async function run() {
         temperature = postData.degrees; 
         console.log('Current temperature: ', temperature);
       }
-      response.sendStatus(200);
+      //response.sendStatus(200);
   });
 
 }
