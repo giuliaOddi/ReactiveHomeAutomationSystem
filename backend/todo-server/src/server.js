@@ -21,6 +21,14 @@ import {WebSocket} from 'ws';
 import fetch from 'node-fetch';
 
 
+// Lista sensori e loro stati 
+var sensor_properties = []; 
+
+// Stati sensori
+const ON_OPEN = 0;
+const OFF_CLOSE = 1;
+const ERROR = -1; 
+
 /**
  * Initializes the application middlewares.
  *
@@ -85,6 +93,9 @@ async function run() {
     ws.on('error', console.error);
 
     ws.on('open', function open() {
+      // Salvataggio weather service nella lista delle proprietà 
+      sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0 
+      console.log(sensor_properties); 
       ws.send('{"type": "subscribe", "target": "temperature"}');
     });
     
@@ -94,13 +105,16 @@ async function run() {
         // Ricevo temperatura da wheater service 
         console.log('received: %s', data);
 
-        var temp = JSON.parse(data); 
+        var tmp = JSON.parse(data); 
+
+        sensor_properties = sensor_properties.map(item => item.name == "weather-service" ? { "name" : item.name, "property" : tmp.value } : item ); 
+        console.log(sensor_properties); 
 
         // Inoltro temperatura a termometro 
         const setTemperature = {
           action: 'temperature',
           sensor: 'thermometer',
-          degrees: temp.value, 
+          degrees: tmp.value, 
         };
 
         // Invio comando per cambio temperature
@@ -137,6 +151,8 @@ async function run() {
     ws_sensor.on('error', console.error);
 
     ws_sensor.on('open', function open() {
+      // Salvataggio window sensor nella lista delle proprietà 
+      sensor_properties.push({"name" : "window-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE 
       ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
       ws_sensor.send('{"type": "subscribe", "target": "state_window"}');
     });
@@ -144,6 +160,9 @@ async function run() {
     ws_sensor.on('message', function message(data) {
       count2++;
       console.log('received: %s', data);
+      var tmp = JSON.parse(data); 
+      sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      console.log(sensor_properties); 
       if (count2 == 5){
           ws_sensor.send('{"type": "unsubscribe", "target": "state_window"}');
       }
@@ -156,12 +175,17 @@ async function run() {
     ws_sensor_2.on('error', console.error); 
 
     ws_sensor_2.on('open', function open() {
+      // Salvataggio window sensor nella lista delle proprietà 
+      sensor_properties.push({"name" : "window-sensor_2", "property" : OFF_CLOSE}); // Di default: state = CLOSE
       ws_sensor_2.send('{"type": "subscribe", "target": "state_window"}');
     });
     
     ws_sensor_2.on('message', function message(data) {
       count_2++;
       console.log('received: %s', data);
+      var tmp = JSON.parse(data); 
+      sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      console.log(sensor_properties); 
       if (count_2 == 5){
         ws_sensor_2.send('{"type": "unsubscribe", "target": "state_window"}');
       }
@@ -174,30 +198,41 @@ async function run() {
     ws_heat.on('error', console.error);
 
     ws_heat.on('open', function open() {
+      // Salvataggio heat pump sensor nella lista delle proprietà 
+      sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE}); // Di default: state = OFF
       ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
     });
     
     ws_heat.on('message', function message(data) {
       count3++;
       console.log('received: %s', data);
+      var tmp = JSON.parse(data); 
+      sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      console.log(sensor_properties); 
       if (count3 == 5){
         ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
       }
     });
 
     // comunicazione con door sensor service
+    //////// NB: POSSIAMO METTERE DOOR CON INDIRIZZO = 53 COME VARIABILE ///////////
     const ws_door = new WebSocket('ws://10.88.0.53:4000');
     let count_door = 0;
 
     ws_door.on('error', console.error);
 
     ws_door.on('open', function open() {
+      // Salvataggio door sensor nella lista delle proprietà 
+      sensor_properties.push({"name" : "door-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE
       ws_door.send('{"type": "subscribe", "target": "state_window"}');
     });
     
     ws_door.on('message', function message(data) {
       count_door++;
       console.log('received: %s', data);
+      var tmp = JSON.parse(data); 
+      sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      console.log(sensor_properties);
       if (count_door == 5){
         ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
       }
@@ -210,12 +245,17 @@ async function run() {
     ws_therm.on('error', console.error);
 
     ws_therm.on('open', function open() {
+      // Salvataggio thermometer sensor nella lista delle proprietà 
+      sensor_properties.push({"name" : "thermometer-sensor", "property" : 0}); // Di default: temperature = 0
       ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
     });
     
     ws_therm.on('message', function message(data) {
       count_therm++;
       console.log('received: %s', data);
+      var tmp = JSON.parse(data); 
+      sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
+      console.log(sensor_properties);
       if (count_therm == 5){
         ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
       }
