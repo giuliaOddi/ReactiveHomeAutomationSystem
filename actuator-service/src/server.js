@@ -33,6 +33,33 @@ async function run() {
         sensor_properties.push({"name" : postData.name, "property" : postData.property}); // Di default: temperatura = 0
       }
       console.log(sensor_properties); 
+
+      console.log('...inoltro comando a thermometer sensors...');
+      // backchannel with thermometer
+      const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor thermometer
+      const termEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+      // Configura la richiesta HTTP POST
+      fetch(termAddress + termEndpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
     }
 
     else {    
@@ -169,7 +196,7 @@ async function run() {
 
         console.log('...inoltro comando a thermometer sensors...');
         // backchannel with thermometer
-        const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor window
+        const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor thermometer
         const termEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
         // Configura la richiesta HTTP POST

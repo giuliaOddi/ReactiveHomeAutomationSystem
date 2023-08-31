@@ -116,7 +116,7 @@ function temperature_simulation(){
   var door_open = sensor_properties.some(item => (item.name == 'door-sensor' && item.property == ON_OPEN));
   var heatpump_on = sensor_properties.some(item => (item.name == 'heat-pump' && item.property == ON_OPEN));
 
-  ///////////// se non ci sono?? se sono in errore????///////////
+  ///////////// se non ci sono?? se sono in errore???? ///////////
 
   console.log("SIAMO NELLA FUNZIONE TEMPERATURE_SIMULATION");
 
@@ -193,6 +193,7 @@ function temperature_simulation(){
   else{
     clearInterval(timeout);
   }
+
 }
 
 async function run() {
@@ -234,19 +235,23 @@ async function run() {
   appBack.post("/status", (request, response) => {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
-
+      console.log("Messaggio arrivato");
       console.log(postData);
 
       if (!postData.find(item => item.type)){
         // Salvataggio lista 
         sensor_properties = postData; 
-        console.log(sensor_properties); 
+        //console.log(sensor_properties); 
         count = 0;
         clearInterval(timeout);
 
         // Calcolo differenze temperature
-        var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
-        temp_diff_weather = weather_temperature.property - temperature; 
+        if (sensor_properties.find(item => (item.name == 'weather-service'))){
+          var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
+          temp_diff_weather = weather_temperature.property - temperature; 
+        }
+        //var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
+        //temp_diff_weather = weather_temperature.property - temperature; 
 
         //var heatpump_temperature = sensor_properties.find(item => (item.name == 'heat-pump'));
         //temp_diff_heatpump = heatpump_temperature.temp??? - temperature; 
@@ -256,7 +261,14 @@ async function run() {
           this._sendTemperature();
           var timeout = setTimeout(callback, this._someMillis());
         };*/
+        console.log("chiamo la funzione temperature simulation");
+
+        // ricontrollare che parta subito
+        temperature_simulation;
         timeout = setInterval(temperature_simulation, millis);
+        //timeout = firstInterval(temperature_simulation, millis);
+        //temperature_simulation;
+        
       }
       
 

@@ -386,7 +386,7 @@ async function run() {
 
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
     const openDoor = {
-      action: 'open',
+      action: 'close',
       sensor: 'door-sensor',
     };
 
@@ -396,7 +396,7 @@ async function run() {
     };
 
     const closeWindow2 = {
-      action: 'open',
+      action: 'close',
       sensor: 'window-sensor_2',
     };
 
