@@ -144,14 +144,14 @@ export class SensorHandler extends EventEmitter {
 
     // messages are dispatched immediately if delays are disabled or a random number is
     // generated greater than `delayProb` messages
-    if (!this.#config.delays || Math.random() > this.#config.delayProb) {
-      for (const bMsg of this.#buffer) {
-        this._send(bMsg);
-      }
-      this.#buffer = [];
-    } else {
-      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
+    // if (!this.#config.delays || Math.random() > this.#config.delayProb) {
+    for (const bMsg of this.#buffer) {
+      this._send(bMsg);
     }
+    this.#buffer = [];
+    // } else {
+    //   console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
+    // }
   }
 
   /**
@@ -180,8 +180,7 @@ export class SensorHandler extends EventEmitter {
         this._sendTemperature();
         temp = temperature;
       }
-      console.log("TEMP ATTUALE HANDLER...." + temp + " TEMPERATURE ATTUALE: " + temperature);
-      this.#timeout = setTimeout(callback, 1000);
+      this.#timeout = setTimeout(callback, 500);
     };
     this.#timeout = setTimeout(callback, 0);
   }

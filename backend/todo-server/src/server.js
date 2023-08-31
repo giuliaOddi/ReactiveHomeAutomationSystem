@@ -375,7 +375,7 @@ async function run() {
         sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
       }
       console.log(sensor_properties);
-      if (count_therm == 5){
+      if (count_therm == 15){
         ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
       }
     });
@@ -391,7 +391,7 @@ async function run() {
     };
 
     const closeWindow = {
-      action: 'open',
+      action: 'close',
       sensor: 'window-sensor',
     };
 

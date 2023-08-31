@@ -24,7 +24,7 @@ var sensor_properties = [];
 
 // Millisecondi salvataggio temperatura interna
 var timeout; 
-var millis = 1000; 
+var millis = 2000; 
 var count = 0; 
 
 // Stati sensori
@@ -130,48 +130,68 @@ function temperature_simulation(){
     // almeno una finestra aperta
     if (window1_open || window2_open){
       console.log("POMPA CALORE ACCESA FINESTRE APERTE.. CAMBIA TEMPERATURA...."); 
-      clearInterval(timeout); 
-    }
-    // finestre sono chiuse 
-    else {
-      console.log("POMPA CALORE ACCESA FINESTRE CHIUSE.. CAMBIA TEMPERATURA...."); 
-      clearInterval(timeout); 
-    }
-  }
-  // Casi 3 e 4: finestre aperte e pompa calore spenta -> decrescita/crescita fino a temperatura weather service
-  else if (window1_open && window1_open && !heatpump_on){
-    if (door_open){
-      // CONTROLLARE CHE LO FACCIA 5 VOLTE!!! ///////
+      count++;
+      // valutare differenza con temperatura esterna
+      //temperature += temp_diff_heatpump/5;
+      //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      temperature += 0.5 ;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       if (count == 5){
         clearInterval(timeout);
       }
-      else {
-        count++;
-        temperature += temp_diff_weather/5;
-        console.log("TEMPERATURA ATTUALE: " + temperature);
-      }
     }
+    // finestre sono chiuse 
     else {
+      console.log("POMPA CALORE ACCESA FINESTRE CHIUSE.. CAMBIA TEMPERATURA...."); count++;
+      //temperature += temp_diff_heatpump/5;
+      //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      temperature++;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       if (count == 3){
         clearInterval(timeout);
       }
-      else {
-        count++;
-        temperature += temp_diff_weather/3;
-        console.log("TEMPERATURA ATTUALE: " + temperature);
+    }
+  }
+  // Casi 3 e 4: finestre aperte e pompa calore spenta -> decrescita/crescita fino a temperatura weather service
+  else if (window1_open && window2_open && !heatpump_on){
+    if (door_open){
+      count++;
+      temperature += temp_diff_weather/5;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      if (count == 5){
+        clearInterval(timeout);
+      }
+    }
+    else {
+      count++;
+      temperature += temp_diff_weather/3;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      if (count == 3){
+        clearInterval(timeout);
       }
     }
   }
   // Casi 5 e 6: una finestra aperta e pompa calore spenta
-  else if ((window1_open || window1_open) && !heatpump_on) {
+  else if ((window1_open || window2_open) && !heatpump_on) {
     if (door_open){
-      console.log("POMPA CALORE SPENTA PORTA APERTE....."); 
-      clearInterval(timeout);
+      count++;
+      temperature += temp_diff_weather/5;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      if (count == 10){
+        clearInterval(timeout);
+      }
     }
     else {
-      console.log("POMPA CALORE SPENTA PORTA CHIUSA....."); 
-      clearInterval(timeout);
+      count++;
+      temperature += temp_diff_weather/3;
+      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+      if (count == 6){
+        clearInterval(timeout);
+      }
     }
+  }
+  else{
+    clearInterval(timeout);
   }
 }
 
@@ -215,24 +235,30 @@ async function run() {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
 
-      // Salvataggio lista 
-      sensor_properties = postData; 
-      console.log(sensor_properties); 
-      count = 0;
+      console.log(postData);
 
-      // Calcolo differenze temperature
-      var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
-      temp_diff_weather = weather_temperature.property - temperature; 
+      if (!postData.find(item => item.type)){
+        // Salvataggio lista 
+        sensor_properties = postData; 
+        console.log(sensor_properties); 
+        count = 0;
+        clearInterval(timeout);
 
-      //var heatpump_temperature = sensor_properties.find(item => (item.name == 'heat-pump'));
-      //temp_diff_heatpump = heatpump_temperature.temp??? - temperature; 
+        // Calcolo differenze temperature
+        var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
+        temp_diff_weather = weather_temperature.property - temperature; 
 
-      // Modifichiamo la temperatura interna alla stanza in base a dati ricevuti
-      /*const callback = () => {
-        this._sendTemperature();
-        var timeout = setTimeout(callback, this._someMillis());
-      };*/
-      timeout = setInterval(temperature_simulation, millis);
+        //var heatpump_temperature = sensor_properties.find(item => (item.name == 'heat-pump'));
+        //temp_diff_heatpump = heatpump_temperature.temp??? - temperature; 
+
+        // Modifichiamo la temperatura interna alla stanza in base a dati ricevuti
+        /*const callback = () => {
+          this._sendTemperature();
+          var timeout = setTimeout(callback, this._someMillis());
+        };*/
+        timeout = setInterval(temperature_simulation, millis);
+      }
+      
 
       /*
       var tmp = JSON.parse(postData); 
