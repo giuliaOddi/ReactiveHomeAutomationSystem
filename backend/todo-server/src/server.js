@@ -391,12 +391,12 @@ async function run() {
     };
 
     const closeWindow = {
-      action: 'close',
+      action: 'open',
       sensor: 'window-sensor',
     };
 
     const closeWindow2 = {
-      action: 'close',
+      action: 'open',
       sensor: 'window-sensor_2',
     };
 

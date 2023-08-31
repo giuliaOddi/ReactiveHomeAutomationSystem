@@ -26,12 +26,16 @@ async function run() {
     if (postData.name == "window-sensor" || postData.name == "window-sensor_2" || postData.name == "door-sensor" || postData.name == "heat-pump"){
       // me li salvo e quando ricevo temperatura da weather service inoltro la lista
       // AGGIUNGO I DATI RICEVUTI ALLA LISTA 
-      // DIFFERENZIARE LE DUE FINESTRE
+      if (sensor_properties.some(item => item.name == postData.name)){
+        sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name" : item.name, "property" : postData.property } : item ); 
+      }
+      else {
+        sensor_properties.push({"name" : postData.name, "property" : postData.property}); // Di default: temperatura = 0
+      }
+      console.log(sensor_properties); 
     }
 
-    else {
-
-    
+    else {    
       // attuatore valida le richieste e inoltra quelle valide ai sensori usando backchannel 
       if (postData.sensor == 'door-sensor' ){
 
@@ -155,6 +159,14 @@ async function run() {
       }
       else if (postData.sensor == 'thermometer') {
 
+        if (sensor_properties.some(item => item.name == 'weather-service')){
+          sensor_properties = sensor_properties.map(item => item.name == 'weather-service' ? { "name" : 'weather-service', "property" : postData.degrees } : item ); 
+        }
+        else {
+          sensor_properties.push({"name" : 'weather-service', "property" : postData.degrees}); // Di default: temperatura = 0
+        }
+        console.log(sensor_properties);
+
         console.log('...inoltro comando a thermometer sensors...');
         // backchannel with thermometer
         const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor window
@@ -166,7 +178,7 @@ async function run() {
           headers: {
             'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
           },
-          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
         })
         .then((response) => {
           if (!response.status) {

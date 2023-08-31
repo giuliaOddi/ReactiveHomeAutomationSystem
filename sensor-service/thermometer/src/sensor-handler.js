@@ -7,6 +7,9 @@ import {EventEmitter} from 'events';
 
 import {temperature} from './server.js'; 
 
+// Temperatura 
+var temp = 0;
+
 class ValidationError extends Error {
   #message;
 
@@ -173,8 +176,12 @@ export class SensorHandler extends EventEmitter {
 
     console.debug('🌡 Subscribing to temperature', {handler: this.#name});
     const callback = () => {
-      this._sendTemperature();
-      this.#timeout = setTimeout(callback, this._someMillis());
+      if (temp != temperature){
+        this._sendTemperature();
+        temp = temperature;
+      }
+      console.log("TEMP ATTUALE HANDLER...." + temp + " TEMPERATURE ATTUALE: " + temperature);
+      this.#timeout = setTimeout(callback, 1000);
     };
     this.#timeout = setTimeout(callback, 0);
   }
