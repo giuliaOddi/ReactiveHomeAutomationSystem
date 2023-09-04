@@ -19,6 +19,7 @@ const OFF = 1;
 const ERROR = -1;
 
 export var state = ON; 
+export var temperature = 20; 
 
 /**
  * Initializes the application middlewares.
@@ -94,6 +95,14 @@ function fallbacks(app) {
   });
 }
 
+/**
+ * 
+ * @param {number} temp 
+ */
+function change_temperature(temp) {
+  temperature = temp; 
+}
+
 async function run() {
   // creates the configuration options and the logger
   const options = opts();
@@ -154,8 +163,6 @@ async function run() {
 
       response.sendStatus(200);
   });
-
-  
 
 }
 

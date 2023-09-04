@@ -7,6 +7,8 @@ import {EventEmitter} from 'events';
 
 import {state} from './server.js'; 
 
+var st = -1; 
+
 class ValidationError extends Error {
   #message;
 
@@ -162,14 +164,14 @@ export class SensorHandler extends EventEmitter {
 
     // messages are dispatched immediately if delays are disabled or a random number is
     // generated greater than `delayProb` messages
-    if (!this.#config.delays || Math.random() > this.#config.delayProb) {
-      for (const bMsg of this.#buffer) {
-        this._send(bMsg);
-      }
-      this.#buffer = [];
-    } else {
-      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
+    //if (!this.#config.delays || Math.random() > this.#config.delayProb) {
+    for (const bMsg of this.#buffer) {
+      this._send(bMsg);
     }
+    this.#buffer = [];
+    /*} else {
+      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
+    }*/
   } 
 
   /**
@@ -197,8 +199,10 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      //this._sendTemperature();
-      this._sendState(); 
+      if (st != state) {
+        this._sendState();
+        st = state; 
+      }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
     this.#timeout = setTimeout(callback, 0);

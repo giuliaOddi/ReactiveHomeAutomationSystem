@@ -268,7 +268,7 @@ async function run() {
 
     ws_heat.on('open', function open() {
       // Salvataggio heat pump sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE}); // Di default: state = OFF
+      sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE, "temperature" : 0}); // Di default: state = OFF
       ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
     });
     
@@ -277,14 +277,14 @@ async function run() {
       console.log('received: %s', data);
       var tmp = JSON.parse(data); 
       if (tmp.type == "state_heatpump"){
-        sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state } : item ); 
+        sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state, "temperature" : tmp.temperature} : item ); 
         // Inoltro stato ad attuatore
         fetch(actuatorAddress + endpoint, {
           method: 'POST', // Metodo della richiesta
           headers: {
             'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
           },
-          body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state, "temperature" : tmp.temperature}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
         })
         .then((response) => {
           if (!response.status) {

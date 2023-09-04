@@ -27,10 +27,20 @@ async function run() {
       // me li salvo e quando ricevo temperatura da weather service inoltro la lista
       // AGGIUNGO I DATI RICEVUTI ALLA LISTA 
       if (sensor_properties.some(item => item.name == postData.name)){
-        sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name" : item.name, "property" : postData.property } : item ); 
+        if(postData.name == "heat-pump"){
+          sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name" : item.name, "property" : postData.property, "temperature" : postData.temperature} : item ); 
+        }
+        else {
+          sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name" : item.name, "property" : postData.property } : item ); 
+        }
       }
       else {
-        sensor_properties.push({"name" : postData.name, "property" : postData.property}); // Di default: temperatura = 0
+        if(postData.name == "heat-pump"){
+          sensor_properties.push({"name" : postData.name, "property" : postData.property, "temperature" : postData.temperature }); 
+        }
+        else {
+          sensor_properties.push({"name" : postData.name, "property" : postData.property}); 
+        }
       }
       console.log(sensor_properties); 
 
