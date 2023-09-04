@@ -123,7 +123,7 @@ function temperature_simulation(){
   // Caso 1: finestre e porta chiuse e pompa calore spenta -> la temperatura non cambia
   if (!window1_open && !window2_open && !door_open && !heatpump_on){
     console.log("NON SUCCEDE NIENTE"); 
-    clearInterval(timeout); 
+    //clearInterval(timeout); 
   }
   // Caso 2: pompa calore accesa -> temperatura aumenta in base a pompa calore (controllo temp_heatpump > temp_interna)
   else if (heatpump_on){
@@ -136,19 +136,22 @@ function temperature_simulation(){
       //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       temperature += 0.5 ;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 5){
-        clearInterval(timeout);
+      if (count < 5){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
     // finestre sono chiuse 
     else {
-      console.log("POMPA CALORE ACCESA FINESTRE CHIUSE.. CAMBIA TEMPERATURA...."); count++;
+      console.log("POMPA CALORE ACCESA FINESTRE CHIUSE.. CAMBIA TEMPERATURA...."); 
+      count++;
       //temperature += temp_diff_heatpump/5;
       //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       temperature++;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 3){
-        clearInterval(timeout);
+      if (count < 3){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
   }
@@ -158,16 +161,18 @@ function temperature_simulation(){
       count++;
       temperature += temp_diff_weather/5;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 5){
-        clearInterval(timeout);
+      if (count < 5){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
     else {
       count++;
       temperature += temp_diff_weather/3;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 3){
-        clearInterval(timeout);
+      if (count < 3){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
   }
@@ -177,21 +182,23 @@ function temperature_simulation(){
       count++;
       temperature += temp_diff_weather/5;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 10){
-        clearInterval(timeout);
+      if (count < 10){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
     else {
       count++;
       temperature += temp_diff_weather/3;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count == 6){
-        clearInterval(timeout);
+      if (count < 6){
+        //clearInterval(timeout);
+        timeout = setTimeout(temperature_simulation, millis);
       }
     }
   }
   else{
-    clearInterval(timeout);
+    //clearInterval(timeout);
   }
 
 }
@@ -243,7 +250,7 @@ async function run() {
         sensor_properties = postData; 
         //console.log(sensor_properties); 
         count = 0;
-        clearInterval(timeout);
+        clearTimeout(timeout);
 
         // Calcolo differenze temperature
         if (sensor_properties.find(item => (item.name == 'weather-service'))){
@@ -264,11 +271,11 @@ async function run() {
         console.log("chiamo la funzione temperature simulation");
 
         // ricontrollare che parta subito
-        temperature_simulation;
-        timeout = setInterval(temperature_simulation, millis);
-        //timeout = firstInterval(temperature_simulation, millis);
-        //temperature_simulation;
-        
+        //temperature_simulation();
+        //timeout = setInterval(temperature_simulation, millis);
+
+        timeout = setTimeout(temperature_simulation, 0);
+
       }
       
 
