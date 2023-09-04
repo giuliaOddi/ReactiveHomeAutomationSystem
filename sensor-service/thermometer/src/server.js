@@ -126,30 +126,37 @@ function temperature_simulation(){
     //clearInterval(timeout); 
   }
   // Caso 2: pompa calore accesa -> temperatura aumenta in base a pompa calore (controllo temp_heatpump > temp_interna)
-  else if (heatpump_on){
+  else if (heatpump_on && temp_diff_heatpump > 0){
     // almeno una finestra aperta
     if (window1_open || window2_open){
       console.log("POMPA CALORE ACCESA FINESTRE APERTE.. CAMBIA TEMPERATURA...."); 
       count++;
-      // valutare differenza con temperatura esterna
-      //temperature += temp_diff_heatpump/5;
-      //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      temperature += 0.5 ;
-      console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count < 5){
-        //clearInterval(timeout);
-        timeout = setTimeout(temperature_simulation, millis);
+      // fuori c'è più caldo che dentro 
+      if(temp_diff_weather > 0){
+        temperature += max(temp_diff_heatpump, temp_diff_weather)/3;  // tende al massimo tra temperatura pompa e temperatura fuori 
+        console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+        if (count < 3){
+          //clearInterval(timeout);
+          timeout = setTimeout(temperature_simulation, millis);
+        }
+      }
+      // esterno c'è freddo -> tende a temperatura pompa molto lentamente 
+      else {
+        temperature += temp_diff_heatpump/8;  // tende al massimo tra temperatura pompa e temperatura fuori 
+        console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
+        if (count < 8){
+          //clearInterval(timeout);
+          timeout = setTimeout(temperature_simulation, millis);
+        }
       }
     }
-    // finestre sono chiuse 
+    // finestre sono chiuse -> pompa calore accesa in tutta la casa quindi la porta non ci interessa
     else {
       console.log("POMPA CALORE ACCESA FINESTRE CHIUSE.. CAMBIA TEMPERATURA...."); 
       count++;
-      //temperature += temp_diff_heatpump/5;
-      //console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      temperature++;
+      temperature += temp_diff_heatpump/5;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
-      if (count < 3){
+      if (count < 5){
         //clearInterval(timeout);
         timeout = setTimeout(temperature_simulation, millis);
       }
@@ -157,6 +164,7 @@ function temperature_simulation(){
   }
   // Casi 3 e 4: finestre aperte e pompa calore spenta -> decrescita/crescita fino a temperatura weather service
   else if (window1_open && window2_open && !heatpump_on){
+    // porta aperta -> più lento perchè porta della stanza
     if (door_open){
       count++;
       temperature += temp_diff_weather/5;
@@ -166,6 +174,7 @@ function temperature_simulation(){
         timeout = setTimeout(temperature_simulation, millis);
       }
     }
+    // porta chiusa -> più veloce perchè porta della stanza 
     else {
       count++;
       temperature += temp_diff_weather/3;
@@ -176,11 +185,11 @@ function temperature_simulation(){
       }
     }
   }
-  // Casi 5 e 6: una finestra aperta e pompa calore spenta
+  // Casi 5 e 6: una finestra aperta e pompa calore spenta -> decrescita/crescita fino a temperatura weather service
   else if ((window1_open || window2_open) && !heatpump_on) {
     if (door_open){
       count++;
-      temperature += temp_diff_weather/5;
+      temperature += temp_diff_weather/10;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       if (count < 10){
         //clearInterval(timeout);
@@ -189,7 +198,7 @@ function temperature_simulation(){
     }
     else {
       count++;
-      temperature += temp_diff_weather/3;
+      temperature += temp_diff_weather/6;
       console.log("TEMPERATURA ATTUALE: " + temperature + " count " + count);
       if (count < 6){
         //clearInterval(timeout);
@@ -252,10 +261,15 @@ async function run() {
         count = 0;
         clearTimeout(timeout);
 
-        // Calcolo differenze temperature
+        // Calcolo differenze temperature con weather service
         if (sensor_properties.find(item => (item.name == 'weather-service'))){
           var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
           temp_diff_weather = weather_temperature.property - temperature; 
+        }
+        // Calcolo differenze temperature con heat pump
+        if (sensor_properties.find(item => (item.name == 'heat-pump'))){
+          var heat_temperature = sensor_properties.find(item => (item.name == 'heat-pump'));
+          temp_diff_heatpump = heat_temperature.temperature - temperature; 
         }
         //var weather_temperature = sensor_properties.find(item => (item.name == 'weather-service'));
         //temp_diff_weather = weather_temperature.property - temperature; 

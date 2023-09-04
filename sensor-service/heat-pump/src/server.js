@@ -19,7 +19,7 @@ const OFF = 1;
 const ERROR = -1;
 
 export var state = ON; 
-export var temperature = 20; 
+export var temperature = 30; 
 
 /**
  * Initializes the application middlewares.
@@ -156,12 +156,8 @@ async function run() {
         state = ON; 
         console.log('Current state: ', state, ' ON');
       }
-      else if ((postData.action == 'off' && state == OFF) || (postData.action == 'on' && state == ON)){
-        console.log('Not changing the state');
-        ////// ERRORE /////////
-      }
 
-      response.sendStatus(200);
+      //response.sendStatus(200);
   });
 
 }

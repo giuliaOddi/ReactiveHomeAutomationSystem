@@ -106,8 +106,6 @@ async function run() {
       }
       else if (postData.sensor == 'window-sensor'){
 
-        //// NB CAPIRE COME DIFFERENZIARE FINESTRE ///////  
-
         console.log('...inoltro comando a window sensors...');
         // backchannel with window sensor 1
         const windowAddress = 'http://10.88.0.50:3000'; // Indirizzo del sensor window

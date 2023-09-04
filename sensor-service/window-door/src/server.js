@@ -148,12 +148,8 @@ async function run() {
         state = CLOSE; 
         console.log('Current state: ', state, ' CLOSE');
       }
-      else if ((postData.action == 'open' && state == OPEN) || (postData.action == 'close' && state == CLOSE)){
-        console.log('Not changing the state');
-        ////// ERRORE /////////
-      }
 
-      response.sendStatus(200);
+      //response.sendStatus(200);
   });
 }
 

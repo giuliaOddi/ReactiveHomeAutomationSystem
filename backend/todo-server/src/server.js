@@ -401,7 +401,7 @@ async function run() {
     };
 
     const offHeatPump = {
-      action: 'off',
+      action: 'on',
       sensor: 'heat-pump',
     };
 
