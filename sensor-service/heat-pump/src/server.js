@@ -148,14 +148,8 @@ async function run() {
       console.log('Dati ricevuti:', postData);
 
       // Cambio stato in base a comandi ricevuti
-      if (postData.action == 'off' && state == ON){
-        state = OFF; 
-        console.log('Current state: ', state, ' OFF');
-      }
-      else if (postData.action == 'on' && state == OFF){
-        state = ON; 
-        console.log('Current state: ', state, ' ON');
-      }
+      state = postData.action; 
+      console.log('Current state: ', state);
 
       //response.sendStatus(200);
   });

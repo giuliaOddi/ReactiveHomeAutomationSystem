@@ -140,14 +140,8 @@ async function run() {
       console.log('Dati ricevuti:', postData);
       
       // Cambio stato in base a comandi ricevuti
-      if (postData.action == 'open' && state == CLOSE){
-        state = OPEN; 
-        console.log('Current state: ', state, ' OPEN');
-      }
-      else if (postData.action == 'close' && state == OPEN){
-        state = CLOSE; 
-        console.log('Current state: ', state, ' CLOSE');
-      }
+      state = postData.action; 
+      console.log('Current state: ', state);
 
       //response.sendStatus(200);
   });

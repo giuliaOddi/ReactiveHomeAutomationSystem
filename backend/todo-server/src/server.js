@@ -386,26 +386,27 @@ async function run() {
 
     // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
     const openDoor = {
-      action: 'close',
+      action: ON_OPEN,
       sensor: 'door-sensor',
     };
 
     const closeWindow = {
-      action: 'close',
+      action: OFF_CLOSE,
       sensor: 'window-sensor',
     };
 
     const closeWindow2 = {
-      action: 'close',
+      action: OFF_CLOSE,
       sensor: 'window-sensor_2',
     };
 
     const offHeatPump = {
-      action: 'on',
+      action: ON_OPEN,
       sensor: 'heat-pump',
     };
+    
 
-    // Invio comando per aprire la porta
+    // Invio comando per porta
     fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
@@ -414,6 +415,9 @@ async function run() {
       body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
+      if (response.status == 304){
+        console.log("ERROR: can not execute the command");
+      }
       if (!response.status) {
         throw new Error('Errore nella richiesta HTTP: ' + response);
       }
@@ -421,13 +425,13 @@ async function run() {
     })
     .then((data) => {
       // Usa i dati ottenuti dalla risposta
-      console.log('Risposta POST ricevuta:');
+      //console.log('Risposta POST ricevuta:', data);
     })
     .catch((error) => {
       console.error('Si è verificato un errore:', error);
     });
 
-    // Invio comando per chiudere la finestra
+    // Invio comando per finestra
     fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
@@ -436,6 +440,9 @@ async function run() {
       body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
+      if (response.status == 304){
+        console.log("ERROR: can not execute the command");
+      }
       if (!response.status) {
         throw new Error('Errore nella richiesta HTTP: ' + response);
       }
@@ -443,13 +450,13 @@ async function run() {
     })
     .then((data) => {
       // Usa i dati ottenuti dalla risposta
-      console.log('Risposta POST ricevuta:');
+      //console.log('Risposta POST ricevuta:', data);
     })
     .catch((error) => {
       console.error('Si è verificato un errore:', error);
     });
 
-     // Invio comando per chiudere la finestra
+     // Invio comando per finestra2
      fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
@@ -458,6 +465,9 @@ async function run() {
       body: JSON.stringify(closeWindow2), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
+      if (response.status == 304){
+        console.log("ERROR: can not execute the command");
+      }
       if (!response.status) {
         throw new Error('Errore nella richiesta HTTP: ' + response);
       }
@@ -471,7 +481,7 @@ async function run() {
       console.error('Si è verificato un errore:', error);
     });
 
-    // Invio comando per spegnere la pompa di calore 
+    // Invio comando per la pompa di calore 
     fetch(actuatorAddress + endpoint, {
       method: 'POST', // Metodo della richiesta
       headers: {
@@ -480,6 +490,9 @@ async function run() {
       body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
     })
     .then((response) => {
+      if (response.status == 304){
+        console.log("ERROR: can not execute the command");
+      }
       if (!response.status) {
         throw new Error('Errore nella richiesta HTTP: ' + response);
       }
@@ -487,7 +500,7 @@ async function run() {
     })
     .then((data) => {
       // Usa i dati ottenuti dalla risposta
-      console.log('Risposta POST ricevuta:');
+      //console.log('Risposta POST ricevuta:', data.response.response);
     })
     .catch((error) => {
       console.error('Si è verificato un errore:', error);

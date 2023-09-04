@@ -2,7 +2,14 @@ import express from 'express';
 import fetch from 'node-fetch';
 
 // Lista sensori e loro stati 
-var sensor_properties = []; 
+var sensor_properties = [ 
+{ name: 'weather-service', property: 19.742920877017927 },
+{ name: 'window-sensor', property: 0 },
+{ name: 'heat-pump', property: 0, temperature: 30 },
+{ name: 'thermometer-sensor', property: 20 },
+{ name: 'door-sensor', property: 0 },
+{ name: 'window-sensor_2', property: 0 }
+]; 
 
 async function run() {
 
@@ -23,6 +30,7 @@ async function run() {
     // Puoi eseguire ulteriori operazioni con i dati inviati...
     console.log('Dati ricevuti da backend:', postData);
 
+    // Riceve nuovi stati dei sensori da backend 
     if (postData.name == "window-sensor" || postData.name == "window-sensor_2" || postData.name == "door-sensor" || postData.name == "heat-pump"){
       // me li salvo e quando ricevo temperatura da weather service inoltro la lista
       // AGGIUNGO I DATI RICEVUTI ALLA LISTA 
@@ -72,124 +80,158 @@ async function run() {
       });
     }
 
+    // Riceve azioni da propagare ai sensori 
     else {    
       // attuatore valida le richieste e inoltra quelle valide ai sensori usando backchannel 
       if (postData.sensor == 'door-sensor' ){
 
-        console.log('...inoltro comando a door sensors...');
-        // comunication with door
-        const doorAddress = 'http://10.88.0.53:3000'; // Indirizzo del tuo server
-        const doorEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+        // Ricevo comando == stato attuale del sensore 
+        if (sensor_properties.some(item => item.name == postData.sensor && item.property == postData.action)){
+          console.log('...error...');
+          response.sendStatus(304); 
+        }
+        // Ricevo comando diverso da stato attuale: posso propagarlo a sensore porta 
+        else {
+          console.log('...inoltro comando a door sensors...');
+          // comunication with door
+          const doorAddress = 'http://10.88.0.53:3000'; // Indirizzo del tuo server
+          const doorEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
-        // Configura la richiesta HTTP POST
-        fetch(doorAddress + doorEndpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
+          // Configura la richiesta HTTP POST
+          fetch(doorAddress + doorEndpoint, {
+            method: 'POST', // Metodo della richiesta
+            headers: {
+              'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+            },
+            body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          })
+          .then((response) => {
+            if (!response.status) {
+              throw new Error('Errore nella richiesta HTTP: ' + response);
+            }
+            return response; 
+          })
+          .then((data) => {
+            // Usa i dati ottenuti dalla risposta
+            console.log('Risposta POST ricevuta:');
+          })
+          .catch((error) => {
+            console.error('Si è verificato un errore:', error);
+          });
+        }
 
       }
       else if (postData.sensor == 'window-sensor'){
 
-        console.log('...inoltro comando a window sensors...');
-        // backchannel with window sensor 1
-        const windowAddress = 'http://10.88.0.50:3000'; // Indirizzo del sensor window
-        const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+        // Ricevo comando == stato attuale del sensore 
+        if (sensor_properties.some(item => item.name == postData.sensor && item.property == postData.action)){
+          // errore 
+          console.log('...error...');
+          response.sendStatus(304); 
+        }
+        else{
+          console.log('...inoltro comando a window sensors...');
+          // backchannel with window sensor 1
+          const windowAddress = 'http://10.88.0.50:3000'; // Indirizzo del sensor window
+          const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
-        // Configura la richiesta HTTP POST
-        fetch(windowAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
+          // Configura la richiesta HTTP POST
+          fetch(windowAddress + endpoint, {
+            method: 'POST', // Metodo della richiesta
+            headers: {
+              'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+            },
+            body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          })
+          .then((response) => {
+            if (!response.status) {
+              throw new Error('Errore nella richiesta HTTP: ' + response);
+            }
+            return response; 
+          })
+          .then((data) => {
+            // Usa i dati ottenuti dalla risposta
+            console.log('Risposta POST ricevuta:');
+          })
+          .catch((error) => {
+            console.error('Si è verificato un errore:', error);
+          });
+        }
       }
       else if(postData.sensor == "window-sensor_2"){
 
-        // backchannel with window sensor 2
-        const windowAddress1 = 'http://10.88.0.51:3000'; // Indirizzo del sensor window
-        const endpoint1 = '/status'; // Il percorso dell'endpoint desiderato sul server
+        // Ricevo comando == stato attuale del sensore 
+        if (sensor_properties.some(item => item.name == postData.sensor && item.property == postData.action)){
+          // errore 
+          console.log('...error...');
+          response.sendStatus(304); 
+        }
+        else {
 
-        // Configura la richiesta HTTP POST
-        fetch(windowAddress1 + endpoint1, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
+          // backchannel with window sensor 2
+          const windowAddress1 = 'http://10.88.0.51:3000'; // Indirizzo del sensor window
+          const endpoint1 = '/status'; // Il percorso dell'endpoint desiderato sul server
+
+          // Configura la richiesta HTTP POST
+          fetch(windowAddress1 + endpoint1, {
+            method: 'POST', // Metodo della richiesta
+            headers: {
+              'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+            },
+            body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          })
+          .then((response) => {
+            if (!response.status) {
+              throw new Error('Errore nella richiesta HTTP: ' + response);
+            }
+            return response; 
+          })
+          .then((data) => {
+            // Usa i dati ottenuti dalla risposta
+            console.log('Risposta POST ricevuta:');
+          })
+          .catch((error) => {
+            console.error('Si è verificato un errore:', error);
+          });
+        }
 
       }
       else if (postData.sensor == 'heat-pump'){
+        // Ricevo comando == stato attuale del sensore 
+        if (sensor_properties.some(item => item.name == postData.sensor && item.property == postData.action)){
+          // errore 
+          console.log('...error...');
+          response.sendStatus(304); 
+        }
+        else {
 
-        console.log('...inoltro comando a heat pump sensors...');
-        // comunication with heat pump
-        const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
-        const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+          console.log('...inoltro comando a heat pump sensors...');
+          // comunication with heat pump
+          const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
+          const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
-        // Configura la richiesta HTTP POST
-        fetch(heatpumpAddress + heatpumpEndpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
+          // Configura la richiesta HTTP POST
+          fetch(heatpumpAddress + heatpumpEndpoint, {
+            method: 'POST', // Metodo della richiesta
+            headers: {
+              'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+            },
+            body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          })
+          .then((response) => {
+            if (!response.status) {
+              throw new Error('Errore nella richiesta HTTP: ' + response);
+            }
+            return response; 
+          })
+          .then((data) => {
+            // Usa i dati ottenuti dalla risposta
+            console.log('Risposta POST ricevuta:');
+          })
+          .catch((error) => {
+            console.error('Si è verificato un errore:', error);
+          });
+        }
 
       }
       else if (postData.sensor == 'thermometer') {
