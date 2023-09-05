@@ -15,6 +15,9 @@ import compression from 'compression';
 import opts from './options.js';
 import {routes} from './routes.js';
 import {OIDCMiddleware} from './openid.js';
+import {WebSocketServer} from 'ws';
+
+import {routesWss} from './routes-wss.js';
 
 import {WebSocket} from 'ws';
 
@@ -49,6 +52,35 @@ function init(app) {
 }
 
 /**
+ * Initializes the WebSocket server.
+ * @param {Server} server HTTP server
+ * @param {{iface: string, port: number}} config Configuration options
+ * @return {WebSocketServer} A WebSocket server
+ */
+function initWss(server, config) {
+  // configuration taken from: https://www.npmjs.com/package/ws#websocket-compression
+  const perMessageDeflate = {
+    zlibDeflateOptions: {
+      chunkSize: 1024,
+      memLevel: 7,
+      level: 3
+    },
+    zlibInflateOptions: {
+      chunkSize: 10 * 1024
+    },
+    clientNoContextTakeover: true, // Defaults to negotiated value
+    serverNoContextTakeover: true, // Defaults to negotiated value
+    serverMaxWindowBits: 10, // Defaults to negotiated value
+    concurrencyLimit: 10, // Limits zlib concurrency for perf
+    threshold: 1024 // Size (in bytes) below which messages should not be compressed if context takeover is disabled
+  };
+
+  const opts = {server, perMessageDeflate};
+  return new WebSocketServer(opts);
+}
+
+
+/**
  * Installs fallback error handlers.
  *
  * @param app Express application
@@ -76,6 +108,27 @@ function fallbacks(app) {
 }
 
 async function run() {
+
+    // comunicazione con frontend
+    const appFront = express();
+    init(appFront);
+
+    var config = {
+      iface: "0.0.0.0",
+      port: 7000,
+      failures: false,
+      delays: false,
+      frequency: 2000
+    }
+
+    const serverFront = appFront.listen(config.iface, config.port, () => {
+      console.info(`🏁 Server listening: http://${config.iface}:${config.port}`);
+    })
+
+    const wss = initWss(serverFront);
+    routesWss(appFront, wss, config);
+    fallbacks(appFront);
+
     // creates the configuration options and the logger
     const options = opts();
     console.debug('🔧 Configuration', options);
@@ -85,6 +138,8 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
+
+    
 
 
     const app = express();
@@ -101,7 +156,6 @@ async function run() {
     // comunicazione con actuator
     const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
     const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
-
 
     // comunicazione con weather service
     const ws = new WebSocket('ws://10.88.0.31:5000');
