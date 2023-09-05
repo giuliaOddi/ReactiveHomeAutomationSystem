@@ -16,7 +16,7 @@ async function run() {
     ws.on('message', function message(data) {
     count++;
     console.log('received: %s', data);
-    console.log(sensor_properties); 
+    //console.log(sensor_properties); 
     if (count == 5){
         ws.send('{"type": "unsubscribe", "target": "room_properties"}');
     }

@@ -125,9 +125,10 @@ async function run() {
       console.info(`🏁 Server listening: http://${config.iface}:${config.port}`);
     })
 
-    const wss = initWss(serverFront);
+    //const wss = initWss(serverFront);
+    const wss = new WebSocketServer({ port: config.port });
     routesWss(appFront, wss, config);
-    fallbacks(appFront);
+    //fallbacks(appFront);
 
     // creates the configuration options and the logger
     const options = opts();
@@ -138,9 +139,6 @@ async function run() {
     await oidc.init();
 
     console.debug(`🔧 Initializing routes...`);
-
-    
-
 
     const app = express();
     init(app);

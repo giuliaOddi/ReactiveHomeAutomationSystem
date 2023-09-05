@@ -66,9 +66,12 @@ services:
     ports: 
       - 3000:3000
     depends_on:
-      - window-service
-      - heatpump-service
-      - door-service
+      window-service:
+        condition: service_started
+      heatpump-service:
+        condition: service_started
+      door-service:
+        condition: service_started
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.41"
@@ -80,7 +83,8 @@ services:
       - 8000:8000
       - 7000
     depends_on:
-      - actuator-service
+      actuator-service:
+        condition: service_started
     networks:
       todo-app-network:
         #bind to apache proxy pass
@@ -92,7 +96,8 @@ services:
     ports: 
       - 8080:80
     depends_on:
-      - todo-server
+      todo-server:
+        condition: service_started
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.21"
