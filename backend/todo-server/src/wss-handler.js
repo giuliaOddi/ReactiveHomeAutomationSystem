@@ -3,9 +3,9 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
+import { sensor_properties } from './server.js';
 
-var temp = 0;
-var st = -1
+var list = []; 
 
 class ValidationError extends Error {
   #message;
@@ -156,7 +156,8 @@ export class SensorHandler extends EventEmitter {
 
 
   _sendState() {
-    const msg = {type: 'room_properties', dateTime: DateTime.now().toISO(), state: "state"};
+    //const msg = JSON.stringify(sensor_properties);
+    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensor_properties};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);
@@ -199,7 +200,10 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      this._sendState(); 
+      if (list != sensor_properties){
+        this._sendState(); 
+        list = sensor_properties; 
+      }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
     this.#timeout = setTimeout(callback, 0);

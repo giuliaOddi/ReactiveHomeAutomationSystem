@@ -180,7 +180,7 @@ export class SensorHandler extends EventEmitter {
         this._sendTemperature();
         temp = temperature;
       }
-      this.#timeout = setTimeout(callback, 500);
+      this.#timeout = setTimeout(callback, this._someMillis());
     };
     this.#timeout = setTimeout(callback, 0);
   }

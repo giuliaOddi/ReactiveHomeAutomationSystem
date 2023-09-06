@@ -29,7 +29,7 @@ const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
 const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
 // Lista sensori e loro stati 
-var sensor_properties = []; 
+export var sensor_properties = []; 
 
 // Stati sensori
 const ON_OPEN = 0;

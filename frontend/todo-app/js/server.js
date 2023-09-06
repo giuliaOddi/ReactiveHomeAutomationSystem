@@ -1,5 +1,7 @@
 import {WebSocket} from 'ws';
 
+var sensor_properties = []; 
+
 function run() {
 
     // comunicazione con heat pump sensor service
@@ -20,12 +22,15 @@ function run() {
     });
 
     ws.on('message', function message(data) {
-    count++;
-    console.log('received: %s', data);
-    //console.log(sensor_properties); 
-    if (count == 5){
-        ws.send('{"type": "unsubscribe", "target": "room_properties"}');
-    }
+        count++;
+        var tmp = JSON.parse(data); 
+        if(tmp.type == 'sensors_list'){
+            sensor_properties = tmp.list; 
+            console.log(sensor_properties); 
+        }
+        if (count == 5){
+            ws.send('{"type": "unsubscribe", "target": "room_properties"}');
+        }
     });
 }
 run();
