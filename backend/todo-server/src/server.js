@@ -118,14 +118,14 @@ function connect_to_weather_service(){
   let count = 0;
 
   ws_weather.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the weather service ...");
+    console.log("Trying to reconnect to the weather service...");
     ws_weather = null;
     setTimeout(connect_to_weather_service, 1000);
   });
 
   ws_weather.on('open', function open() {
+    console.log("Successfully connected to weather service...");
     // Salvataggio weather service nella lista delle proprietà 
     sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0 
     console.log(sensor_properties); 
@@ -186,14 +186,14 @@ function connect_to_window_sensor(){
   let count2 = 0;
 
   ws_window.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the window sensor...");
+    console.log("Trying to reconnect to the window sensor...");
     ws_window = null;
     setTimeout(connect_to_window_sensor, 1000);
   });
 
   ws_window.on('open', function open() {
+    console.log("Successfully connected to the window sensor...");
     // Salvataggio window sensor nella lista delle proprietà 
     sensor_properties.push({"name" : "window-sensor", "property" : ON_OPEN}); // Di default: state = CLOSE 
     ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
@@ -243,14 +243,14 @@ function connect_to_window_sensor_2(){
   let count_2 = 0;
 
   ws_window_2.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the window sensor 2...");
+    console.log("Trying to reconnect to the window sensor 2...");
     ws_window_2 = null;
     setTimeout(connect_to_window_sensor_2, 1000);
   });
 
   ws_window_2.on('open', function open() {
+    console.log("Successfully connected to the window sensor 2...");
     // Salvataggio window sensor nella lista delle proprietà 
     sensor_properties.push({"name" : "window-sensor_2", "property" : ON_OPEN}); // Di default: state = CLOSE
     ws_window_2.send('{"type": "subscribe", "target": "state_window"}');
@@ -299,14 +299,14 @@ function connect_to_heat_pump(){
   let count3 = 0;
 
   ws_heat.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the heat pump...");
+    console.log("Trying to reconnect to the heat pump...");
     ws_heat = null;
     setTimeout(connect_to_heat_pump, 1000);
   });
 
   ws_heat.on('open', function open() {
+    console.log("Successfully connected to the heat pump...");
     // Salvataggio heat pump sensor nella lista delle proprietà 
     sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE, "temperature" : 0}); // Di default: state = OFF
     ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
@@ -355,14 +355,14 @@ function connect_to_door_sensor(){
   let count_door = 0;
 
   ws_door.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the door sensor...");
+    console.log("Trying to reconnect to the door sensor...");
     ws_door = null;
     setTimeout(connect_to_door_sensor, 1000);
   });
 
   ws_door.on('open', function open() {
+    console.log("Successfully connected the door sensor...");
     // Salvataggio door sensor nella lista delle proprietà 
     sensor_properties.push({"name" : "door-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE
     ws_door.send('{"type": "subscribe", "target": "state_window"}');
@@ -410,14 +410,14 @@ function connect_to_thermometer_sensor(){
   let count_therm = 0;
 
   ws_therm.on('error', err => {
-    console.error(err);
-    console.log("Error on connection...");
-    console.log("Trying to reconnect...");
+    console.log("Error connecting to the thermometer sensor...");
+    console.log("Trying to reconnect to the thermometer sensor...");
     ws_therm = null;
     setTimeout(connect_to_thermometer_sensor, 1000);
   });
 
   ws_therm.on('open', function open() {
+    console.log("Successfully connected to the thermometer sensor...");
     // Salvataggio thermometer sensor nella lista delle proprietà 
     sensor_properties.push({"name" : "thermometer-sensor", "property" : 0}); // Di default: temperature = 0
     ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
