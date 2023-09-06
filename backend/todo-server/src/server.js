@@ -126,7 +126,7 @@ async function run() {
     })
 
     //const wss = initWss(serverFront);
-    const wss = new WebSocketServer({ port: config.port });
+    const wss = new WebSocketServer({ port: config.port, iface: config.iface });
     routesWss(appFront, wss, config);
     //fallbacks(appFront);
 
