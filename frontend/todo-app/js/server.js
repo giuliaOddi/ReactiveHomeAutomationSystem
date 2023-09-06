@@ -1,16 +1,22 @@
 import {WebSocket} from 'ws';
 
-async function run() {
+function run() {
 
     // comunicazione con heat pump sensor service
-    const ws = new WebSocket('ws://10.88.0.11:7000');
+    let ws = new WebSocket('ws://10.88.0.11:7000');
     let count = 0;
 
-    ws.on('error', console.error);
+    ws.on('error', err => {
+        console.log("Error on connection...");
+        console.log("Trying to reconnect...");
+        ws = null;
+        setTimeout(run, 1000);
+      })
 
     ws.on('open', function open() {
-    // Salvataggio heat pump sensor nella lista delle proprietà 
-    ws.send('{"type": "subscribe", "target": "room_properties"}');
+        console.log("Successfully connected...");
+        // Salvataggio heat pump sensor nella lista delle proprietà 
+        ws.send('{"type": "subscribe", "target": "room_properties"}');
     });
 
     ws.on('message', function message(data) {

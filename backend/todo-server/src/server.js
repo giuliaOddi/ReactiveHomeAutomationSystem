@@ -110,9 +110,10 @@ function fallbacks(app) {
 async function run() {
 
     // comunicazione con frontend
-    const appFront = express();
-    init(appFront);
+    //const appFront = express();
+    //init(appFront);
 
+    
     var config = {
       iface: "0.0.0.0",
       port: 7000,
@@ -121,13 +122,14 @@ async function run() {
       frequency: 2000
     }
 
+    /*
     const serverFront = appFront.listen(config.iface, config.port, () => {
       console.info(`🏁 Server listening: http://${config.iface}:${config.port}`);
-    })
+    })*/
 
     //const wss = initWss(serverFront);
-    const wss = new WebSocketServer({ port: config.port, iface: config.iface });
-    routesWss(appFront, wss, config);
+    const wss = new WebSocketServer({ port: config.port });
+    routesWss(wss, config);
     //fallbacks(appFront);
 
     // creates the configuration options and the logger

@@ -62,7 +62,7 @@ function registerHandler(ws, handler) {
  * @param {WebSocketServer} wss WebSocket server
  * @param {{iface: string, port: number}} config Configuration options
  */
-export function routesWss(app, wss, config) {
+export function routesWss(wss, config) {
 
   wss.on('connection', ws => {
     try {
