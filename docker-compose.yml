@@ -65,15 +65,15 @@ services:
     build: ./actuator-service
     ports: 
       - 3000:3000
-    depends_on:           
-      window-service:
-        condition: service_started  
-      window-service_2:
-        condition: service_started  
-      heatpump-service:
-        condition: service_started  
-      door-service:
-        condition: service_started  
+    # depends_on:           
+    #   window-service:
+    #     condition: service_started  
+    #   window-service_2:
+    #     condition: service_started  
+    #   heatpump-service:
+    #     condition: service_started  
+    #   door-service:
+    #     condition: service_started  
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.41"
@@ -84,19 +84,19 @@ services:
     ports: 
       - 8000:8000
       - 7000
-    depends_on:
-      actuator-service:
-        condition: service_started   
-      weather-service:
-        condition: service_started        
-      window-service:
-        condition: service_started  
-      window-service_2:
-        condition: service_started  
-      heatpump-service:
-        condition: service_started  
-      door-service:
-        condition: service_started  
+    # depends_on:
+    #   actuator-service:
+    #     condition: service_started   
+    #   weather-service:
+    #     condition: service_started        
+    #   window-service:
+    #     condition: service_started  
+    #   window-service_2:
+    #     condition: service_started  
+    #   heatpump-service:
+    #     condition: service_started  
+    #   door-service:
+    #     condition: service_started  
     networks:
       todo-app-network:
         #bind to apache proxy pass

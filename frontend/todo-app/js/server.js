@@ -11,7 +11,7 @@ function run() {
         console.log("Trying to reconnect...");
         ws = null;
         setTimeout(run, 1000);
-      })
+    });
 
     ws.on('open', function open() {
         console.log("Successfully connected...");

@@ -22,7 +22,11 @@ import {routesWss} from './routes-wss.js';
 import {WebSocket} from 'ws';
 
 import fetch from 'node-fetch';
+import { connect } from 'http2';
 
+// comunicazione con actuator
+const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
 // Lista sensori e loro stati 
 var sensor_properties = []; 
@@ -107,6 +111,332 @@ function fallbacks(app) {
     });
 }
 
+
+function connect_to_weather_service(){
+  // comunicazione con weather service
+  let ws_weather = new WebSocket('ws://10.88.0.31:5000');
+  let count = 0;
+
+  ws_weather.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_weather = null;
+    setTimeout(connect_to_weather_service, 1000);
+  });
+
+  ws_weather.on('open', function open() {
+    // Salvataggio weather service nella lista delle proprietà 
+    sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0 
+    console.log(sensor_properties); 
+    ws_weather.send('{"type": "subscribe", "target": "temperature"}');
+  });
+  
+  ws_weather.on('message', function message(data) {
+    count++;
+
+    // Ricevo temperatura da wheater service 
+    console.log('received: %s', data);
+
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "temperature"){
+      sensor_properties = sensor_properties.map(item => item.name == "weather-service" ? { "name" : item.name, "property" : tmp.value } : item ); 
+    
+      console.log(sensor_properties); 
+
+      // Inoltro temperatura a termometro 
+      const setTemperature = {
+        action: 'temperature',
+        sensor: 'thermometer',
+        degrees: tmp.value, 
+      };
+
+      // Invio comando per cambio temperature
+      fetch(actuatorAddress + endpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+      if (count == 5){
+          ws_weather.send('{"type": "unsubscribe", "target": "temperature"}');
+      }
+    }
+  });
+}
+
+function connect_to_window_sensor(){
+  // comunicazione con window sensor service
+  let ws_window = new WebSocket('ws://10.88.0.50:4000');
+  let count2 = 0;
+
+  ws_window.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_window = null;
+    setTimeout(connect_to_window_sensor, 1000);
+  });
+
+  ws_window.on('open', function open() {
+    // Salvataggio window sensor nella lista delle proprietà 
+    sensor_properties.push({"name" : "window-sensor", "property" : ON_OPEN}); // Di default: state = CLOSE 
+    ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
+    ws_window.send('{"type": "subscribe", "target": "state_window"}');
+  });
+  
+  ws_window.on('message', function message(data) {
+    count2++;
+    console.log('received: %s', data);
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "state_window"){
+      sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+
+      // Inoltro stato ad attuatore
+      fetch(actuatorAddress + endpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify({"name" : "window-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+    }
+    console.log(sensor_properties); 
+    if (count2 == 5){
+        ws_window.send('{"type": "unsubscribe", "target": "state_window"}');
+    }
+  });
+}
+
+function connect_to_window_sensor_2(){
+  // comunicazione con window sensor 2 service
+  let ws_window_2 = new WebSocket('ws://10.88.0.51:4000');
+  let count_2 = 0;
+
+  ws_window_2.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_window_2 = null;
+    setTimeout(connect_to_window_sensor_2, 1000);
+  });
+
+  ws_window_2.on('open', function open() {
+    // Salvataggio window sensor nella lista delle proprietà 
+    sensor_properties.push({"name" : "window-sensor_2", "property" : ON_OPEN}); // Di default: state = CLOSE
+    ws_window_2.send('{"type": "subscribe", "target": "state_window"}');
+  });
+  
+  ws_window_2.on('message', function message(data) {
+    count_2++;
+    console.log('received: %s', data);
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "state_window"){
+      sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
+
+      // Inoltro stato ad attuatore
+      fetch(actuatorAddress + endpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify({"name" : "window-sensor_2", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+    }
+    console.log(sensor_properties); 
+    if (count_2 == 5){
+      ws_window_2.send('{"type": "unsubscribe", "target": "state_window"}');
+    }
+  });
+}
+
+function connect_to_heat_pump(){
+  // comunicazione con heat pump sensor service
+  let ws_heat = new WebSocket('ws://10.88.0.52:4000');
+  let count3 = 0;
+
+  ws_heat.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_heat = null;
+    setTimeout(connect_to_heat_pump, 1000);
+  });
+
+  ws_heat.on('open', function open() {
+    // Salvataggio heat pump sensor nella lista delle proprietà 
+    sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE, "temperature" : 0}); // Di default: state = OFF
+    ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
+  });
+  
+  ws_heat.on('message', function message(data) {
+    count3++;
+    console.log('received: %s', data);
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "state_heatpump"){
+      sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state, "temperature" : tmp.temperature} : item ); 
+      // Inoltro stato ad attuatore
+      fetch(actuatorAddress + endpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state, "temperature" : tmp.temperature}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+    }
+    console.log(sensor_properties); 
+    if (count3 == 5){
+      ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
+    }
+  });
+}
+
+function connect_to_door_sensor(){
+  // comunicazione con door sensor service
+  //////// NB: POSSIAMO METTERE DOOR CON INDIRIZZO = 53 COME VARIABILE ///////////
+  let ws_door = new WebSocket('ws://10.88.0.53:4000');
+  let count_door = 0;
+
+  ws_door.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_door = null;
+    setTimeout(connect_to_door_sensor, 1000);
+  });
+
+  ws_door.on('open', function open() {
+    // Salvataggio door sensor nella lista delle proprietà 
+    sensor_properties.push({"name" : "door-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE
+    ws_door.send('{"type": "subscribe", "target": "state_window"}');
+  });
+  
+  ws_door.on('message', function message(data) {
+    count_door++;
+    console.log('received: %s', data);
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "state_window"){
+      sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+      // Inoltro stato ad attuatore
+      fetch(actuatorAddress + endpoint, {
+        method: 'POST', // Metodo della richiesta
+        headers: {
+          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+        },
+        body: JSON.stringify({"name" : "door-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+      })
+      .then((response) => {
+        if (!response.status) {
+          throw new Error('Errore nella richiesta HTTP: ' + response);
+        }
+        return response; 
+      })
+      .then((data) => {
+        // Usa i dati ottenuti dalla risposta
+        console.log('Risposta POST ricevuta:');
+      })
+      .catch((error) => {
+        console.error('Si è verificato un errore:', error);
+      });
+
+    }
+    console.log(sensor_properties);
+    if (count_door == 5){
+      ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
+    }
+  });
+}
+
+function connect_to_thermometer_sensor(){
+  // comunicazione con thermometer sensor service
+  let ws_therm = new WebSocket('ws://10.88.0.54:4000');
+  let count_therm = 0;
+
+  ws_therm.on('error', err => {
+    console.error(err);
+    console.log("Error on connection...");
+    console.log("Trying to reconnect...");
+    ws_therm = null;
+    setTimeout(connect_to_thermometer_sensor, 1000);
+  });
+
+  ws_therm.on('open', function open() {
+    // Salvataggio thermometer sensor nella lista delle proprietà 
+    sensor_properties.push({"name" : "thermometer-sensor", "property" : 0}); // Di default: temperature = 0
+    ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
+  });
+  
+  ws_therm.on('message', function message(data) {
+    count_therm++;
+    console.log('received: %s', data);
+    var tmp = JSON.parse(data); 
+    if (tmp.type == "thermometer_temperature"){
+      sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
+    }
+    console.log(sensor_properties);
+    if (count_therm == 15){
+      ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
+    }
+  });
+}
+
 async function run() {
 
     // comunicazione con frontend
@@ -153,286 +483,18 @@ async function run() {
         console.info(`🏁 Server listening: http://${iface}:${port}`);
     });
 
-    // comunicazione con actuator
-    const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-    const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
-
-    // comunicazione con weather service
-    const ws = new WebSocket('ws://10.88.0.31:5000');
-    let count = 0;
-
-    ws.on('error', console.error);
-
-    ws.on('open', function open() {
-      // Salvataggio weather service nella lista delle proprietà 
-      sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0 
-      console.log(sensor_properties); 
-      ws.send('{"type": "subscribe", "target": "temperature"}');
-    });
     
-    ws.on('message', function message(data) {
-      count++;
+    connect_to_weather_service();
 
-      // Ricevo temperatura da wheater service 
-      console.log('received: %s', data);
+    connect_to_window_sensor();
 
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "temperature"){
-        sensor_properties = sensor_properties.map(item => item.name == "weather-service" ? { "name" : item.name, "property" : tmp.value } : item ); 
-      
-        console.log(sensor_properties); 
+    connect_to_window_sensor_2();
 
-        // Inoltro temperatura a termometro 
-        const setTemperature = {
-          action: 'temperature',
-          sensor: 'thermometer',
-          degrees: tmp.value, 
-        };
+    connect_to_heat_pump();
 
-        // Invio comando per cambio temperature
-        fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
+    connect_to_door_sensor();
 
-        if (count == 5){
-            ws.send('{"type": "unsubscribe", "target": "temperature"}');
-        }
-      }
-    });
-
-    // comunicazione con window sensor service
-    const ws_sensor = new WebSocket('ws://10.88.0.50:4000');
-    let count2 = 0;
-
-    ws_sensor.on('error', console.error);
-
-    ws_sensor.on('open', function open() {
-      // Salvataggio window sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "window-sensor", "property" : ON_OPEN}); // Di default: state = CLOSE 
-      ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
-      ws_sensor.send('{"type": "subscribe", "target": "state_window"}');
-    });
-    
-    ws_sensor.on('message', function message(data) {
-      count2++;
-      console.log('received: %s', data);
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "state_window"){
-        sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
-
-        // Inoltro stato ad attuatore
-        fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify({"name" : "window-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
-
-      }
-      console.log(sensor_properties); 
-      if (count2 == 5){
-          ws_sensor.send('{"type": "unsubscribe", "target": "state_window"}');
-      }
-    });
-
-    // comunicazione con window sensor 2 service
-    const ws_sensor_2 = new WebSocket('ws://10.88.0.51:4000');
-    let count_2 = 0;
-
-    ws_sensor_2.on('error', console.error); 
-
-    ws_sensor_2.on('open', function open() {
-      // Salvataggio window sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "window-sensor_2", "property" : ON_OPEN}); // Di default: state = CLOSE
-      ws_sensor_2.send('{"type": "subscribe", "target": "state_window"}');
-    });
-    
-    ws_sensor_2.on('message', function message(data) {
-      count_2++;
-      console.log('received: %s', data);
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "state_window"){
-        sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
-
-        // Inoltro stato ad attuatore
-        fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify({"name" : "window-sensor_2", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
-
-      }
-      console.log(sensor_properties); 
-      if (count_2 == 5){
-        ws_sensor_2.send('{"type": "unsubscribe", "target": "state_window"}');
-      }
-    });
-
-    // comunicazione con heat pump sensor service
-    const ws_heat = new WebSocket('ws://10.88.0.52:4000');
-    let count3 = 0;
-
-    ws_heat.on('error', console.error);
-
-    ws_heat.on('open', function open() {
-      // Salvataggio heat pump sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE, "temperature" : 0}); // Di default: state = OFF
-      ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
-    });
-    
-    ws_heat.on('message', function message(data) {
-      count3++;
-      console.log('received: %s', data);
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "state_heatpump"){
-        sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state, "temperature" : tmp.temperature} : item ); 
-        // Inoltro stato ad attuatore
-        fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state, "temperature" : tmp.temperature}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
-
-      }
-      console.log(sensor_properties); 
-      if (count3 == 5){
-        ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
-      }
-    });
-
-    // comunicazione con door sensor service
-    //////// NB: POSSIAMO METTERE DOOR CON INDIRIZZO = 53 COME VARIABILE ///////////
-    const ws_door = new WebSocket('ws://10.88.0.53:4000');
-    let count_door = 0;
-
-    ws_door.on('error', console.error);
-
-    ws_door.on('open', function open() {
-      // Salvataggio door sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "door-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE
-      ws_door.send('{"type": "subscribe", "target": "state_window"}');
-    });
-    
-    ws_door.on('message', function message(data) {
-      count_door++;
-      console.log('received: %s', data);
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "state_window"){
-        sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
-        // Inoltro stato ad attuatore
-        fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
-          headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-          },
-          body: JSON.stringify({"name" : "door-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-        })
-        .then((response) => {
-          if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
-          }
-          return response; 
-        })
-        .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          console.log('Risposta POST ricevuta:');
-        })
-        .catch((error) => {
-          console.error('Si è verificato un errore:', error);
-        });
-
-      }
-      console.log(sensor_properties);
-      if (count_door == 5){
-        ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
-      }
-    });
-
-    // comunicazione con thermometer sensor service
-    const ws_therm = new WebSocket('ws://10.88.0.54:4000');
-    let count_therm = 0;
-
-    ws_therm.on('error', console.error);
-
-    ws_therm.on('open', function open() {
-      // Salvataggio thermometer sensor nella lista delle proprietà 
-      sensor_properties.push({"name" : "thermometer-sensor", "property" : 0}); // Di default: temperature = 0
-      ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
-    });
-    
-    ws_therm.on('message', function message(data) {
-      count_therm++;
-      console.log('received: %s', data);
-      var tmp = JSON.parse(data); 
-      if (tmp.type == "thermometer_temperature"){
-        sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
-      }
-      console.log(sensor_properties);
-      if (count_therm == 15){
-        ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
-      }
-    });
+    connect_to_thermometer_sensor();
 
     // Backend invia comandi all'attuatore 
 
