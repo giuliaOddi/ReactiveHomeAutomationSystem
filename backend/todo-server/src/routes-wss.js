@@ -2,6 +2,11 @@
 
 import {SensorHandler} from './wss-handler.js';
 import {v4 as uuid} from 'uuid';
+import fetch from 'node-fetch';
+
+// comunicazione con actuator
+const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
+const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
 
 /**
  * Registers a new handler for the WS channel.
@@ -74,6 +79,35 @@ export function routesWss(wss, config) {
     }
     ws.on('message', function message(data) {
       console.log('received: %s', data);
+          // Invio comando per porta
+
+      var tmp = JSON.parse(data);
+      if (tmp.sensor == "door-sensor"){
+        fetch(actuatorAddress + endpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify(tmp), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (response.status == 304){
+            console.log("ERROR: can not execute the command");
+          }
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response; 
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          //console.log('Risposta POST ricevuta:', data);
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+      }
+    
     });
   });
   

@@ -1,6 +1,10 @@
 import {WebSocket} from 'ws';
 
 var sensor_properties = []; 
+// Stati sensori
+const ON_OPEN = 0;
+const OFF_CLOSE = 1;
+const ERROR = -1; 
 
 function run() {
 
@@ -28,9 +32,20 @@ function run() {
             sensor_properties = tmp.list; 
             console.log(sensor_properties); 
         }
+        if (count == 3){
+            // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+            const openDoor = {
+                action: ON_OPEN,
+                sensor: 'door-sensor',
+            };
+
+            ws.send(JSON.stringify(openDoor));
+        }
         if (count == 5){
             ws.send('{"type": "unsubscribe", "target": "room_properties"}');
         }
     });
+
+    
 }
 run();

@@ -91,24 +91,24 @@ function initWss(server, config) {
  * @returns {void}
  */
 function fallbacks(app) {
-    // generic error handler => err.status || 500 + json
-    // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
-    /* eslint-disable-next-line no-unused-vars */
-    app.use((err, req, res, next) => {
-        const errmsg = err.message || util.inspect(err);
-        console.error(`💥 Unexpected error occurred while calling ${req.path}: ${errmsg}`);
-        res.status(err.status || 500);
-        res.json({error: err.message || 'Internal server error'});
-    });
+  // generic error handler => err.status || 500 + json
+  // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
+  /* eslint-disable-next-line no-unused-vars */
+  app.use((err, req, res, next) => {
+      const errmsg = err.message || util.inspect(err);
+      console.error(`💥 Unexpected error occurred while calling ${req.path}: ${errmsg}`);
+      res.status(err.status || 500);
+      res.json({error: err.message || 'Internal server error'});
+  });
 
-    // if we are here, then there's no valid route => 400 + json
-    // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
-    /* eslint-disable no-unused-vars */
-    app.use((req, res, next) => {
-        console.error(`💥 Route not found to ${req.path}`);
-        res.status(404);
-        res.json({error: 'Not found'});
-    });
+  // if we are here, then there's no valid route => 400 + json
+  // NOTE keep the `next` parameter even if unused, this is mandatory for Express 4
+  /* eslint-disable no-unused-vars */
+  app.use((req, res, next) => {
+      console.error(`💥 Route not found to ${req.path}`);
+      res.status(404);
+      res.json({error: 'Not found'});
+  });
 }
 
 
@@ -500,11 +500,7 @@ async function run() {
 
     ////// NB SARA' UN FORWARD DEI COMANDI DATI DA WEB APP //////
 
-    // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
-    const openDoor = {
-      action: ON_OPEN,
-      sensor: 'door-sensor',
-    };
+    
 
     const closeWindow = {
       action: OFF_CLOSE,
@@ -522,30 +518,30 @@ async function run() {
     };
     
 
-    // Invio comando per porta
-    fetch(actuatorAddress + endpoint, {
-      method: 'POST', // Metodo della richiesta
-      headers: {
-        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-      },
-      body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    })
-    .then((response) => {
-      if (response.status == 304){
-        console.log("ERROR: can not execute the command");
-      }
-      if (!response.status) {
-        throw new Error('Errore nella richiesta HTTP: ' + response);
-      }
-      return response; 
-    })
-    .then((data) => {
-      // Usa i dati ottenuti dalla risposta
-      //console.log('Risposta POST ricevuta:', data);
-    })
-    .catch((error) => {
-      console.error('Si è verificato un errore:', error);
-    });
+    // // Invio comando per porta
+    // fetch(actuatorAddress + endpoint, {
+    //   method: 'POST', // Metodo della richiesta
+    //   headers: {
+    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+    //   },
+    //   body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    // })
+    // .then((response) => {
+    //   if (response.status == 304){
+    //     console.log("ERROR: can not execute the command");
+    //   }
+    //   if (!response.status) {
+    //     throw new Error('Errore nella richiesta HTTP: ' + response);
+    //   }
+    //   return response; 
+    // })
+    // .then((data) => {
+    //   // Usa i dati ottenuti dalla risposta
+    //   //console.log('Risposta POST ricevuta:', data);
+    // })
+    // .catch((error) => {
+    //   console.error('Si è verificato un errore:', error);
+    // });
 
     // Invio comando per finestra
     fetch(actuatorAddress + endpoint, {
