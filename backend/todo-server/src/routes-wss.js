@@ -6,7 +6,7 @@ import fetch from 'node-fetch';
 
 // comunicazione con actuator
 const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+const endpoint = '/command'; // Il percorso dell'endpoint desiderato sul server
 
 /**
  * Registers a new handler for the WS channel.
@@ -82,7 +82,9 @@ export function routesWss(wss, config) {
           // Invio comando per porta
 
       var tmp = JSON.parse(data);
-      if (tmp.sensor == "door-sensor"){
+
+      console.log(tmp);
+      if (tmp.sensor_type == "door" || tmp.sensor_type == "window"){
         fetch(actuatorAddress + endpoint, {
           method: 'POST', // Metodo della richiesta
           headers: {

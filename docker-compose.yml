@@ -46,7 +46,7 @@ services:
     ports: 
       - 3000:3000
     depends_on:           
-      window-service:
+      window-door:
         condition: service_started  
       heatpump-service:
         condition: service_started  
@@ -65,7 +65,7 @@ services:
         condition: service_started   
       weather-service:
         condition: service_started        
-      window-service:
+      window-door:
         condition: service_started  
       heatpump-service:
         condition: service_started  

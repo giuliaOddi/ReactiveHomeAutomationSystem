@@ -36,7 +36,8 @@ function run() {
             // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
             const openDoor = {
                 action: ON_OPEN,
-                sensor: 'door-sensor',
+                sensor_type: 'door',
+                sensor_name: 'door1',
             };
 
             ws.send(JSON.stringify(openDoor));

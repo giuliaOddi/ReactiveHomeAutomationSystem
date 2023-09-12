@@ -138,13 +138,13 @@ async function run() {
   });
 
 
-  appBack.post("/change-status", (request, response) => {
+  appBack.post("/change-state", (request, response) => {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
       
-      sensors = sensors.map(item => (item.type == postData.type && item.name == postData.name) ? { "type" : item.type, "name" : item.name, "state" : postData.state} : item ); 
+      sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action} : item ); 
       console.log(sensors);
       //response.sendStatus(200);
   });

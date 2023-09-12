@@ -26,7 +26,9 @@ import { connect } from 'http2';
 
 // comunicazione con actuator
 const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-const endpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+const sensor_properties_endpoint = '/sensor_properties'; // Il percorso dell'endpoint desiderato sul server
+const command_endpoint = '/command'; // Il percorso dell'endpoint desiderato sul server
+
 
 // Lista sensori e loro stati 
 export var sensor_properties = []; 
@@ -152,7 +154,7 @@ function connect_to_weather_service(){
       };
 
       // Invio comando per cambio temperature
-      fetch(actuatorAddress + endpoint, {
+      fetch(actuatorAddress + command_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
@@ -223,23 +225,21 @@ function connect_to_window_sensor(){
                 .forEach(item => sensor_properties.push(item));
         // rimozione
 
-        var list = sensor_properties.map(item => (sensors.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && (item.type === "window" || item.type === "door"));
 
-        console.log(list)
-
-        sensor_properties = sensor_properties.map( item =>( list.find(item2 => item2.name === item.name )) ? null : item )
+        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
       
-
+      console.log(sensor_properties);
       // Inoltro stato ad attuatore
-      fetch(actuatorAddress + endpoint, {
+      fetch(actuatorAddress + sensor_properties_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify({"name" : "window-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        body: JSON.stringify(sensor_properties),
       })
       .then((response) => {
         if (!response.status) {
@@ -256,9 +256,8 @@ function connect_to_window_sensor(){
       });
 
     }
-    console.log(sensor_properties); 
     if (count == 5){
-        ws_window.send('{"type": "unsubscribe", "target": "state_window"}');
+        ws_window.send('{"type": "unsubscribe", "target": "window-door"}');
     }
   });
 }
@@ -289,7 +288,7 @@ function connect_to_heat_pump(){
     if (tmp.type == "state_heatpump"){
       sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state, "temperature" : tmp.temperature} : item ); 
       // Inoltro stato ad attuatore
-      fetch(actuatorAddress + endpoint, {
+      fetch(actuatorAddress + sensor_properties_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
@@ -412,20 +411,20 @@ async function run() {
 
     
 
-    const closeWindow = {
-      action: OFF_CLOSE,
-      sensor: 'window-sensor',
-    };
+    // const closeWindow = {
+    //   action: OFF_CLOSE,
+    //   sensor: 'window-sensor',
+    // };
 
-    const closeWindow2 = {
-      action: OFF_CLOSE,
-      sensor: 'window-sensor_2',
-    };
+    // const closeWindow2 = {
+    //   action: OFF_CLOSE,
+    //   sensor: 'window-sensor_2',
+    // };
 
-    const offHeatPump = {
-      action: ON_OPEN,
-      sensor: 'heat-pump',
-    };
+    // const offHeatPump = {
+    //   action: ON_OPEN,
+    //   sensor: 'heat-pump',
+    // };
     
 
     // // Invio comando per porta
@@ -453,80 +452,80 @@ async function run() {
     //   console.error('Si è verificato un errore:', error);
     // });
 
-    // Invio comando per finestra
-    fetch(actuatorAddress + endpoint, {
-      method: 'POST', // Metodo della richiesta
-      headers: {
-        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-      },
-      body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    })
-    .then((response) => {
-      if (response.status == 304){
-        console.log("ERROR: can not execute the command");
-      }
-      if (!response.status) {
-        throw new Error('Errore nella richiesta HTTP: ' + response);
-      }
-      return response; 
-    })
-    .then((data) => {
-      // Usa i dati ottenuti dalla risposta
-      //console.log('Risposta POST ricevuta:', data);
-    })
-    .catch((error) => {
-      console.error('Si è verificato un errore:', error);
-    });
+    // // Invio comando per finestra
+    // fetch(actuatorAddress + endpoint, {
+    //   method: 'POST', // Metodo della richiesta
+    //   headers: {
+    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+    //   },
+    //   body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    // })
+    // .then((response) => {
+    //   if (response.status == 304){
+    //     console.log("ERROR: can not execute the command");
+    //   }
+    //   if (!response.status) {
+    //     throw new Error('Errore nella richiesta HTTP: ' + response);
+    //   }
+    //   return response; 
+    // })
+    // .then((data) => {
+    //   // Usa i dati ottenuti dalla risposta
+    //   //console.log('Risposta POST ricevuta:', data);
+    // })
+    // .catch((error) => {
+    //   console.error('Si è verificato un errore:', error);
+    // });
 
-     // Invio comando per finestra2
-     fetch(actuatorAddress + endpoint, {
-      method: 'POST', // Metodo della richiesta
-      headers: {
-        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-      },
-      body: JSON.stringify(closeWindow2), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    })
-    .then((response) => {
-      if (response.status == 304){
-        console.log("ERROR: can not execute the command");
-      }
-      if (!response.status) {
-        throw new Error('Errore nella richiesta HTTP: ' + response);
-      }
-      return response; 
-    })
-    .then((data) => {
-      // Usa i dati ottenuti dalla risposta
-      console.log('Risposta POST ricevuta:');
-    })
-    .catch((error) => {
-      console.error('Si è verificato un errore:', error);
-    });
+    //  // Invio comando per finestra2
+    //  fetch(actuatorAddress + endpoint, {
+    //   method: 'POST', // Metodo della richiesta
+    //   headers: {
+    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+    //   },
+    //   body: JSON.stringify(closeWindow2), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    // })
+    // .then((response) => {
+    //   if (response.status == 304){
+    //     console.log("ERROR: can not execute the command");
+    //   }
+    //   if (!response.status) {
+    //     throw new Error('Errore nella richiesta HTTP: ' + response);
+    //   }
+    //   return response; 
+    // })
+    // .then((data) => {
+    //   // Usa i dati ottenuti dalla risposta
+    //   console.log('Risposta POST ricevuta:');
+    // })
+    // .catch((error) => {
+    //   console.error('Si è verificato un errore:', error);
+    // });
 
-    // Invio comando per la pompa di calore 
-    fetch(actuatorAddress + endpoint, {
-      method: 'POST', // Metodo della richiesta
-      headers: {
-        'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-      },
-      body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    })
-    .then((response) => {
-      if (response.status == 304){
-        console.log("ERROR: can not execute the command");
-      }
-      if (!response.status) {
-        throw new Error('Errore nella richiesta HTTP: ' + response);
-      }
-      return response; 
-    })
-    .then((data) => {
-      // Usa i dati ottenuti dalla risposta
-      //console.log('Risposta POST ricevuta:', data.response.response);
-    })
-    .catch((error) => {
-      console.error('Si è verificato un errore:', error);
-    });
+    // // Invio comando per la pompa di calore 
+    // fetch(actuatorAddress + endpoint, {
+    //   method: 'POST', // Metodo della richiesta
+    //   headers: {
+    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+    //   },
+    //   body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+    // })
+    // .then((response) => {
+    //   if (response.status == 304){
+    //     console.log("ERROR: can not execute the command");
+    //   }
+    //   if (!response.status) {
+    //     throw new Error('Errore nella richiesta HTTP: ' + response);
+    //   }
+    //   return response; 
+    // })
+    // .then((data) => {
+    //   // Usa i dati ottenuti dalla risposta
+    //   //console.log('Risposta POST ricevuta:', data.response.response);
+    // })
+    // .catch((error) => {
+    //   console.error('Si è verificato un errore:', error);
+    // });
 
     
 }
