@@ -183,29 +183,55 @@ function connect_to_weather_service(){
 function connect_to_window_sensor(){
   // comunicazione con window sensor service
   let ws_window = new WebSocket('ws://10.88.0.50:4000');
-  let count2 = 0;
+  let count = 0;
 
   ws_window.on('error', err => {
-    console.log("Error connecting to the window sensor...");
-    console.log("Trying to reconnect to the window sensor...");
+    console.log("Error connecting to the window door...");
+    console.log("Trying to reconnect to the window door...");
     ws_window = null;
     setTimeout(connect_to_window_sensor, 1000);
   });
 
   ws_window.on('open', function open() {
-    console.log("Successfully connected to the window sensor...");
-    // Salvataggio window sensor nella lista delle proprietà 
-    sensor_properties.push({"name" : "window-sensor", "property" : ON_OPEN}); // Di default: state = CLOSE 
-    ///// NB DOBBIAMO DIFFERENZIARE LE WINDOW E LA PORTA ANCHE QUI... COME??? ////////
-    ws_window.send('{"type": "subscribe", "target": "state_window"}');
+    console.log("Successfully connected to the window door...");
+    ws_window.send('{"type": "subscribe", "target": "window-door"}');
   });
   
   ws_window.on('message', function message(data) {
-    count2++;
+    count++;
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
-    if (tmp.type == "state_window"){
-      sensor_properties = sensor_properties.map(item => item.name == "window-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
+
+    // {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
+    if (tmp.type == "sensors_list"){
+      if (sensor_properties.length == 0){
+        sensor_properties = tmp.list;
+      }
+      else{
+        sensor_properties = sensor_properties.map( item => {
+          let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
+          if (item2) {
+            return  { "type" : item.type, "name" : item.name, "state" : item2.state };
+          }
+          else{ 
+            return item;
+          }
+        });
+
+        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+                .filter(item => item!== null)
+                .forEach(item => sensor_properties.push(item));
+        // rimozione
+
+        var list = sensor_properties.map(item => (sensors.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item !== null && (item.type === "window" || item.type === "door"));
+
+        console.log(list)
+
+        sensor_properties = sensor_properties.map( item =>( list.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item!= null);
+      }
+      
 
       // Inoltro stato ad attuatore
       fetch(actuatorAddress + endpoint, {
@@ -231,64 +257,8 @@ function connect_to_window_sensor(){
 
     }
     console.log(sensor_properties); 
-    if (count2 == 5){
+    if (count == 5){
         ws_window.send('{"type": "unsubscribe", "target": "state_window"}');
-    }
-  });
-}
-
-function connect_to_window_sensor_2(){
-  // comunicazione con window sensor 2 service
-  let ws_window_2 = new WebSocket('ws://10.88.0.51:4000');
-  let count_2 = 0;
-
-  ws_window_2.on('error', err => {
-    console.log("Error connecting to the window sensor 2...");
-    console.log("Trying to reconnect to the window sensor 2...");
-    ws_window_2 = null;
-    setTimeout(connect_to_window_sensor_2, 1000);
-  });
-
-  ws_window_2.on('open', function open() {
-    console.log("Successfully connected to the window sensor 2...");
-    // Salvataggio window sensor nella lista delle proprietà 
-    sensor_properties.push({"name" : "window-sensor_2", "property" : ON_OPEN}); // Di default: state = CLOSE
-    ws_window_2.send('{"type": "subscribe", "target": "state_window"}');
-  });
-  
-  ws_window_2.on('message', function message(data) {
-    count_2++;
-    console.log('received: %s', data);
-    var tmp = JSON.parse(data); 
-    if (tmp.type == "state_window"){
-      sensor_properties = sensor_properties.map(item => item.name == "window-sensor_2" ? { "name" : item.name, "property" : tmp.state } : item ); 
-
-      // Inoltro stato ad attuatore
-      fetch(actuatorAddress + endpoint, {
-        method: 'POST', // Metodo della richiesta
-        headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-        },
-        body: JSON.stringify({"name" : "window-sensor_2", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-      })
-      .then((response) => {
-        if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
-        }
-        return response; 
-      })
-      .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
-      })
-      .catch((error) => {
-        console.error('Si è verificato un errore:', error);
-      });
-
-    }
-    console.log(sensor_properties); 
-    if (count_2 == 5){
-      ws_window_2.send('{"type": "unsubscribe", "target": "state_window"}');
     }
   });
 }
@@ -344,62 +314,6 @@ function connect_to_heat_pump(){
     console.log(sensor_properties); 
     if (count3 == 5){
       ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
-    }
-  });
-}
-
-function connect_to_door_sensor(){
-  // comunicazione con door sensor service
-  //////// NB: POSSIAMO METTERE DOOR CON INDIRIZZO = 53 COME VARIABILE ///////////
-  let ws_door = new WebSocket('ws://10.88.0.53:4000');
-  let count_door = 0;
-
-  ws_door.on('error', err => {
-    console.log("Error connecting to the door sensor...");
-    console.log("Trying to reconnect to the door sensor...");
-    ws_door = null;
-    setTimeout(connect_to_door_sensor, 1000);
-  });
-
-  ws_door.on('open', function open() {
-    console.log("Successfully connected the door sensor...");
-    // Salvataggio door sensor nella lista delle proprietà 
-    sensor_properties.push({"name" : "door-sensor", "property" : OFF_CLOSE}); // Di default: state = CLOSE
-    ws_door.send('{"type": "subscribe", "target": "state_window"}');
-  });
-  
-  ws_door.on('message', function message(data) {
-    count_door++;
-    console.log('received: %s', data);
-    var tmp = JSON.parse(data); 
-    if (tmp.type == "state_window"){
-      sensor_properties = sensor_properties.map(item => item.name == "door-sensor" ? { "name" : item.name, "property" : tmp.state } : item ); 
-      // Inoltro stato ad attuatore
-      fetch(actuatorAddress + endpoint, {
-        method: 'POST', // Metodo della richiesta
-        headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-        },
-        body: JSON.stringify({"name" : "door-sensor", "property" : tmp.state}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-      })
-      .then((response) => {
-        if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
-        }
-        return response; 
-      })
-      .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
-      })
-      .catch((error) => {
-        console.error('Si è verificato un errore:', error);
-      });
-
-    }
-    console.log(sensor_properties);
-    if (count_door == 5){
-      ws_door.send('{"type": "unsubscribe", "target": "state_window"}');
     }
   });
 }
@@ -488,11 +402,7 @@ async function run() {
 
     connect_to_window_sensor();
 
-    connect_to_window_sensor_2();
-
     connect_to_heat_pump();
-
-    connect_to_door_sensor();
 
     connect_to_thermometer_sensor();
 

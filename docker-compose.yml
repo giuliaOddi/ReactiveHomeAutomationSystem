@@ -10,8 +10,8 @@ services:
       todo-app-network:
         ipv4_address: "10.88.0.31"
         
-  # Window-service
-  window-service:
+  # Window-door
+  window-door:
     build: ./sensor-service/window-door
     ports: 
       - 4000:4000
@@ -19,16 +19,6 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.50"
-        
-  # Window-service
-  window-service_2:
-    build: ./sensor-service/window-door
-    ports: 
-      - 4001:4000
-      - 3000
-    networks:
-      todo-app-network:
-        ipv4_address: "10.88.0.51"
         
   # HeatPump-service
   heatpump-service:
@@ -39,16 +29,6 @@ services:
     networks:
       todo-app-network:
         ipv4_address: "10.88.0.52"
-  
-  # door-service
-  door-service:
-    build: ./sensor-service/window-door
-    ports: 
-      - 4003:4000
-      - 3000
-    networks:
-      todo-app-network:
-        ipv4_address: "10.88.0.53"
         
   # thermometer-service
   thermometer-service:
@@ -68,11 +48,7 @@ services:
     depends_on:           
       window-service:
         condition: service_started  
-      window-service_2:
-        condition: service_started  
       heatpump-service:
-        condition: service_started  
-      door-service:
         condition: service_started  
     networks:
       todo-app-network:
@@ -91,11 +67,7 @@ services:
         condition: service_started        
       window-service:
         condition: service_started  
-      window-service_2:
-        condition: service_started  
       heatpump-service:
-        condition: service_started  
-      door-service:
         condition: service_started  
     networks:
       todo-app-network:

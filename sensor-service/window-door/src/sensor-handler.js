@@ -2,12 +2,12 @@
 
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
-import {temperatureAt} from './temperatures.js';
 import {EventEmitter} from 'events';
 
-import {state} from './server.js'; 
+import {sensors} from './server.js'; 
 
-var st = -1; 
+var old_sensors_list = [];
+
 
 class ValidationError extends Error {
   #message;
@@ -118,7 +118,7 @@ export class SensorHandler extends EventEmitter {
     /* if (json.target !== 'temperature') {
       throw new ValidationError('Invalid subscription target');
     } */
-    if (json.target !== 'state_window') {
+    if (json.target !== 'window-door') {
       throw new ValidationError('Invalid subscription target');
     }
     return json;
@@ -157,7 +157,7 @@ export class SensorHandler extends EventEmitter {
   } */
 
   _sendState() {
-    const msg = {type: 'state_window', dateTime: DateTime.now().toISO(), state};
+    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);
@@ -199,9 +199,9 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      if (st != state) {
+      if (old_sensors_list != sensors) {
         this._sendState();
-        st = state; 
+        old_sensors_list = sensors; 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

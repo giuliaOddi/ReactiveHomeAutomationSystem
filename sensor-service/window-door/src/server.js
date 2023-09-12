@@ -19,7 +19,15 @@ const OPEN = 0;
 const CLOSE = 1;
 const ERROR = -1;
 
-export var state = OPEN;       //////// NB PORTA E FINESTRA SARANNO DIVERSE??? ////////////////
+const ADD = 1;
+const REMOVE = -1;
+
+export var sensors = [ 
+  { type: 'window', name: 'window1', state: CLOSE},
+  { type: 'window',  name: 'window2', state: CLOSE},
+  { type: 'door',  name: 'door1', state: CLOSE},
+]; 
+
 
 /**
  * Initializes the application middlewares.
@@ -130,20 +138,33 @@ async function run() {
   });
 
 
-  // Modifica il metodo da get a post e l'endpoint in "/api/dati"
-  appBack.post("/status", (request, response) => {
+  appBack.post("/change-status", (request, response) => {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
-
-      console.log('Current state: ', state);
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
       
-      // Cambio stato in base a comandi ricevuti
-      state = postData.action; 
-      console.log('Current state: ', state);
-
+      sensors = sensors.map(item => (item.type == postData.type && item.name == postData.name) ? { "type" : item.type, "name" : item.name, "state" : postData.state} : item ); 
+      console.log(sensors);
       //response.sendStatus(200);
+  });
+  //////////////////////////////////
+  // personalizzare per eventualmente rimuovere un sensore 
+  //////////////////////////////////
+  appBack.post("/add-sensor", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
+
+    if(postData.action == ADD){
+      sensors.push({"type" : postData.type, "name" : postData.name, "state" : postData.state}); 
+    }
+    else if(postData.action == REMOVE){
+      sensors = sensors.filter( item => item.name !== postData.name );
+    }
+    
+    console.log(sensors);
+
+    //response.sendStatus(200);
   });
 }
 
