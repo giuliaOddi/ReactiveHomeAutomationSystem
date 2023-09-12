@@ -123,9 +123,9 @@ async function run() {
       }
 
     }
-    else if (postData.sensor_type == 'heat-pump' && sensor_properties.length > 0) {
+    else if ((postData.sensor_type == 'heatpump') && sensor_properties.length > 0) {
       // Ricevo comando == stato attuale del sensore 
-      if (sensor_properties.some(item => item.name == postData.sensor && item.property == postData.action)) {
+      if (sensor_properties.some(item => item.type == postData.sensor_type && item.name == postData.sensor_name && item.state == postData.action && item.temperature == postData.temperature)) {
         // errore 
         console.log('...error...');
         response.sendStatus(304);
@@ -135,7 +135,7 @@ async function run() {
         console.log('...inoltro comando a heat pump sensors...');
         // comunication with heat pump
         const heatpumpAddress = 'http://10.88.0.52:3000'; // Indirizzo del tuo server
-        const heatpumpEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+        const heatpumpEndpoint = '/change-state'; // Il percorso dell'endpoint desiderato sul server
 
         // Configura la richiesta HTTP POST
         fetch(heatpumpAddress + heatpumpEndpoint, {

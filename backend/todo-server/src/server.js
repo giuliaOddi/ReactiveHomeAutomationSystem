@@ -213,7 +213,8 @@ function connect_to_window_sensor(){
         sensor_properties = sensor_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
-            return  { "type" : item.type, "name" : item.name, "state" : item2.state };
+            if (item2.type === 'heatpump') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
+            else { return  { "type" : item.type, "name" : item.name, "state" : item2.state }; }
           }
           else{ 
             return item;
@@ -276,24 +277,48 @@ function connect_to_heat_pump(){
 
   ws_heat.on('open', function open() {
     console.log("Successfully connected to the heat pump...");
-    // Salvataggio heat pump sensor nella lista delle proprietà 
-    sensor_properties.push({"name" : "heat-pump", "property" : OFF_CLOSE, "temperature" : 0}); // Di default: state = OFF
-    ws_heat.send('{"type": "subscribe", "target": "state_heatpump"}');
+    ws_heat.send('{"type": "subscribe", "target": "heatpump"}');
   });
   
   ws_heat.on('message', function message(data) {
     count3++;
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
-    if (tmp.type == "state_heatpump"){
-      sensor_properties = sensor_properties.map(item => item.name == "heat-pump" ? { "name" : item.name, "property" : tmp.state, "temperature" : tmp.temperature} : item ); 
-      // Inoltro stato ad attuatore
+
+    if (tmp.type == "sensors_list"){
+      if (sensor_properties.length == 0){
+        sensor_properties = tmp.list;
+      }
+      else{
+        sensor_properties = sensor_properties.map( item => {
+          let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
+          if (item2) {
+            if (item2.type === 'heatpump') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
+            else { return  { "type" : item.type, "name" : item.name, "state" : item2.state }; }
+          }
+          else{ 
+            return item;
+          }
+        });
+
+        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+                .filter(item => item!== null)
+                .forEach(item => sensor_properties.push(item));
+
+        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item !== null && item.type === "heatpump");
+
+        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item!= null);
+      }
+
+
       fetch(actuatorAddress + sensor_properties_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify({"name" : "heat-pump", "property" : tmp.state, "temperature" : tmp.temperature}), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        body: JSON.stringify(sensor_properties), 
       })
       .then((response) => {
         if (!response.status) {
@@ -312,7 +337,7 @@ function connect_to_heat_pump(){
     }
     console.log(sensor_properties); 
     if (count3 == 5){
-      ws_heat.send('{"type": "unsubscribe", "target": "state_heatpump"}');
+      ws_heat.send('{"type": "unsubscribe", "target": "heatpump"}');
     }
   });
 }

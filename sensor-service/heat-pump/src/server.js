@@ -18,8 +18,12 @@ const ON = 0;
 const OFF = 1;
 const ERROR = -1;
 
-export var state = ON; 
-export var temperature = 30; 
+const ADD = 1;
+const REMOVE = -1;
+
+export var sensors = [ 
+  { type: 'heatpump', name: 'heatpump1', state: OFF, temperature : 0},
+]; 
 
 /**
  * Initializes the application middlewares.
@@ -95,13 +99,6 @@ function fallbacks(app) {
   });
 }
 
-/**
- * 
- * @param {number} temp 
- */
-function change_temperature(temp) {
-  temperature = temp; 
-}
 
 async function run() {
   // creates the configuration options and the logger
@@ -137,21 +134,33 @@ async function run() {
       console.log("Server Listening on PORT:", portBack);
   });
 
+  appBack.post("/change-state", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
+    // Puoi eseguire ulteriori operazioni con i dati inviati...
+    console.log('Dati ricevuti:', postData);
+    
+    sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action, "temperature" : postData.temperature} : item ); 
+    console.log(sensors);
+    //response.sendStatus(200);
+  });
+  //////////////////////////////////
+  // personalizzare per eventualmente rimuovere un sensore 
+  //////////////////////////////////
+  appBack.post("/add-sensor", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
 
-  // Modifica il metodo da get a post e l'endpoint in "/api/dati"
-  appBack.post("/status", (request, response) => {
-      // Accedi ai dati inviati nel corpo della richiesta POST
-      const postData = request.body;
+    if(postData.action == ADD){
+      sensors.push({"type" : postData.type, "name" : postData.name, "state" : postData.state, "temperature" : postData.temperature}); 
+    }
+    else if(postData.action == REMOVE){
+      sensors = sensors.filter( item => item.name !== postData.name );
+    }
+    
+    console.log(sensors);
 
-      console.log('Current state: ', state);
-      // Puoi eseguire ulteriori operazioni con i dati inviati...
-      console.log('Dati ricevuti:', postData);
-
-      // Cambio stato in base a comandi ricevuti
-      state = postData.action; 
-      console.log('Current state: ', state);
-
-      //response.sendStatus(200);
+    //response.sendStatus(200);
   });
 
 }
