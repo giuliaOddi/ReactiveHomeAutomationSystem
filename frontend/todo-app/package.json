@@ -1,0 +1,20 @@
+{
+  "name": "todo-app",
+  "version": "1.0.0",
+  "description": "A reactive Web App",
+  "main": "js/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node js/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giuliaOddi/ReactiveHomeAutomationSystem/tree/main/frontend"
+  },
+  "author": "Giulia Oddi & Luca Taverna",
+  "license": "ISC",
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}

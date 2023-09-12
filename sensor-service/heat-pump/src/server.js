@@ -13,6 +13,14 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// states of heat pump
+const ON = 0;
+const OFF = 1;
+const ERROR = -1;
+
+export var state = ON; 
+export var temperature = 30; 
+
 /**
  * Initializes the application middlewares.
  *
@@ -87,6 +95,14 @@ function fallbacks(app) {
   });
 }
 
+/**
+ * 
+ * @param {number} temp 
+ */
+function change_temperature(temp) {
+  temperature = temp; 
+}
+
 async function run() {
   // creates the configuration options and the logger
   const options = opts();
@@ -127,12 +143,16 @@ async function run() {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
 
+      console.log('Current state: ', state);
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
-      response.sendStatus(200);
-  });
 
-  
+      // Cambio stato in base a comandi ricevuti
+      state = postData.action; 
+      console.log('Current state: ', state);
+
+      //response.sendStatus(200);
+  });
 
 }
 

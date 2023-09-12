@@ -13,6 +13,14 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// states of windows and door
+/////// NB FORSE MEGLIO STRINGHE??? ///////
+const OPEN = 0;
+const CLOSE = 1;
+const ERROR = -1;
+
+export var state = OPEN;       //////// NB PORTA E FINESTRA SARANNO DIVERSE??? ////////////////
+
 /**
  * Initializes the application middlewares.
  *
@@ -127,13 +135,16 @@ async function run() {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
 
+      console.log('Current state: ', state);
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
-      response.sendStatus(200);
+      
+      // Cambio stato in base a comandi ricevuti
+      state = postData.action; 
+      console.log('Current state: ', state);
+
+      //response.sendStatus(200);
   });
-
-  
-
 }
 
 run().then(() => {
