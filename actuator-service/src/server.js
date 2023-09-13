@@ -52,7 +52,7 @@ async function run() {
     console.log('...inoltro comando a thermometer sensors...');
     // backchannel with thermometer
     const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor thermometer
-    const termEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+    const termEndpoint = '/room_properties'; 
 
     // Configura la richiesta HTTP POST
     fetch(termAddress + termEndpoint, {
@@ -174,7 +174,7 @@ async function run() {
       console.log('...inoltro comando a thermometer sensors...');
       // backchannel with thermometer
       const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor thermometer
-      const termEndpoint = '/status'; // Il percorso dell'endpoint desiderato sul server
+      const termEndpoint = '/room_properties'; // Il percorso dell'endpoint desiderato sul server
 
       // Configura la richiesta HTTP POST
       fetch(termAddress + termEndpoint, {

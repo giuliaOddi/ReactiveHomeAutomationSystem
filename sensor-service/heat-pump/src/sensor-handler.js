@@ -2,7 +2,6 @@
 
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
-import {temperatureAt} from './temperatures.js';
 import {EventEmitter} from 'events';
 
 import {sensors} from './server.js';

@@ -2,10 +2,10 @@
 
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
-import {temperatureAt} from './temperatures.js';
 import {EventEmitter} from 'events';
 
 import {temperature} from './server.js'; 
+import { sensors } from './server.js';
 
 // Temperatura 
 var temp = 0;
@@ -137,7 +137,7 @@ export class SensorHandler extends EventEmitter {
    */
   _sendTemperature() {
     //const value = temperatureAt(DateTime.now());
-    const msg = {type: 'thermometer_temperature', dateTime: DateTime.now().toISO(), temperature};
+    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list: sensors};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);

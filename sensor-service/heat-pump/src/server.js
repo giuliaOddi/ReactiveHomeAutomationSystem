@@ -22,7 +22,8 @@ const ADD = 1;
 const REMOVE = -1;
 
 export var sensors = [ 
-  { type: 'heatpump', name: 'heatpump1', state: OFF, temperature : 0},
+  { type: 'heatpump', name: 'heatpump1', state: ON, temperature : 22},
+  { type: 'heatpump', name: 'heatpump2', state: OFF, temperature : 32},
 ]; 
 
 /**
