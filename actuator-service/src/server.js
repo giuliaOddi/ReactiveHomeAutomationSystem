@@ -6,6 +6,8 @@ var sensor_properties = [];
 
 const ON_OPEN = 0;
 const OFF_CLOSE = 1;
+const ADD = 2;
+const REMOVE = 3;
 
 async function run() {
 
@@ -71,11 +73,39 @@ async function run() {
         response.sendStatus(304);
       }
       // Ricevo comando diverso da stato attuale: posso propagarlo a sensore porta 
-      else {
+      else if (postData.action == OFF_CLOSE || postData.action == ON_OPEN) {
         console.log('...inoltro comando a door sensors...');
         // comunication with door
         const doorAddress = 'http://10.88.0.50:3000'; // Indirizzo del tuo server
         const doorEndpoint = '/change-state'; // Il percorso dell'endpoint desiderato sul server
+
+        // Configura la richiesta HTTP POST
+        fetch(doorAddress + doorEndpoint, {
+          method: 'POST', // Metodo della richiesta
+          headers: {
+            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          },
+          body: JSON.stringify(postData), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        })
+        .then((response) => {
+          if (!response.status) {
+            throw new Error('Errore nella richiesta HTTP: ' + response);
+          }
+          return response;
+        })
+        .then((data) => {
+          // Usa i dati ottenuti dalla risposta
+          console.log('Risposta POST ricevuta:');
+        })
+        .catch((error) => {
+          console.error('Si è verificato un errore:', error);
+        });
+      }
+      else if (postData.action == ADD || postData.action == REMOVE){
+        console.log('...inoltro comando a door sensors...');
+        // comunication with door
+        const doorAddress = 'http://10.88.0.50:3000'; // Indirizzo del tuo server
+        const doorEndpoint = '/add-sensor'; // Il percorso dell'endpoint desiderato sul server
 
         // Configura la richiesta HTTP POST
         fetch(doorAddress + doorEndpoint, {

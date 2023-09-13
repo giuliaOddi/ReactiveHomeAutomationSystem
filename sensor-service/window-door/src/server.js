@@ -19,8 +19,8 @@ const OPEN = 0;
 const CLOSE = 1;
 const ERROR = -1;
 
-const ADD = 1;
-const REMOVE = -1;
+const ADD = 2;
+const REMOVE = 3;
 
 export var sensors = [ 
   { type: 'window', name: 'window1', state: CLOSE},
@@ -156,10 +156,10 @@ async function run() {
     const postData = request.body;
 
     if(postData.action == ADD){
-      sensors.push({"type" : postData.type, "name" : postData.name, "state" : postData.state}); 
+      sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state}); 
     }
     else if(postData.action == REMOVE){
-      sensors = sensors.filter( item => item.name !== postData.name );
+      sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
     
     console.log(sensors);

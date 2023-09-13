@@ -6,6 +6,9 @@ const ON_OPEN = 0;
 const OFF_CLOSE = 1;
 const ERROR = -1; 
 
+const ADD = 2;
+const REMOVE = 3;
+
 function run() {
 
     // comunicazione con heat pump sensor service
@@ -41,6 +44,16 @@ function run() {
             };
 
             ws.send(JSON.stringify(openDoor));
+
+            // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+            const addWindow = {
+                action: ADD,
+                sensor_type: 'window',
+                sensor_name: 'window4',
+                state: ON_OPEN
+            };
+
+            ws.send(JSON.stringify(addWindow));
         }
         if (count == 5){
             ws.send('{"type": "unsubscribe", "target": "room_properties"}');
