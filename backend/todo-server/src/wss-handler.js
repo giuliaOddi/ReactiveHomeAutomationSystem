@@ -3,11 +3,9 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
+import { sensor_properties } from './server.js';
 
-import {sensors} from './server.js'; 
-
-var old_sensors_list = [];
-
+var list = []; 
 
 class ValidationError extends Error {
   #message;
@@ -118,7 +116,7 @@ export class SensorHandler extends EventEmitter {
     /* if (json.target !== 'temperature') {
       throw new ValidationError('Invalid subscription target');
     } */
-    if (json.target !== 'window-door') {
+    if (json.target !== 'room_properties') {
       throw new ValidationError('Invalid subscription target');
     }
     return json;
@@ -156,8 +154,10 @@ export class SensorHandler extends EventEmitter {
     }
   } */
 
+
   _sendState() {
-    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
+    //const msg = JSON.stringify(sensor_properties);
+    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensor_properties};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);
@@ -173,6 +173,7 @@ export class SensorHandler extends EventEmitter {
       console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
     }*/
   } 
+
 
   /**
    * Sends any message through the WebSocket channel.
@@ -195,13 +196,13 @@ export class SensorHandler extends EventEmitter {
     }
 
     //////// MODIFICATO ////////
-    // Per sensori porte e finestre si sottoscrive allo stato, non  alla temperatura // 
+    // Per heat pump sensor si sottoscrive allo stato, non alla temperatura // 
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      if (old_sensors_list != sensors) {
-        this._sendState();
-        old_sensors_list = sensors; 
+      if (list != sensor_properties){
+        this._sendState(); 
+        list = sensor_properties; 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

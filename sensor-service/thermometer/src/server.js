@@ -13,6 +13,31 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// temperature in °C 
+export var temperature = 20; 
+var temp_diff_weather = 0;
+var temp_diff_heatpump = 0; 
+
+// Stati sensori
+const ON_OPEN = 0;
+const OFF_CLOSE = 1;
+const ERROR = -1; 
+const ADD = 2;
+const REMOVE = 3;
+
+// Lista sensori e loro stati 
+var sensors_properties = []; 
+
+// Lista termometri 
+export var sensors = [
+  { type : 'thermometer', name : 'therm1', state: ON_OPEN, temperature : temperature},
+]; 
+
+// Millisecondi salvataggio temperatura interna
+var timeout; 
+var millis = 2000; 
+var count = 0; 
+
 /**
  * Initializes the application middlewares.
  *
@@ -87,6 +112,84 @@ function fallbacks(app) {
   });
 }
 
+/**
+ * 
+ */
+function temperature_simulation(){
+
+  var window_open = sensors_properties.find(item => (item.type == 'window' && item.state == ON_OPEN));
+  var door_open = sensors_properties.find(item => (item.type == 'door' && item.state == ON_OPEN));
+  var heatpump_on = sensors_properties.find(item => (item.type == 'heatpump' && item.state == ON_OPEN));
+
+  ///////////// se non ci sono?? se sono in errore???? ///////////
+
+  // Caso 1: finestre e pompe di calore spente -> la temperatura non cambia
+  if (!window_open && !heatpump_on){
+    console.log("Windows are closed and heatpumps are off... The temperature isn't changing"); 
+  }
+  // Caso 2: pompa calore accesa -> temperatura aumenta in base a pompa calore con temperatura massima (controllo temp_heatpump > temp_interna)
+  else if (heatpump_on && temp_diff_heatpump > 0){
+    // almeno una finestra aperta
+    if (window_open){
+      console.log("At least one window is open and one heatpump is on... The temperature is increasing"); 
+      count++;
+      // fuori c'è più caldo che dentro 
+      if(temp_diff_weather > 0){
+        temperature =  Number((temperature + (max(temp_diff_heatpump, temp_diff_weather)/3)).toFixed(2));  // tende al massimo tra temperatura pompa e temperatura fuori 
+        sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+        console.log("Current temperature: ", temperature);
+        if (count < 3){
+          timeout = setTimeout(temperature_simulation, millis);
+        }
+      }
+      // esterno c'è freddo -> tende a temperatura pompa molto lentamente 
+      else {
+        temperature = Number((temperature + (temp_diff_heatpump/8)).toFixed(2));  // tende al massimo tra temperatura pompa e temperatura fuori 
+        sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+        console.log("Current temperature: ", temperature);
+        if (count < 8){
+          timeout = setTimeout(temperature_simulation, millis);
+        }
+      }
+    }
+    // finestre sono chiuse -> pompa calore accesa in tutta la casa quindi la porta non ci interessa
+    else {
+      console.log("Windows are closed and at least one heatpump is on... The temperature is increasing");  
+      count++;
+      temperature = Number((temperature + (temp_diff_heatpump/5)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      console.log("Current temperature: ", temperature);
+      if (count < 5){
+        timeout = setTimeout(temperature_simulation, millis);
+      }
+    }
+  }
+  // Casi 3 e 4: finestre aperte e pompa calore spenta -> decrescita/crescita fino a temperatura weather service
+  else if (window_open && !heatpump_on){
+    console.log("At least one window is open and heatpumps are off... The temperature is changing"); 
+    // porta aperta -> più lento perchè porta della stanza
+    if (door_open){
+      count++;
+      temperature = Number((temperature + (temp_diff_weather/5)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      console.log("Current temperature: ", temperature);
+      if (count < 5){
+        timeout = setTimeout(temperature_simulation, millis);
+      }
+    }
+    // porta chiusa -> più veloce perchè porta della stanza 
+    else {
+      count++;
+      temperature = Number((temperature + (temp_diff_weather/3)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      console.log("Current temperature: ", temperature);
+      if (count < 3){
+        timeout = setTimeout(temperature_simulation, millis);
+      }
+    }
+  }
+}
+
 async function run() {
   // creates the configuration options and the logger
   const options = opts();
@@ -123,17 +226,48 @@ async function run() {
 
 
   // Modifica il metodo da get a post e l'endpoint in "/api/dati"
-  appBack.post("/status", (request, response) => {
+  appBack.post("/room_properties", (request, response) => {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
+      console.log("Messaggio arrivato");
+      console.log(postData);
 
-      // Puoi eseguire ulteriori operazioni con i dati inviati...
-      console.log('Dati ricevuti:', postData);
-      response.sendStatus(200);
+      if (postData.length > 0){
+        // Salvataggio lista 
+        sensors_properties = postData; 
+        //console.log(sensor_properties); 
+        count = 0;
+        clearTimeout(timeout);
+
+        // Calcolo differenze temperature con weather service
+        if (sensors_properties.find(item => (item.name == 'weather-service'))){
+          var weather_temperature = sensors_properties.find(item => (item.name == 'weather-service'));
+          temp_diff_weather = weather_temperature.property - temperature; 
+        }
+        // Calcolo differenze temperature con heat pump
+        if (sensors_properties.find(item => (item.type == 'heatpump'))){
+          var max_temperature = Math.max(...(sensors_properties.filter(item => item.type == 'heatpump' && item.state === ON_OPEN).map(item => item.temperature)));
+          temp_diff_heatpump = max_temperature - temperature;
+        }        
+        timeout = setTimeout(temperature_simulation, 0);
+      }
+      //response.sendStatus(200);
   });
 
-  
+  appBack.post("/add-sensor", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
 
+    if(postData.action == ADD){
+      sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state, "temperature" : postData.temperature}); 
+    }
+    else if(postData.action == REMOVE){
+      sensors = sensors.filter( item => item.name !== postData.sensor_name );
+    }    
+    console.log(sensors);
+
+    //response.sendStatus(200);
+  });
 }
 
 run().then(() => {

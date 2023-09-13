@@ -13,6 +13,22 @@ import {WebSocketServer} from 'ws';
 import opts from './options.js';
 import {routes} from './routes.js';
 
+// states of windows and door
+/////// NB FORSE MEGLIO STRINGHE??? ///////
+const OPEN = 0;
+const CLOSE = 1;
+const ERROR = -1;
+
+const ADD = 2;
+const REMOVE = 3;
+
+export var sensors = [ 
+  { type: 'window', name: 'window1', state: CLOSE},
+  { type: 'window',  name: 'window2', state: CLOSE},
+  { type: 'door',  name: 'door1', state: CLOSE},
+]; 
+
+
 /**
  * Initializes the application middlewares.
  *
@@ -122,18 +138,32 @@ async function run() {
   });
 
 
-  // Modifica il metodo da get a post e l'endpoint in "/api/dati"
-  appBack.post("/status", (request, response) => {
+  appBack.post("/change-state", (request, response) => {
       // Accedi ai dati inviati nel corpo della richiesta POST
       const postData = request.body;
-
       // Puoi eseguire ulteriori operazioni con i dati inviati...
       console.log('Dati ricevuti:', postData);
-      response.sendStatus(200);
+      
+      sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action} : item ); 
+      console.log(sensors);
+      //response.sendStatus(200);
   });
-
   
+  appBack.post("/add-sensor", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
 
+    if(postData.action == ADD){
+      sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state}); 
+    }
+    else if(postData.action == REMOVE){
+      sensors = sensors.filter( item => item.name !== postData.sensor_name );
+    }
+    
+    console.log(sensors);
+
+    //response.sendStatus(200);
+  });
 }
 
 run().then(() => {
