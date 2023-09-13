@@ -84,7 +84,7 @@ export function routesWss(wss, config) {
       var tmp = JSON.parse(data);
 
       console.log(tmp);
-      if (tmp.sensor_type == "door" || tmp.sensor_type == "window" || tmp.sensor_type == "heatpump"){
+      if (tmp.sensor_type == "door" || tmp.sensor_type == "window" || tmp.sensor_type == "heatpump" || tmp.sensor_type == "thermometer"){
         fetch(actuatorAddress + endpoint, {
           method: 'POST', // Metodo della richiesta
           headers: {

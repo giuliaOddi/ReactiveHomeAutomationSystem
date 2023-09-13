@@ -148,9 +148,7 @@ async function run() {
       console.log(sensors);
       //response.sendStatus(200);
   });
-  //////////////////////////////////
-  // personalizzare per eventualmente rimuovere un sensore 
-  //////////////////////////////////
+  
   appBack.post("/add-sensor", (request, response) => {
     // Accedi ai dati inviati nel corpo della richiesta POST
     const postData = request.body;

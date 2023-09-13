@@ -141,7 +141,7 @@ function connect_to_weather_service(){
 
     if (tmp.type == "temperature"){
       if (sensor_properties.length == 0){
-        sensor_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(3)) }, ];
+        sensor_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }, ];
       }
       else{
         if (sensor_properties.find(item => item.type === 'weather')){
@@ -150,7 +150,7 @@ function connect_to_weather_service(){
         }
         else {
           // Aggiunta weather 
-          sensor_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(3)) }); 
+          sensor_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }); 
         }
       }    
       console.log(sensor_properties); 

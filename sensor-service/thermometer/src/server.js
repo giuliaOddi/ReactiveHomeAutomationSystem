@@ -22,6 +22,8 @@ var temp_diff_heatpump = 0;
 const ON_OPEN = 0;
 const OFF_CLOSE = 1;
 const ERROR = -1; 
+const ADD = 2;
+const REMOVE = 3;
 
 // Lista sensori e loro stati 
 var sensors_properties = []; 
@@ -133,8 +135,8 @@ function temperature_simulation(){
       count++;
       // fuori c'è più caldo che dentro 
       if(temp_diff_weather > 0){
-        temperature +=  Number((max(temp_diff_heatpump, temp_diff_weather)/3).toFixed(3));  // tende al massimo tra temperatura pompa e temperatura fuori 
-        sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+        temperature =  Number((temperature + (max(temp_diff_heatpump, temp_diff_weather)/3)).toFixed(2));  // tende al massimo tra temperatura pompa e temperatura fuori 
+        sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
         console.log("Current temperature: ", temperature);
         if (count < 3){
           timeout = setTimeout(temperature_simulation, millis);
@@ -142,8 +144,8 @@ function temperature_simulation(){
       }
       // esterno c'è freddo -> tende a temperatura pompa molto lentamente 
       else {
-        temperature += Number((temp_diff_heatpump/8).toFixed(3));  // tende al massimo tra temperatura pompa e temperatura fuori 
-        sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+        temperature = Number((temperature + (temp_diff_heatpump/8)).toFixed(2));  // tende al massimo tra temperatura pompa e temperatura fuori 
+        sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
         console.log("Current temperature: ", temperature);
         if (count < 8){
           timeout = setTimeout(temperature_simulation, millis);
@@ -152,10 +154,10 @@ function temperature_simulation(){
     }
     // finestre sono chiuse -> pompa calore accesa in tutta la casa quindi la porta non ci interessa
     else {
-      console.log("Windows are closed and at least one heatpump is on... The temperature is increasing"); 
+      console.log("Windows are closed and at least one heatpump is on... The temperature is increasing");  
       count++;
-      temperature += Number((temp_diff_heatpump/5).toFixed(3));
-      sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      temperature = Number((temperature + (temp_diff_heatpump/5)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
       console.log("Current temperature: ", temperature);
       if (count < 5){
         timeout = setTimeout(temperature_simulation, millis);
@@ -168,8 +170,8 @@ function temperature_simulation(){
     // porta aperta -> più lento perchè porta della stanza
     if (door_open){
       count++;
-      temperature += Number((temp_diff_weather/5).toFixed(3));
-      sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      temperature = Number((temperature + (temp_diff_weather/5)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
       console.log("Current temperature: ", temperature);
       if (count < 5){
         timeout = setTimeout(temperature_simulation, millis);
@@ -178,8 +180,8 @@ function temperature_simulation(){
     // porta chiusa -> più veloce perchè porta della stanza 
     else {
       count++;
-      temperature += Number((temp_diff_weather/3).toFixed(3));
-      sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
+      temperature = Number((temperature + (temp_diff_weather/3)).toFixed(2));
+      sensors = sensors.map(item => item.temperature !== temperature ? { type : item.type, name : item.name, state : item.state, temperature : temperature } : item ); 
       console.log("Current temperature: ", temperature);
       if (count < 3){
         timeout = setTimeout(temperature_simulation, millis);
@@ -252,6 +254,20 @@ async function run() {
       //response.sendStatus(200);
   });
 
+  appBack.post("/add-sensor", (request, response) => {
+    // Accedi ai dati inviati nel corpo della richiesta POST
+    const postData = request.body;
+
+    if(postData.action == ADD){
+      sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state, "temperature" : postData.temperature}); 
+    }
+    else if(postData.action == REMOVE){
+      sensors = sensors.filter( item => item.name !== postData.sensor_name );
+    }    
+    console.log(sensors);
+
+    //response.sendStatus(200);
+  });
 }
 
 run().then(() => {

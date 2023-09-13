@@ -5,7 +5,6 @@ var sensor_properties = [];
 const ON_OPEN = 0;
 const OFF_CLOSE = 1;
 const ERROR = -1; 
-
 const ADD = 2;
 const REMOVE = 3;
 
@@ -36,24 +35,75 @@ function run() {
             console.log(sensor_properties); 
         }
         if (count == 3){
-            // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
             const openDoor = {
                 action: ON_OPEN,
                 sensor_type: 'door',
                 sensor_name: 'door1',
             };
-
             ws.send(JSON.stringify(openDoor));
 
-            // Dati da inviare nel corpo della richiesta POST (in questo esempio un oggetto JSON)
+            const changeHeatpump = {
+                action: ON_OPEN,
+                sensor_type: 'heatpump',
+                sensor_name: 'heatpump1',
+                state: ON_OPEN, 
+                temperature: 24
+            };
+            ws.send(JSON.stringify(changeHeatpump));
+
+            const offHeatpump = {
+                action: OFF_CLOSE,
+                sensor_type: 'heatpump',
+                sensor_name: 'heatpump2'
+            };
+            ws.send(JSON.stringify(offHeatpump));
+
             const addWindow = {
                 action: ADD,
                 sensor_type: 'window',
                 sensor_name: 'window4',
                 state: ON_OPEN
             };
-
             ws.send(JSON.stringify(addWindow));
+
+            const removeWindow = {
+                action: REMOVE,
+                sensor_type: 'window',
+                sensor_name: 'window1'
+            };
+            ws.send(JSON.stringify(removeWindow));
+
+            const removeHeatpump = {
+                action: REMOVE,
+                sensor_type: 'heatpump',
+                sensor_name: 'heatpump2'
+            };
+            //ws.send(JSON.stringify(removeHeatpump));
+
+            const addHeatpump = {
+                action: ADD,
+                sensor_type: 'heatpump',
+                sensor_name: 'heatpump3',
+                state: ON_OPEN,
+                temperature: 30
+            };
+            ws.send(JSON.stringify(addHeatpump));
+
+            const addTherm = {
+                action: ADD,
+                sensor_type: 'thermometer',
+                sensor_name: 'therm2',
+                state: ON_OPEN,
+                temperature: 20
+            };
+            ws.send(JSON.stringify(addTherm));
+
+            const removeTherm = {
+                action: REMOVE,
+                sensor_type: 'thermometer',
+                sensor_name: 'therm1'
+            };
+            ws.send(JSON.stringify(removeTherm));
         }
         if (count == 5){
             ws.send('{"type": "unsubscribe", "target": "room_properties"}');
