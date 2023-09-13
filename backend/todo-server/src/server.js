@@ -128,9 +128,6 @@ function connect_to_weather_service(){
 
   ws_weather.on('open', function open() {
     console.log("Successfully connected to weather service...");
-    // Salvataggio weather service nella lista delle proprietà 
-    sensor_properties.push({"name" : "weather-service", "property" : 0}); // Di default: temperatura = 0 
-    console.log(sensor_properties); 
     ws_weather.send('{"type": "subscribe", "target": "temperature"}');
   });
   
@@ -141,25 +138,30 @@ function connect_to_weather_service(){
     console.log('received: %s', data);
 
     var tmp = JSON.parse(data); 
+
     if (tmp.type == "temperature"){
-      sensor_properties = sensor_properties.map(item => item.name == "weather-service" ? { "name" : item.name, "property" : tmp.value } : item ); 
-    
+      if (sensor_properties.length == 0){
+        sensor_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(3)) }, ];
+      }
+      else{
+        if (sensor_properties.find(item => item.type === 'weather')){
+          // Aggiornamento proprietà weather 
+          sensor_properties = sensor_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(3)) }: item); 
+        }
+        else {
+          // Aggiunta weather 
+          sensor_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(3)) }); 
+        }
+      }    
       console.log(sensor_properties); 
 
-      // Inoltro temperatura a termometro 
-      const setTemperature = {
-        action: 'temperature',
-        sensor: 'thermometer',
-        degrees: tmp.value, 
-      };
-
       // Invio comando per cambio temperature
-      fetch(actuatorAddress + command_endpoint, {
+      fetch(actuatorAddress + sensor_properties_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify(setTemperature), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
       })
       .then((response) => {
         if (!response.status) {
@@ -175,7 +177,7 @@ function connect_to_weather_service(){
         console.error('Si è verificato un errore:', error);
       });
 
-      if (count == 5){
+      if (count == 10){
           ws_weather.send('{"type": "unsubscribe", "target": "temperature"}');
       }
     }
@@ -213,7 +215,7 @@ function connect_to_window_sensor(){
         sensor_properties = sensor_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
-            if (item2.type === 'heatpump') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
+            if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
             else { return  { "type" : item.type, "name" : item.name, "state" : item2.state }; }
           }
           else{ 
@@ -293,7 +295,7 @@ function connect_to_heat_pump(){
         sensor_properties = sensor_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
-            if (item2.type === 'heatpump') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
+            if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
             else { return  { "type" : item.type, "name" : item.name, "state" : item2.state }; }
           }
           else{ 
@@ -356,8 +358,6 @@ function connect_to_thermometer_sensor(){
 
   ws_therm.on('open', function open() {
     console.log("Successfully connected to the thermometer sensor...");
-    // Salvataggio thermometer sensor nella lista delle proprietà 
-    sensor_properties.push({"name" : "thermometer-sensor", "property" : 0}); // Di default: temperature = 0
     ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
   });
   
@@ -365,8 +365,34 @@ function connect_to_thermometer_sensor(){
     count_therm++;
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
-    if (tmp.type == "thermometer_temperature"){
-      sensor_properties = sensor_properties.map(item => item.name == "thermometer-sensor" ? { "name" : item.name, "property" : tmp.temperature } : item ); 
+    if (tmp.type == "sensors_list"){
+      if (sensor_properties.length == 0){
+        sensor_properties = tmp.list;
+      }
+      else{
+        // Aggiornamento proprietà sensori 
+        sensor_properties = sensor_properties.map( item => {
+          let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
+          if (item2) {
+            if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
+            else { return  { "type" : item.type, "name" : item.name, "state" : item2.state }; }
+          }
+          else{ 
+            return item;
+          }
+        });
+        // Aggiunta elementi alla lista
+        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+                .filter(item => item!== null)
+                .forEach(item => sensor_properties.push(item));
+
+        // Rimozione sensori non presenti nella lista che mi è arrivata
+        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item !== null && item.type === "thermometer");
+
+        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+          .filter(item => item!= null);
+      }
     }
     console.log(sensor_properties);
     if (count_therm == 15){

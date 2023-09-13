@@ -26,26 +26,6 @@ async function run() {
     // Puoi eseguire ulteriori operazioni con i dati inviati...
     console.log('Dati ricevuti da backend:', postData);
 
-    // Riceve nuovi stati dei sensori da backend 
-    // me li salvo e quando ricevo temperatura da weather service inoltro la lista
-    // AGGIUNGO I DATI RICEVUTI ALLA LISTA 
-    // if (sensor_properties.some(item => item.name == postData.name)) {
-    //   if (postData.name == "heat-pump") {
-    //     sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name": item.name, "property": postData.property, "temperature": postData.temperature } : item);
-    //   }
-    //   else {
-    //     sensor_properties = sensor_properties.map(item => item.name == postData.name ? { "name": item.name, "property": postData.property } : item);
-    //   }
-    // }
-    // else {
-    //   if (postData.name == "heat-pump") {
-    //     sensor_properties.push({ "name": postData.name, "property": postData.property, "temperature": postData.temperature });
-    //   }
-    //   else {
-    //     sensor_properties.push({ "name": postData.name, "property": postData.property });
-    //   }
-    // }
-
     sensor_properties = postData;
     console.log(sensor_properties);
 
@@ -75,7 +55,6 @@ async function run() {
     .catch((error) => {
       console.error('Si è verificato un errore:', error);
     });
-
   });
 
   app.post("/command", (request, response) => {
@@ -85,7 +64,6 @@ async function run() {
     // Riceve azioni da propagare ai sensori 
     // attuatore valida le richieste e inoltra quelle valide ai sensori usando backchannel 
     if ((postData.sensor_type == 'window' || postData.sensor_type == 'door') && sensor_properties.length > 0) {
-
 
       // Ricevo comando == stato attuale del sensore 
       if (sensor_properties.some(item => item.type == postData.sensor_type && item.name == postData.sensor_name && item.state == postData.action)) {
@@ -121,7 +99,6 @@ async function run() {
           console.error('Si è verificato un errore:', error);
         });
       }
-
     }
     else if ((postData.sensor_type == 'heatpump') && sensor_properties.length > 0) {
       // Ricevo comando == stato attuale del sensore 
@@ -159,44 +136,6 @@ async function run() {
           console.error('Si è verificato un errore:', error);
         });
       }
-
-    }
-    else if (postData.sensor_type == 'thermometer' && sensor_properties.length > 0) {
-
-      if (sensor_properties.some(item => item.name == 'weather-service')) {
-        sensor_properties = sensor_properties.map(item => item.name == 'weather-service' ? { "name": 'weather-service', "property": postData.degrees } : item);
-      }
-      else {
-        sensor_properties.push({ "name": 'weather-service', "property": postData.degrees }); // Di default: temperatura = 0
-      }
-      console.log(sensor_properties);
-
-      console.log('...inoltro comando a thermometer sensors...');
-      // backchannel with thermometer
-      const termAddress = 'http://10.88.0.54:3000'; // Indirizzo del sensor thermometer
-      const termEndpoint = '/room_properties'; // Il percorso dell'endpoint desiderato sul server
-
-      // Configura la richiesta HTTP POST
-      fetch(termAddress + termEndpoint, {
-        method: 'POST', // Metodo della richiesta
-        headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-        },
-        body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-      })
-      .then((response) => {
-        if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
-        }
-        return response;
-      })
-      .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
-      })
-      .catch((error) => {
-        console.error('Si è verificato un errore:', error);
-      });
     }
   });
 }
