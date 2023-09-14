@@ -1,4 +1,4 @@
-import {WebSocket} from 'ws';
+//import {WebSocket} from './ws';
 
 var sensor_properties = []; 
 // Stati sensori
@@ -10,26 +10,25 @@ const REMOVE = 3;
 
 function run() {
 
-    // comunicazione con heat pump sensor service
-    let ws = new WebSocket('ws://10.88.0.11:7000');
+    let ws = new WebSocket('ws://10.88.0.11:7000/ws');
     let count = 0;
 
-    ws.on('error', err => {
-        console.log("Error on connection...");
-        console.log("Trying to reconnect...");
-        ws = null;
-        setTimeout(run, 1000);
-    });
-
-    ws.on('open', function open() {
+    ws.addEventListener("open", (event) => {
         console.log("Successfully connected...");
         // Salvataggio heat pump sensor nella lista delle proprietà 
         ws.send('{"type": "subscribe", "target": "room_properties"}');
     });
 
-    ws.on('message', function message(data) {
+    ws.addEventListener("error" , () => {
+        console.log("Error on connection...");
+        console.log("Trying to reconnect...");
+        ws = null;
+        setTimeout(run, 1000);
+    }); 
+
+    ws.addEventListener("message", (event) => {
         count++;
-        var tmp = JSON.parse(data); 
+        var tmp = JSON.parse(event.data); 
         if(tmp.type == 'sensors_list'){
             sensor_properties = tmp.list; 
             console.log(sensor_properties); 
