@@ -205,7 +205,7 @@ export class SensorHandler extends EventEmitter {
         this._sendState();
         old_sensors_list = sensors; 
       }
-      this.#timeout = setTimeout(callback, this._someMillis());
+      this.#timeout = setTimeout(callback, 500);
     };
     this.#timeout = setTimeout(callback, 0);
   }

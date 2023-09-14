@@ -49,7 +49,9 @@
 
       form.addEventListener('submit', ($event) => {
         $event.preventDefault();
-        this.addTask(form);
+        this.addSensor(form); 
+        //this.addTask(form);
+        //add_window(); 
         form.reset();
       });
 
@@ -117,6 +119,26 @@
         console.log('Task successfully saved', {model: model.toDto()});
         this.createTaskComponent(model);
       }
+    }
+
+    async addSensor(form) {
+      var type = form.querySelector('#sensors');
+      type = (type.value || '').trim();
+      var sensor_name = form.querySelector('input#sensor_name');
+      sensor_name = (sensor_name.value || '').trim();
+      var temperature = form.querySelector('input#temperature');
+      temperature = parseFloat((temperature.value || '').trim());
+      /**const desc = (inp.value || '').trim();
+      if (desc) {
+        console.log(`Saving new task '${desc}'...`);
+        const model = new RestTaskModel(undefined, desc, this.#client);
+        await model.create();
+        console.log('Task successfully saved', {model: model.toDto()});
+        this.createTaskComponent(model);
+      }**/
+      //if (type == "heatpump"){
+      add_sensor(type, sensor_name, temperature); 
+      //}
     }
   }
 

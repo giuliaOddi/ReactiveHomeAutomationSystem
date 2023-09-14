@@ -2,11 +2,11 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SOI - Lab</title>
-  <meta name="description" content="Laboratory of Sistemi Orientati ad Internet">
+  <title>Reactive Home Automation System</title>
+  <meta name="description" content="Project of Sistemi Orientati ad Internet">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta property="og:title" content="Lab of Sistemi Orientati ad Internet">
+  <meta property="og:title" content="Project of Sistemi Orientati ad Internet">
   <meta property="og:type" content="website">
   <meta property="og:image" content="./icon.png">
 
@@ -59,9 +59,25 @@
 <script type="text/html" id="tasks-template">
   <!-- Panels -->
   <div class="panel">
-    <h3>Enter new things to do</h3>
+    <h3>Add a new sensor</h3>
 
     <form name="new-task">
+      <label for="sensors"> Select the sensor type</label>
+      <select id="sensors" name ="task" onchange="show_temperature_field()">
+        <option value="window"> Window </option>
+        <option value="door"> Door </option>
+        <option value="heatpump"> Heat pump </option>
+        <option value="thermometer"> Thermometer </option>
+      </select>
+      <br>
+      <div id="sensor_name" class="input-group">
+        <label for="sensor_name"> Type the sensor name: </label>
+        <input type="text" id="sensor_name" name="sensor_name" value="" placeholder="Type sensor name">
+      </div>
+      <div id="temperature" style="display: none;" class="input-group">
+        <label for="temperature"> Temperature: </label>
+        <input type="text" id="temperature" name="temperature" value="" placeholder="Type temperature">
+      </div>
       <div class="form-group">
         <div class="input-group">
           <input name="task" type="text" value="" placeholder="Type some task">
@@ -108,7 +124,7 @@
   </div>
 </script>
 
-<script type="module" src="js/server.js"></script>
+<script src="js/server.js"></script>
 <script src="js/vendor/modernizr-3.11.2.min.js"></script>
 <script src="js/plugins.js"></script>
 <script src="js/commons.js"></script>
