@@ -154,6 +154,7 @@ async function run() {
   appBack.post("/add-sensor", (request, response) => {
     // Accedi ai dati inviati nel corpo della richiesta POST
     const postData = request.body;
+    console.log('Dati ricevuti:', postData);
 
     if(postData.action == ADD){
       sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state, "temperature" : postData.temperature}); 
@@ -161,12 +162,10 @@ async function run() {
     else if(postData.action == REMOVE){
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
-    
     console.log(sensors);
 
     //response.sendStatus(200);
   });
-
 }
 
 run().then(() => {

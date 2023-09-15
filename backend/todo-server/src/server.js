@@ -338,7 +338,7 @@ function connect_to_heat_pump(){
 
     }
     console.log(sensor_properties); 
-    if (count3 == 5){
+    if (count3 == 20){
       ws_heat.send('{"type": "unsubscribe", "target": "heatpump"}');
     }
   });
