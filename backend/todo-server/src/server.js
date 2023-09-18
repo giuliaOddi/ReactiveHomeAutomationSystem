@@ -31,7 +31,7 @@ const command_endpoint = '/command'; // Il percorso dell'endpoint desiderato sul
 
 
 // Lista sensori e loro stati 
-export var sensor_properties = []; 
+export var sensors_properties = []; 
 
 // Stati sensori
 const ON_OPEN = 0;
@@ -140,20 +140,20 @@ function connect_to_weather_service(){
     var tmp = JSON.parse(data); 
 
     if (tmp.type == "temperature"){
-      if (sensor_properties.length == 0){
-        sensor_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }, ];
+      if (sensors_properties.length == 0){
+        sensors_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }, ];
       }
       else{
-        if (sensor_properties.find(item => item.type === 'weather')){
+        if (sensors_properties.find(item => item.type === 'weather')){
           // Aggiornamento proprietà weather 
-          sensor_properties = sensor_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(3)) }: item); 
+          sensors_properties = sensors_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(3)) }: item); 
         }
         else {
           // Aggiunta weather 
-          sensor_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }); 
+          sensors_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }); 
         }
       }    
-      console.log(sensor_properties); 
+      console.log(sensors_properties); 
 
       // Invio comando per cambio temperature
       fetch(actuatorAddress + sensor_properties_endpoint, {
@@ -161,7 +161,7 @@ function connect_to_weather_service(){
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        body: JSON.stringify(sensors_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
       })
       .then((response) => {
         if (!response.status) {
@@ -210,11 +210,11 @@ function connect_to_window_sensor(){
 
     // {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        sensors_properties = tmp.list;
       }
       else{
-        sensor_properties = sensor_properties.map( item => {
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -225,26 +225,26 @@ function connect_to_window_sensor(){
           }
         });
 
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
+                .forEach(item => sensors_properties.push(item));
         // rimozione
 
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && (item.type === "window" || item.type === "door"));
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
       
-      console.log(sensor_properties);
+      console.log(sensors_properties);
       // Inoltro stato ad attuatore
       fetch(actuatorAddress + sensor_properties_endpoint, {
         method: 'POST', // Metodo della richiesta
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify(sensor_properties),
+        body: JSON.stringify(sensors_properties),
       })
       .then((response) => {
         if (!response.status) {
@@ -292,11 +292,11 @@ function connect_to_heat_pump(){
     var tmp = JSON.parse(data); 
 
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        sensors_properties = tmp.list;
       }
       else{
-        sensor_properties = sensor_properties.map( item => {
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -307,14 +307,14 @@ function connect_to_heat_pump(){
           }
         });
 
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
+                .forEach(item => sensors_properties.push(item));
 
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && item.type === "heatpump");
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
 
@@ -324,7 +324,7 @@ function connect_to_heat_pump(){
         headers: {
           'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
         },
-        body: JSON.stringify(sensor_properties), 
+        body: JSON.stringify(sensors_properties), 
       })
       .then((response) => {
         if (!response.status) {
@@ -341,7 +341,7 @@ function connect_to_heat_pump(){
       });
 
     }
-    console.log(sensor_properties); 
+    console.log(sensors_properties); 
     /*
     if (count3 == 20){
       ws_heat.send('{"type": "unsubscribe", "target": "heatpump"}');
@@ -371,12 +371,12 @@ function connect_to_thermometer_sensor(){
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        sensors_properties = tmp.list;
       }
       else{
         // Aggiornamento proprietà sensori 
-        sensor_properties = sensor_properties.map( item => {
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -387,19 +387,19 @@ function connect_to_thermometer_sensor(){
           }
         });
         // Aggiunta elementi alla lista
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
+                .forEach(item => sensors_properties.push(item));
 
         // Rimozione sensori non presenti nella lista che mi è arrivata
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && item.type === "thermometer");
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
     }
-    console.log(sensor_properties);
+    console.log(sensors_properties);
     /*
     if (count_therm == 15){
       ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');

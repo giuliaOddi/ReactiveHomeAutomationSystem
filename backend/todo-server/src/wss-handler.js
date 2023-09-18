@@ -3,7 +3,7 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
-import { sensor_properties } from './server.js';
+import { sensors_properties } from './server.js';
 
 var list = []; 
 
@@ -157,7 +157,7 @@ export class SensorHandler extends EventEmitter {
 
   _sendState() {
     //const msg = JSON.stringify(sensor_properties);
-    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensor_properties};
+    const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors_properties};
 
     // message is always appended to the buffer
     this.#buffer.push(msg);
@@ -200,9 +200,9 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      if (JSON.stringify(list) !== JSON.stringify(sensor_properties)){
+      if (JSON.stringify(list) !== JSON.stringify(sensors_properties)){
         this._sendState(); 
-        list = sensor_properties.slice(); 
+        list = sensors_properties.slice(); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

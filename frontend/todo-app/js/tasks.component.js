@@ -46,7 +46,7 @@
       if (!form_add) {
         toast('Cannot initialize components: no <b>form</b> found', 'error');
       }
-
+      
       form_add.addEventListener('submit', ($event) => {
         $event.preventDefault();
         this.addSensor(form_add); 
@@ -155,13 +155,11 @@
     }
 
     async removeSensor(form) {
-      // var type = form.querySelector('#sensors');
-      // type = (type.value || '').trim();
-      // var sensor_name = form.querySelector('input#sensor_name');
-      // sensor_name = (sensor_name.value || '').trim();
+      var value = form.querySelector('#sensorsToRemove');
+      value = (value.value || '').trim();
+      var type = value.split(':')[0];
+      var sensor_name = value.split(':')[1];
 
-      var type = "window";
-      var sensor_name = "window1";
       remove_sensor(type, sensor_name); 
     }
 

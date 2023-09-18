@@ -2,7 +2,8 @@
 
 (function (win) {
 
-    var sensor_properties = []; 
+    var sensors_properties = []; 
+
     // Stati sensori
     const ON_OPEN = 0;
     const OFF_CLOSE = 1;
@@ -60,8 +61,29 @@
         var temperature = document.getElementById("temperature");
         temperature.style.display = "none";
     }
+
+    function remove_sensor_options(){
+        // Filtra gli elementi con type diverso da 'weather'
+        var sensors_to_choose_from = sensors_properties.filter(item => item.type !== 'weather');
+
+        var sensorsToRemove = document.getElementById("sensorsToRemove");
+
+        while (sensorsToRemove.options.length > 0) {
+            sensorsToRemove.remove(0);
+        }
+
+        // Aggiungi gli elementi filtrati al menu a tendina
+        sensors_to_choose_from.forEach(item => {
+            var option = document.createElement("option");
+            option.text = item.type + ': ' + item.name;
+            option.value = item.type + ':' + item.name;
+            sensorsToRemove.add(option);
+        });
+    }
     
     function run() {    
+
+        
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
     
@@ -81,8 +103,20 @@
             count++;
             var tmp = JSON.parse(event.data); 
             if(tmp.type == 'sensors_list'){
-                sensor_properties = tmp.list; 
-                console.log(sensor_properties); 
+                
+                var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
+                    .filter(item => item!=false);
+
+                var elements_removed = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? false : true )
+                .filter(item => item!=false);
+
+
+                sensors_properties = tmp.list; 
+                console.log(sensors_properties); 
+
+                if ((elements_added.length > 0 || elements_removed.length > 0) && sensors_properties.length > 0){
+                    remove_sensor_options();
+                }
             }
             if (count == 3){
                 const openDoor = {
@@ -160,7 +194,11 @@
                 ws.send('{"type": "unsubscribe", "target": "room_properties"}');
             }
             */
+
+            
         });
+
+        
     }
     run();
 
@@ -169,6 +207,7 @@
     win.remove_sensor ||= remove_sensor; 
     win.show_temperature_field ||= show_temperature_field; 
     win.hide_temperature_field ||= hide_temperature_field; 
+    win.remove_sensor_options ||= remove_sensor_options;
 
 })(window); 
 
