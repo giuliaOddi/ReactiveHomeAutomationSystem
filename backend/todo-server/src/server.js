@@ -177,9 +177,11 @@ function connect_to_weather_service(){
         console.error('Si è verificato un errore:', error);
       });
 
+      /*
       if (count == 10){
           ws_weather.send('{"type": "unsubscribe", "target": "temperature"}');
       }
+      */
     }
   });
 }
@@ -259,9 +261,11 @@ function connect_to_window_sensor(){
       });
 
     }
+    /*
     if (count == 5){
         ws_window.send('{"type": "unsubscribe", "target": "window-door"}');
     }
+    */
   });
 }
 
@@ -338,9 +342,10 @@ function connect_to_heat_pump(){
 
     }
     console.log(sensor_properties); 
+    /*
     if (count3 == 20){
       ws_heat.send('{"type": "unsubscribe", "target": "heatpump"}');
-    }
+    }*/
   });
 }
 
@@ -395,9 +400,10 @@ function connect_to_thermometer_sensor(){
       }
     }
     console.log(sensor_properties);
+    /*
     if (count_therm == 15){
       ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
-    }
+    }*/
   });
 }
 

@@ -94,7 +94,7 @@ export class WeatherHandler extends EventEmitter {
       this.#ws.close();
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
-    }, secs * 1000);
+    }, secs * 10000);
   }
 
   /**

@@ -12,15 +12,36 @@
     var ws = null;
     
     function add_sensor(type, name, temperature){
-        console.log("Type: ", type, " name: ", name, " temp: ", temperature); 
-        const addSensor = {
-            action: ADD,
-            sensor_type: type,
-            sensor_name: name,
-            state: OFF_CLOSE,
-            temperature: temperature
-        };
+        var addSensor = {};
+        if (type === "heatpump" || type === "thermometer"){
+            addSensor = {
+                action: ADD,
+                sensor_type: type,
+                sensor_name: name,
+                state: OFF_CLOSE,
+                temperature: temperature
+            };
+        }
+        else {
+            addSensor = {
+                action: ADD,
+                sensor_type: type,
+                sensor_name: name,
+                state: OFF_CLOSE
+            };
+        }
+        
         ws.send(JSON.stringify(addSensor));
+    }
+
+    function remove_sensor(type, name){
+        var removeSensor = {
+            action: REMOVE,
+            sensor_type: type,
+            sensor_name: name
+        };
+        
+        ws.send(JSON.stringify(removeSensor));
     }
 
     function show_temperature_field() {
@@ -32,6 +53,12 @@
         else{
             temperature.style.display = "none";
         }
+    }
+
+    function hide_temperature_field() {
+        var menu = document.getElementById("sensors");
+        var temperature = document.getElementById("temperature");
+        temperature.style.display = "none";
     }
     
     function run() {    
@@ -128,16 +155,20 @@
                 };
                 //ws.send(JSON.stringify(removeTherm));
             }
+            /*
             if (count == 5){
                 ws.send('{"type": "unsubscribe", "target": "room_properties"}');
             }
+            */
         });
     }
     run();
 
     /* Exports components and functions */
     win.add_sensor ||= add_sensor; 
+    win.remove_sensor ||= remove_sensor; 
     win.show_temperature_field ||= show_temperature_field; 
+    win.hide_temperature_field ||= hide_temperature_field; 
 
 })(window); 
 

@@ -61,29 +61,54 @@
   <div class="panel">
     <h3>Add a new sensor</h3>
 
-    <form name="new-task">
+    <form name="add-sensor" >
       <label for="sensors"> Select the sensor type</label>
-      <select id="sensors" name ="task" onchange="show_temperature_field()">
+      <select id="sensors" name ="sensor" onchange="show_temperature_field()" >
         <option value="window"> Window </option>
         <option value="door"> Door </option>
         <option value="heatpump"> Heat pump </option>
         <option value="thermometer"> Thermometer </option>
       </select>
       <br>
+      <br>
       <div id="sensor_name" class="input-group">
         <label for="sensor_name"> Type the sensor name: </label>
         <input type="text" id="sensor_name" name="sensor_name" value="" placeholder="Type sensor name">
       </div>
+      <br>
       <div id="temperature" style="display: none;" class="input-group">
         <label for="temperature"> Temperature: </label>
         <input type="text" id="temperature" name="temperature" value="" placeholder="Type temperature">
       </div>
+      <br>
       <div class="form-group">
         <div class="input-group">
-          <input name="task" type="text" value="" placeholder="Type some task">
-          <button type="submit">
+          <button type="submit" onclick="hide_temperature_field()">
             <i class="eos-icons">add</i>
             <span>Add</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3>Remove a sensor</h3>
+
+    <form name="remove-sensor" >
+      <label for="sensors"> Select the sensor type</label>
+      <select id="sensors" name ="sensor"  >
+        <option value="window"> Window </option>
+        <option value="door"> Door </option>
+        <option value="heatpump"> Heat pump </option>
+        <option value="thermometer"> Thermometer </option>
+      </select>
+      <br>
+      <div class="form-group">
+        <div class="input-group">
+          <button type="submit">
+            <i class="eos-icons">remove</i>
+            <span>Remove</span>
           </button>
         </div>
       </div>

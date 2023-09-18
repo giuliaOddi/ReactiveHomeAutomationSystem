@@ -42,17 +42,30 @@
       this.#element.className = 'tasks';
       this.#element.innerHTML = document.querySelector('script#tasks-template').textContent;
 
-      const form = this.#element.querySelector('form[name="new-task"]');
-      if (!form) {
+      const form_add = this.#element.querySelector('form[name="add-sensor"]');
+      if (!form_add) {
         toast('Cannot initialize components: no <b>form</b> found', 'error');
       }
 
-      form.addEventListener('submit', ($event) => {
+      form_add.addEventListener('submit', ($event) => {
         $event.preventDefault();
-        this.addSensor(form); 
-        //this.addTask(form);
+        this.addSensor(form_add); 
+        //this.addTask(form_add);
         //add_window(); 
-        form.reset();
+        form_add.reset();
+      });
+
+      const form_remove = this.#element.querySelector('form[name="remove-sensor"]');
+      if (!form_remove) {
+        toast('Cannot initialize components: no <b>form</b> found', 'error');
+      }
+
+      form_remove.addEventListener('submit', ($event) => {
+        $event.preventDefault();
+        this.removeSensor(form_remove); 
+        //this.addTask(form_add);
+        //add_window(); 
+        form_remove.reset();
       });
 
       const a = this.#element.querySelector('a[data-action=complete-selected]');
@@ -127,7 +140,7 @@
       var sensor_name = form.querySelector('input#sensor_name');
       sensor_name = (sensor_name.value || '').trim();
       var temperature = form.querySelector('input#temperature');
-      temperature = parseFloat((temperature.value || '').trim());
+      temperature = parseFloat((temperature.value || '20').trim());
       /**const desc = (inp.value || '').trim();
       if (desc) {
         console.log(`Saving new task '${desc}'...`);
@@ -140,6 +153,18 @@
       add_sensor(type, sensor_name, temperature); 
       //}
     }
+
+    async removeSensor(form) {
+      // var type = form.querySelector('#sensors');
+      // type = (type.value || '').trim();
+      // var sensor_name = form.querySelector('input#sensor_name');
+      // sensor_name = (sensor_name.value || '').trim();
+
+      var type = "window";
+      var sensor_name = "window1";
+      remove_sensor(type, sensor_name); 
+    }
+
   }
 
   /* Exporting component */

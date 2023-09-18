@@ -98,7 +98,7 @@ export class SensorHandler extends EventEmitter {
       this.#ws.close();
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
-    }, secs * 1000);
+    }, secs * 10000);
   }
 
   /**
@@ -184,6 +184,10 @@ export class SensorHandler extends EventEmitter {
   _send(msg) {
     if (this.#config.failures && Math.random() < this.#config.errorProb) {
       console.info('🐛 There\'s a bug preventing the message to be sent', {handler: this.#name});
+      const callback = () => {
+        this._send(msg);
+      }
+      setTimeout(callback, this._someMillis());
       return;
     }
 

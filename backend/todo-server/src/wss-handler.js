@@ -200,9 +200,9 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
-      if (list != sensor_properties){
+      if (JSON.stringify(list) !== JSON.stringify(sensor_properties)){
         this._sendState(); 
-        list = sensor_properties; 
+        list = sensor_properties.slice(); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
