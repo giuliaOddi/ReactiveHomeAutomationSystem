@@ -80,6 +80,37 @@
             sensorsToRemove.add(option);
         });
     }
+
+    function show_sensors_state(){
+        var sensorList = document.getElementById("sensorsStateChange");
+
+        sensors_properties.forEach(item => {
+            var sensorItem = document.createElement("div");
+
+            var sensorInfo = document.createElement("span");
+            sensorInfo.textContent = item.type + ": " + item.name;
+            sensorItem.appendChild(sensorInfo);
+
+            var toggleButton = document.createElement("button");
+            toggleButton.textContent = "Change State";
+            toggleButton.addEventListener("click", () => {
+                // In questo esempio, semplicemente invertiamo lo stato
+                //item.state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
+                //updateSensorInfo(sensorInfo, item);
+            });
+            sensorItem.appendChild(toggleButton);
+
+            //updateSensorInfo(sensorInfo, item); // Aggiorniamo lo stato iniziale
+
+            sensorList.appendChild(sensorItem);
+        });
+
+        
+    }
+
+    function change_sensor_state(sensorInfoElement, sensor) {
+        sensorInfoElement.textContent = "Type: " + sensor.type + ", Name: " + sensor.name + ", State: " + sensor.state;
+    }
     
     function run() {    
 
@@ -116,6 +147,9 @@
 
                 if ((elements_added.length > 0 || elements_removed.length > 0) && sensors_properties.length > 0){
                     remove_sensor_options();
+                    show_sensors_state();
+                    // https://alvarotrigo.com/blog/toggle-switch-css/
+                    //
                 }
             }
             if (count == 3){
@@ -207,7 +241,6 @@
     win.remove_sensor ||= remove_sensor; 
     win.show_temperature_field ||= show_temperature_field; 
     win.hide_temperature_field ||= hide_temperature_field; 
-    win.remove_sensor_options ||= remove_sensor_options;
 
 })(window); 
 
