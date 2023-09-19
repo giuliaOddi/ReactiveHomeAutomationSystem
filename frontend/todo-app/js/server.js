@@ -11,6 +11,8 @@
     const ADD = 2;
     const REMOVE = 3;
     var ws = null;
+
+    var timeout;
     
     function add_sensor(type, name, temperature){
         var addSensor = {};
@@ -43,6 +45,15 @@
         };
         
         ws.send(JSON.stringify(removeSensor));
+    }
+
+    function change_sensor_state(type, name, state){
+        const changeState = {
+            action: state,
+            sensor_type: type,
+            sensor_name: name
+        };
+        ws.send(JSON.stringify(changeState));
     }
 
     function show_temperature_field() {
@@ -84,37 +95,51 @@
     function show_sensors_state(){
         var sensorList = document.getElementById("sensorsStateChange");
 
-        sensors_properties.forEach(item => {
-            var sensorItem = document.createElement("div");
+        while (sensorList.childNodes.length > 0) {
+            sensorList.removeChild(sensorList.firstChild); 
+        }
 
-            var sensorInfo = document.createElement("span");
-            sensorInfo.textContent = item.type + ": " + item.name;
-            sensorItem.appendChild(sensorInfo);
+        // Filtra gli elementi con type diverso da 'weather'
+        var sensors_to_choose_from = sensors_properties.filter(item => item.type !== 'weather' && item.type !== 'thermometer');
 
-            var toggleButton = document.createElement("button");
-            toggleButton.textContent = "Change State";
-            toggleButton.addEventListener("click", () => {
-                // In questo esempio, semplicemente invertiamo lo stato
-                //item.state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
-                //updateSensorInfo(sensorInfo, item);
+        sensors_to_choose_from.forEach(item => {
+
+            var labelSwitch = document.createElement("label");
+            labelSwitch.className = "toggle";
+
+            var switchSpan = document.createElement("span");
+            switchSpan.className = "toggle-label"; 
+            switchSpan.textContent = item.type + ": " + item.name + " "; 
+            labelSwitch.appendChild(switchSpan);
+
+            var inputSwitch = document.createElement("input");
+            inputSwitch.className = "toggle-checkbox";
+            if (item.state === ON_OPEN) {
+                inputSwitch.checked = true; 
+            }
+            inputSwitch.type = "checkbox";
+            labelSwitch.appendChild(inputSwitch);
+
+            var switchDiv = document.createElement("div");
+            switchDiv.className = "toggle-switch";
+            labelSwitch.appendChild(switchDiv);
+
+            inputSwitch.addEventListener("click", () => {
+                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
+                change_sensor_state(item.type, item.name, state); 
+                clearTimeout(timeout); 
+                timeout = setTimeout(show_sensors_state, 5000);  
             });
-            sensorItem.appendChild(toggleButton);
+            sensorList.appendChild(labelSwitch); 
 
-            //updateSensorInfo(sensorInfo, item); // Aggiorniamo lo stato iniziale
-
-            sensorList.appendChild(sensorItem);
-        });
-
-        
+            sensorList.appendChild(document.createElement("br")); 
+            sensorList.appendChild(document.createElement("br")); 
+        }); 
+                     
     }
 
-    function change_sensor_state(sensorInfoElement, sensor) {
-        sensorInfoElement.textContent = "Type: " + sensor.type + ", Name: " + sensor.name + ", State: " + sensor.state;
-    }
-    
-    function run() {    
+    function run() {            
 
-        
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
     
@@ -130,9 +155,11 @@
             setTimeout(run, 1000);
         }); 
     
+        
         ws.addEventListener("message", (event) => {
             count++;
             var tmp = JSON.parse(event.data); 
+
             if(tmp.type == 'sensors_list'){
                 
                 var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
@@ -141,15 +168,21 @@
                 var elements_removed = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? false : true )
                 .filter(item => item!=false);
 
-
                 sensors_properties = tmp.list; 
                 console.log(sensors_properties); 
 
-                if ((elements_added.length > 0 || elements_removed.length > 0) && sensors_properties.length > 0){
+                // var elements_changed = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name && item.state === item2.state) ) ? false : true))
+                //     .filter(item => item!=false);
+                
+                // if(elements_changed.length > 0 || elements_added.length > 0 || elements_removed.length > 0){
+                //     show_sensors_state();
+                // }
+                //clearTimeout(timeout); 
+                //timeout = setTimeout(show_sensors_state, 2000);   
+
+                if (elements_added.length > 0 || elements_removed.length > 0){
                     remove_sensor_options();
                     show_sensors_state();
-                    // https://alvarotrigo.com/blog/toggle-switch-css/
-                    //
                 }
             }
             if (count == 3){
@@ -158,7 +191,7 @@
                     sensor_type: 'door',
                     sensor_name: 'door1',
                 };
-                ws.send(JSON.stringify(openDoor));
+                //ws.send(JSON.stringify(openDoor));
     
                 const changeHeatpump = {
                     action: ON_OPEN,
@@ -205,7 +238,7 @@
                     state: ON_OPEN,
                     temperature: 30
                 };
-                ws.send(JSON.stringify(addHeatpump));
+                //ws.send(JSON.stringify(addHeatpump));
     
                 const addTherm = {
                     action: ADD,
@@ -231,6 +264,7 @@
 
             
         });
+        setTimeout(show_sensors_state, 1500);
 
         
     }
