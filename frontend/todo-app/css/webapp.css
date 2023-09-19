@@ -59,3 +59,69 @@ body {
   position: relative;
   top: 2px;
 }
+
+.quantity-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px; 
+  height: 40px;
+  margin: 0 auto;    
+}
+
+.quantity-field .value-button{ 
+  border: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 100%;   
+  padding: 0;
+  background: #eee; 
+  outline: none;
+  cursor: pointer;
+}
+
+.quantity-field .value-button:hover {
+  background: rgb(230, 230, 230);
+}
+
+.quantity-field .value-button:active{
+  background: rgb(210, 210, 210);
+}
+
+.quantity-field .decrease-button {
+  margin-right: -4px;
+  border-radius: 8px 0 0 8px;
+}
+
+.quantity-field .increase-button {
+  margin-left: -4px;
+  border-radius: 0 8px 8px 0;
+}
+ 
+.quantity-field .number{
+  display: inline-block;
+  text-align: center;
+  border: none;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 100%;
+  line-height: 40px;
+  font-size: 11pt;
+  box-sizing: border-box; 
+  background: white;
+  font-family: calibri;
+}
+
+.quantity-field .number::selection{
+  background: none;
+}
+
+/*
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+*/

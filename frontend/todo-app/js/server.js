@@ -56,6 +56,18 @@
         ws.send(JSON.stringify(changeState));
     }
 
+    function change_heatpump_temperature(name, state, temperature){
+        const changeTemperature = {
+            action: ON_OPEN,
+            sensor_type: 'heatpump',
+            sensor_name: name,
+            state: state, 
+            temperature: temperature
+        };
+        ws.send(JSON.stringify(changeTemperature));
+    }
+
+
     function show_temperature_field() {
         var menu = document.getElementById("sensors");
         var temperature = document.getElementById("temperature");
@@ -90,6 +102,22 @@
             option.value = item.type + ':' + item.name;
             sensorsToRemove.add(option);
         });
+    }
+
+    function increaseValue(button) {
+        const numberInput = button.parentElement.querySelector('.number');
+        var value = parseInt(numberInput.innerHTML, 10);
+        if(isNaN(value)) value = 0;
+        value > 34 ? value = 34 : ''; 
+        numberInput.innerHTML = value+1;
+    }
+        
+    function decreaseValue(button) {
+        const numberInput = button.parentElement.querySelector('.number');
+        var value = parseInt(numberInput.innerHTML, 10);
+        if(isNaN(value)) value = 0;  
+        value < 16 ? value = 16 : ''; 
+        numberInput.innerHTML = value-1;
     }
 
     function show_sensors_state(){
@@ -129,9 +157,55 @@
                 change_sensor_state(item.type, item.name, state); 
                 clearTimeout(timeout); 
                 timeout = setTimeout(show_sensors_state, 5000);  
-            });
-            sensorList.appendChild(labelSwitch); 
+            }); 
+            
 
+            if (item.type === "heatpump"){
+               /*  <div class="quantity-field" >
+                    <button 
+                        class="value-button decrease-button" 
+                        onclick="decreaseValue(this)" 
+                        title="Azalt">-</button>
+                        <div class="number">0</div>
+                    <button 
+                        class="value-button increase-button" 
+                        onclick="increaseValue(this, 5)"
+                        title="Arrtır"
+                    >+
+                    </button>
+                    </div> */
+                var divField = document.createElement("div");
+                divField.className = "quantity-field";
+
+                var buttonDecrease = document.createElement("button");
+                buttonDecrease.className = "value-button decrease-button";
+                buttonDecrease.onclick = function() {decreaseValue(this); };
+                //buttonDecrease.title = "Azalt";
+                buttonDecrease.textContent = "-";
+                divField.appendChild(buttonDecrease);
+
+                var divNumber = document.createElement("div");
+                divNumber.className = "number";
+                divNumber.textContent = item.temperature; 
+                divField.appendChild(divNumber);
+
+                var buttonIncrease = document.createElement("button");
+                buttonIncrease.className = "value-button increase-button";
+                buttonIncrease.onclick = function() {increaseValue(this); };
+                //buttonIncrease.title = "Arrtır";
+                buttonIncrease.textContent = "+"; 
+                divField.appendChild(buttonIncrease);
+
+                //sensorList.appendChild(divField); 
+                labelSwitch.appendChild(divField); 
+
+                var setTempButton = document.createElement("button"); 
+                setTempButton.textContent = "Set new temperature"; 
+                setTempButton.onclick = function() {change_heatpump_temperature(item.name, item.state, parseInt(buttonIncrease.parentElement.querySelector('.number').innerHTML, 10)); }; 
+                labelSwitch.appendChild(setTempButton); 
+            }
+            
+            sensorList.appendChild(labelSwitch);
             sensorList.appendChild(document.createElement("br")); 
             sensorList.appendChild(document.createElement("br")); 
         }); 
@@ -171,8 +245,8 @@
                 sensors_properties = tmp.list; 
                 console.log(sensors_properties); 
 
-                // var elements_changed = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name && item.state === item2.state) ) ? false : true))
-                //     .filter(item => item!=false);
+                var temperatures_changed = tmp.list.filter(item => (item.type === 'heatpump')).map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name && item.temperature === item2.temperature) ) ? false : true))
+                    .filter(item => item!=false);
                 
                 // if(elements_changed.length > 0 || elements_added.length > 0 || elements_removed.length > 0){
                 //     show_sensors_state();
@@ -182,8 +256,12 @@
 
                 if (elements_added.length > 0 || elements_removed.length > 0){
                     remove_sensor_options();
+                    //show_sensors_state();
+                }
+                if (elements_added.length > 0 || elements_removed.length > 0 || temperatures_changed.length > 0){
                     show_sensors_state();
                 }
+                   
             }
             if (count == 3){
                 const openDoor = {

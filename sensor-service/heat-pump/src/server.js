@@ -22,9 +22,9 @@ const ADD = 2;
 const REMOVE = 3;
 
 export var sensors = [ 
-  { type: 'heatpump', name: 'heatpump1', state: ON, temperature : 22},
-  { type: 'heatpump', name: 'heatpump2', state: ON, temperature : 32},
+  { type: 'heatpump', name: 'heatpump1', state: OFF, temperature : 22},
 ]; 
+// { type: 'heatpump', name: 'heatpump2', state: ON, temperature : 32},
 
 /**
  * Initializes the application middlewares.
