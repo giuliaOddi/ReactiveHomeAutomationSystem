@@ -47,12 +47,23 @@
         ws.send(JSON.stringify(removeSensor));
     }
 
-    function change_sensor_state(type, name, state){
-        const changeState = {
-            action: state,
-            sensor_type: type,
-            sensor_name: name
-        };
+    function change_sensor_state(type, name, state, temperature){
+        var changeState= {};
+        if (type === "heatpump"){
+            changeState = {
+                action: state,
+                sensor_type: type,
+                sensor_name: name,
+                temperature : temperature
+            };
+        }
+        else {
+            changeState = {
+                action: state,
+                sensor_type: type,
+                sensor_name: name
+            };
+        }
         ws.send(JSON.stringify(changeState));
     }
 
@@ -104,7 +115,7 @@
         });
     }
 
-    function increaseValue(button) {
+    function increaseValue(temperature) {
         const numberInput = button.parentElement.querySelector('.number');
         var value = parseInt(numberInput.innerHTML, 10);
         if(isNaN(value)) value = 0;
@@ -112,7 +123,7 @@
         numberInput.innerHTML = value+1;
     }
         
-    function decreaseValue(button) {
+    function decreaseValue(temperature) {
         const numberInput = button.parentElement.querySelector('.number');
         var value = parseInt(numberInput.innerHTML, 10);
         if(isNaN(value)) value = 0;  
@@ -146,53 +157,58 @@
                 inputSwitch.checked = true; 
             }
             inputSwitch.type = "checkbox";
+
+            inputSwitch.addEventListener("click", () => {
+                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
+                if (item.type == 'heatpump'){
+                    change_sensor_state(item.type, item.name, state, item.temperature); 
+                }
+                else{
+                    change_sensor_state(item.type, item.name, state, null); 
+                }
+                
+                clearTimeout(timeout); 
+                timeout = setTimeout(show_sensors_state, 5000);  
+            }); 
+
             labelSwitch.appendChild(inputSwitch);
 
             var switchDiv = document.createElement("div");
             switchDiv.className = "toggle-switch";
             labelSwitch.appendChild(switchDiv);
 
-            inputSwitch.addEventListener("click", () => {
-                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
-                change_sensor_state(item.type, item.name, state); 
-                clearTimeout(timeout); 
-                timeout = setTimeout(show_sensors_state, 5000);  
-            }); 
-            
-
             if (item.type === "heatpump"){
-               /*  <div class="quantity-field" >
-                    <button 
-                        class="value-button decrease-button" 
-                        onclick="decreaseValue(this)" 
-                        title="Azalt">-</button>
-                        <div class="number">0</div>
-                    <button 
-                        class="value-button increase-button" 
-                        onclick="increaseValue(this, 5)"
-                        title="Arrtır"
-                    >+
-                    </button>
-                    </div> */
+                var temperature = item.temperature;
                 var divField = document.createElement("div");
                 divField.className = "quantity-field";
 
                 var buttonDecrease = document.createElement("button");
                 buttonDecrease.className = "value-button decrease-button";
-                buttonDecrease.onclick = function() {decreaseValue(this); };
-                //buttonDecrease.title = "Azalt";
+                //buttonDecrease.onclick = function() {decreaseValue(this); };
+                if (inputSwitch.checked){
+                    buttonDecrease.addEventListener("click", () => {
+                        temperature--; 
+                        divNumber.textContent = temperature; 
+                    }); 
+                }
                 buttonDecrease.textContent = "-";
                 divField.appendChild(buttonDecrease);
 
                 var divNumber = document.createElement("div");
                 divNumber.className = "number";
-                divNumber.textContent = item.temperature; 
+                divNumber.textContent = temperature; 
                 divField.appendChild(divNumber);
 
                 var buttonIncrease = document.createElement("button");
                 buttonIncrease.className = "value-button increase-button";
-                buttonIncrease.onclick = function() {increaseValue(this); };
-                //buttonIncrease.title = "Arrtır";
+                //buttonIncrease.onclick = function() {increaseValue(this); };
+                if (inputSwitch.checked){
+                    buttonIncrease.addEventListener("click", () => {
+                        temperature++; 
+                        divNumber.textContent = temperature; 
+                    }); 
+                    
+                }
                 buttonIncrease.textContent = "+"; 
                 divField.appendChild(buttonIncrease);
 
@@ -201,7 +217,14 @@
 
                 var setTempButton = document.createElement("button"); 
                 setTempButton.textContent = "Set new temperature"; 
-                setTempButton.onclick = function() {change_heatpump_temperature(item.name, item.state, parseInt(buttonIncrease.parentElement.querySelector('.number').innerHTML, 10)); }; 
+                //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
+                if (inputSwitch.checked){
+                    setTempButton.addEventListener("click", () => {
+                        change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
+                        //clearTimeout(timeout);
+                        //setTimeout(show_sensors_state, 4000);
+                    }); 
+                }
                 labelSwitch.appendChild(setTempButton); 
             }
             
@@ -242,11 +265,12 @@
                 var elements_removed = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? false : true )
                 .filter(item => item!=false);
 
-                sensors_properties = tmp.list; 
-                console.log(sensors_properties); 
-
                 var temperatures_changed = tmp.list.filter(item => (item.type === 'heatpump')).map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name && item.temperature === item2.temperature) ) ? false : true))
                     .filter(item => item!=false);
+
+
+                sensors_properties = tmp.list; 
+                console.log(sensors_properties); 
                 
                 // if(elements_changed.length > 0 || elements_added.length > 0 || elements_removed.length > 0){
                 //     show_sensors_state();
