@@ -154,6 +154,7 @@
 
             var inputSwitch = document.createElement("input");
             inputSwitch.className = "toggle-checkbox";
+
             if (item.state === ON_OPEN) {
                 inputSwitch.checked = true; 
             }
@@ -174,7 +175,7 @@
                 
                 
                 clearTimeout(timeout); 
-                timeout = setTimeout(show_sensors_state, 5000);  
+                timeout = setTimeout(show_sensors_state, 4000);  
             }); 
             inputSwitch.type = "checkbox";
             labelSwitch.appendChild(inputSwitch);
@@ -196,14 +197,14 @@
 
                 var buttonDecrease = document.createElement("button");
                 buttonDecrease.className = "value-button decrease-button";
-                //buttonDecrease.onclick = function() {decreaseValue(this); };
-                if (inputSwitch.checked){
-                    buttonDecrease.addEventListener("click", () => {
+                
+                buttonDecrease.addEventListener("click", () => {
+                    if (inputSwitch.checked){
                         temperature--; 
                         temperature < 15 ? temperature = 15 : ''; 
                         divNumber.textContent = temperature; 
-                    }); 
-                }
+                    }
+                }); 
                 buttonDecrease.textContent = "-";
                 divField.appendChild(buttonDecrease);
 
@@ -214,15 +215,13 @@
 
                 var buttonIncrease = document.createElement("button");
                 buttonIncrease.className = "value-button increase-button";
-                //buttonIncrease.onclick = function() {increaseValue(this); };
-                if (inputSwitch.checked === true){
-                    buttonIncrease.addEventListener("click", () => {
+                buttonIncrease.addEventListener("click", () => {
+                    if (inputSwitch.checked){
                         temperature++; 
                         temperature > 35 ? temperature = 35 : ''; 
                         divNumber.textContent = temperature; 
-                    }); 
-                    
-                }
+                    }
+                }); 
                 buttonIncrease.textContent = "+"; 
                 divField.appendChild(buttonIncrease);
 
@@ -234,13 +233,13 @@
                 var setTempButton = document.createElement("button"); 
                 setTempButton.textContent = "Set new temperature"; 
                 //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
-                if (inputSwitch.checked === true){
-                    setTempButton.addEventListener("click", () => {
+                setTempButton.addEventListener("click", () => {
+                    if (inputSwitch.checked){
                         change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
-                        //clearTimeout(timeout);
-                        //setTimeout(show_sensors_state, 4000);
-                    }); 
-                }
+                    }
+                    clearTimeout(timeout);
+                    setTimeout(show_sensors_state, 4000);
+                }); 
                 labelSwitch.appendChild(document.createElement("br")); 
                 labelSwitch.appendChild(setTempButton); 
             }
