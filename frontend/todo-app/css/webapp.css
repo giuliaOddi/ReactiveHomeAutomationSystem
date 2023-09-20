@@ -17,27 +17,43 @@ body {
   display: inline-block;
   background: #ccc;
   border-radius: 16px;
-  width: 58px;
-  height: 32px;
+  width: 116px;
+  height: 48px;
   position: relative;
   vertical-align: middle;
   transition: background 0.25s;
 }
-.toggle-switch:before, .toggle-switch:after {
-  content: "";
-}
+
 .toggle-switch:before {
+  font-size: 9pt;
+  text-align: center;
+  line-height: 35px;
   display: block;
   background: linear-gradient(to bottom, #fff 0%, #eee 100%);
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
-  width: 24px;
-  height: 24px;
+  width: 48px;
+  height: 36px;
   position: absolute;
   top: 4px;
   left: 4px;
   transition: left 0.25s;
 }
+#window-door.toggle-switch:before{
+  content: "CLOSED";
+}
+
+#heatpump.toggle-switch:before{
+  content: "OFF";
+}
+.toggle-checkbox:checked + #window-door.toggle-switch:before{
+  content: "OPEN";
+}
+
+.toggle-checkbox:checked + #heatpump.toggle-switch:before{
+  content: "ON";
+}
+
 .toggle:hover .toggle-switch:before {
   background: linear-gradient(to bottom, #fff 0%, #fff 100%);
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
@@ -46,7 +62,7 @@ body {
   background: #56c080;
 }
 .toggle-checkbox:checked + .toggle-switch:before {
-  left: 30px;
+  left: 60px;
 }
 
 .toggle-checkbox {
