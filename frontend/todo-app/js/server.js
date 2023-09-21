@@ -159,24 +159,10 @@
                 inputSwitch.checked = true; 
             }
             
+            var temperatureAlert = document.createElement("div");
+            temperatureAlert.style.color = "red";
 
-            inputSwitch.addEventListener("click", () => {
-                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
-                if (item.type == 'heatpump'){
-                    change_sensor_state(item.type, item.name, state, item.temperature); 
-                }
-                else{
-                    change_sensor_state(item.type, item.name, state, null); 
-                }
-
-                // if (state === ON_OPEN) {
-                //     document.getElementsByClassName("toggle-checkbox").checked = true;
-                // }
-                
-                
-                clearTimeout(timeout); 
-                timeout = setTimeout(show_sensors_state, 4000);  
-            }); 
+           
             inputSwitch.type = "checkbox";
             labelSwitch.appendChild(inputSwitch);
 
@@ -188,6 +174,23 @@
             else {
                 switchDiv.id = "window-door";
             }
+            switchDiv.addEventListener("click", () => {
+                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
+                if (item.type == 'heatpump'){
+                    change_sensor_state(item.type, item.name, state, item.temperature); 
+                }
+                else{
+                    change_sensor_state(item.type, item.name, state, null); 
+                }
+
+                if (state === ON_OPEN) {
+                    temperatureAlert.textContent = "";
+                }
+                
+                
+                clearTimeout(timeout); 
+                timeout = setTimeout(show_sensors_state, 4000);  
+            }); 
             labelSwitch.appendChild(switchDiv);
 
             if (item.type === "heatpump"){
@@ -203,6 +206,9 @@
                         temperature--; 
                         temperature < 15 ? temperature = 15 : ''; 
                         divNumber.textContent = temperature; 
+                    }
+                    else {
+                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
                     }
                 }); 
                 buttonDecrease.textContent = "-";
@@ -221,6 +227,9 @@
                         temperature > 35 ? temperature = 35 : ''; 
                         divNumber.textContent = temperature; 
                     }
+                    else {
+                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
+                    }
                 }); 
                 buttonIncrease.textContent = "+"; 
                 divField.appendChild(buttonIncrease);
@@ -232,16 +241,22 @@
 
                 var setTempButton = document.createElement("button"); 
                 setTempButton.textContent = "Set new temperature"; 
+                
                 //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
                 setTempButton.addEventListener("click", () => {
                     if (inputSwitch.checked){
                         change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
+                        clearTimeout(timeout);
+                        setTimeout(show_sensors_state, 4000);
                     }
-                    clearTimeout(timeout);
-                    setTimeout(show_sensors_state, 4000);
+                    else {
+                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
+                    }
+                    
                 }); 
                 labelSwitch.appendChild(document.createElement("br")); 
                 labelSwitch.appendChild(setTempButton); 
+                labelSwitch.appendChild(temperatureAlert);
             }
             
             
@@ -382,7 +397,8 @@
 
             
         });
-        setTimeout(show_sensors_state, 1500);
+        setTimeout(show_sensors_state, 2000);
+        setTimeout(show_sensors_state, 2000);
 
         
     }

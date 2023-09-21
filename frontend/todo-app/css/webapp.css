@@ -11,6 +11,8 @@ body {
 .toggle {
   cursor: pointer;
   display: inline-block;
+  /* width: 4000px;  */
+  height: 4px;
 }
 
 .toggle-switch {
@@ -82,7 +84,7 @@ body {
   align-items: center;
   width: 120px; 
   height: 40px;
-  margin: 0 auto;    
+  /* margin: 0 auto;     */
 }
 
 .quantity-field .value-button{ 
