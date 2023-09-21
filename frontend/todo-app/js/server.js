@@ -114,7 +114,7 @@
             sensorsToRemove.add(option);
         });
     }
-
+/* 
     function increaseValue(temperature) {
         const numberInput = button.parentElement.querySelector('.number');
         var value = parseInt(numberInput.innerHTML, 10);
@@ -129,7 +129,7 @@
         if(isNaN(value)) value = 0;  
         value < 16 ? value = 16 : ''; 
         numberInput.innerHTML = value-1;
-    }
+    } */
 
     function show_sensors_state(){
         var sensorList = document.getElementById("sensorsStateChange");

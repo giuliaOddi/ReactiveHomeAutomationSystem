@@ -1,4 +1,7 @@
+'use strict';
 (function (win) {
+
+  const { fromEvent } = rxjs;
 
   /**
    * Given an HTML element representing a task, extracts the task's ID.
@@ -53,7 +56,12 @@
         //this.addTask(form_add);
         //add_window(); 
         form_add.reset();
-      });
+      }); 
+      /* fromEvent(form_add, 'submit').subscribe(() => {
+        this.addSensor(form_add); 
+        //form_add.reset();
+      });  */
+      
 
       const form_remove = this.#element.querySelector('form[name="remove-sensor"]');
       if (!form_remove) {
@@ -66,7 +74,7 @@
         //this.addTask(form_add);
         //add_window(); 
         form_remove.reset();
-      });
+      });  
 
       const a = this.#element.querySelector('a[data-action=complete-selected]');
       a.addEventListener('click', ($event) => {
