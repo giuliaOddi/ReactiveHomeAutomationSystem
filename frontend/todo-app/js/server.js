@@ -2,6 +2,12 @@
 
 (function (win) {
 
+    const { BehaviorSubject } = rxjs;
+    const { map } = rxjs;
+    //const _ = require('lodash');
+    //let lodash = require("lodash");
+    //const { _ } = lodash;
+
     var sensors_properties = []; 
 
     // Stati sensori
@@ -266,7 +272,40 @@
                      
     }
 
-    function run() {            
+    function run() {     
+        
+        var list = []
+
+        const userListChanged$ = new BehaviorSubject(list);
+        const userListDifference$ = userListChanged$.pipe(
+            map (current => 
+            {
+                return _.difference(current, sensors_properties); 
+            })
+        );
+
+        function currentToPrevious() {
+            userList.previous = [].concat(userList.current);
+        }
+
+        function addUser(name, age) {
+            currentToPrevious();
+            list.push({name, age});
+            userListChanged$.next(list);
+        }
+
+        function modifyUser(index, object) {
+            currentToPrevious();
+            list[index] = Object.assign({}, list[index], object);
+            userListChanged$.next(list);
+        }
+
+        userListChanged$.subscribe(value => console.log('list', value));
+        userListDifference$.subscribe(value => console.log('diff', value));
+
+        ///////////////////////////////////////////////////////
+        //https://stackoverflow.com/questions/44995562/rxjs-observable-emit-every-specific-change-in-the-array
+        ///////////////////////////////////////////////////////
 
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
@@ -289,6 +328,9 @@
             var tmp = JSON.parse(event.data); 
 
             if(tmp.type == 'sensors_list'){
+
+                list = tmp.list.slice();                
+                userListChanged$.next(list);  
                 
                 var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
                     .filter(item => item!=false);
@@ -300,7 +342,7 @@
                     .filter(item => item!=false);
 
 
-                sensors_properties = tmp.list; 
+                sensors_properties = list.slice();
                 console.log(sensors_properties); 
                 
                 // if(elements_changed.length > 0 || elements_added.length > 0 || elements_removed.length > 0){
