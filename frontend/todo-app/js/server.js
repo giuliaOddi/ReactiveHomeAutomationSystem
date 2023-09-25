@@ -4,9 +4,6 @@
 
     const { BehaviorSubject } = rxjs;
     const { map } = rxjs;
-    //const _ = require('lodash');
-    //let lodash = require("lodash");
-    //const { _ } = lodash;
 
     var sensors_properties = []; 
 
@@ -268,8 +265,31 @@
             
             sensorList.appendChild(document.createElement("br")); 
             sensorList.appendChild(document.createElement("br")); 
-        }); 
-                     
+        });     
+    }
+
+    function create_graph(divChart) {
+        
+        const labels = { 1: "g", 2: "f", 3: "m", 4: "m", 5: "e", 6: "r", 7: "u"};
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'My First Dataset',
+                data: [65, 59, 80, 81, 56, 55, 40],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        };
+        const config = {
+            type: 'line',
+            data: data,
+          };
+
+        return new Chart(
+            divChart,
+            config
+        )
     }
 
     function run() {     
@@ -279,33 +299,18 @@
         const userListChanged$ = new BehaviorSubject(list);
         const userListDifference$ = userListChanged$.pipe(
             map (current => 
-            {
-                return _.difference(current, sensors_properties); 
+            {               
+                var sensors_differences = current
+                                            .map(item => sensors_properties
+                                            .find(item2 => (item2.type === item.type) && (item2.name === item.name) && (item2.state === item.state) && (item2.temperature === item.temperature) ) ? null : item)
+                                            .filter(item => item != null);
+                //return _.difference(current, sensors_properties); 
+                return sensors_differences; 
             })
         );
 
-        function currentToPrevious() {
-            userList.previous = [].concat(userList.current);
-        }
-
-        function addUser(name, age) {
-            currentToPrevious();
-            list.push({name, age});
-            userListChanged$.next(list);
-        }
-
-        function modifyUser(index, object) {
-            currentToPrevious();
-            list[index] = Object.assign({}, list[index], object);
-            userListChanged$.next(list);
-        }
-
         userListChanged$.subscribe(value => console.log('list', value));
         userListDifference$.subscribe(value => console.log('diff', value));
-
-        ///////////////////////////////////////////////////////
-        //https://stackoverflow.com/questions/44995562/rxjs-observable-emit-every-specific-change-in-the-array
-        ///////////////////////////////////////////////////////
 
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
@@ -321,7 +326,11 @@
             ws = null;
             setTimeout(run, 1000);
         }); 
-    
+
+        var divChart = document.createElement("div");  
+        let chart = create_graph(divChart); 
+        chart.update(); 
+
         
         ws.addEventListener("message", (event) => {
             count++;
