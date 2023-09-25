@@ -4,6 +4,7 @@
 
     const { BehaviorSubject } = rxjs;
     const { map } = rxjs;
+    const {Chart} = import("chart.js");
 
     var sensors_properties = []; 
 
@@ -268,7 +269,7 @@
         });     
     }
 
-    function create_graph(divChart) {
+    function create_graph(ctx) {
         
         const labels = { 1: "g", 2: "f", 3: "m", 4: "m", 5: "e", 6: "r", 7: "u"};
         const data = {
@@ -284,10 +285,10 @@
         const config = {
             type: 'line',
             data: data,
-          };
+        };
 
         return new Chart(
-            divChart,
+            ctx, 
             config
         )
     }
@@ -327,9 +328,23 @@
             setTimeout(run, 1000);
         }); 
 
-        var divChart = document.createElement("div");  
-        let chart = create_graph(divChart); 
-        chart.update(); 
+        const ctx = document.getElementById("myChart");
+
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["g", "f", "m", "m", "e", "r", "u"],
+                datasets: [{
+                    label: 'My First Dataset',
+                    data: [65, 59, 80, 81, 56, 55, 40],
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+
+        }); 
+        //chart.update(); 
 
         
         ws.addEventListener("message", (event) => {
