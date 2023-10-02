@@ -4,7 +4,7 @@
 
     const { BehaviorSubject } = rxjs;
     const { map } = rxjs;
-    const {Chart} = import("chart.js");
+    //const {Chart} = import("chart.js");
 
     var sensors_properties = []; 
 
@@ -273,14 +273,14 @@
         
         const labels = { 1: "g", 2: "f", 3: "m", 4: "m", 5: "e", 6: "r", 7: "u"};
         const data = {
-            labels: labels,
-            datasets: [{
-                label: 'My First Dataset',
-                data: [65, 59, 80, 81, 56, 55, 40],
-                fill: false,
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
+            labels: ['Label 1', 'Label 2', 'Label 3'],
+            datasets: [
+                {
+                    label: 'Dataset Label',
+                    data: [10, 20, 30],
+                    backgroundColor: ['red', 'blue', 'green'],
+                }
+            ]
         };
         const config = {
             type: 'line',
@@ -328,9 +328,10 @@
             setTimeout(run, 1000);
         }); 
 
-        const ctx = document.getElementById("myChart");
+        
+        
 
-        let chart = new Chart(ctx, {
+        /*let chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ["g", "f", "m", "m", "e", "r", "u"],
@@ -343,7 +344,7 @@
                 }]
             }
 
-        }); 
+        }); */
         //chart.update(); 
 
         
@@ -381,6 +382,16 @@
                 }
                 if (elements_added.length > 0 || elements_removed.length > 0 || temperatures_changed.length > 0){
                     show_sensors_state();
+
+                    var myChart = document.getElementById("myChart").getContext('2d');;
+                    /* 
+                    var divProva = document.createElement("div");
+                    divProva.textContent = "prova";
+                    myChart.appendChild(divProva);  */
+                    /* if (myChart) {
+                        myChart.destroy();
+                    } */
+                    create_graph(myChart); 
                 }
                    
             }
