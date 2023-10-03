@@ -269,7 +269,7 @@
         });     
     }
 
-    function create_graph(ctx) {
+    function create_graph(chart) {
         
         const labels = { 1: "g", 2: "f", 3: "m", 4: "m", 5: "e", 6: "r", 7: "u"};
         const data = {
@@ -288,13 +288,13 @@
         };
 
         return new Chart(
-            ctx, 
+            chart, 
             config
         )
     }
 
     function run() {     
-        
+
         var list = []
 
         const userListChanged$ = new BehaviorSubject(list);
@@ -327,26 +327,6 @@
             ws = null;
             setTimeout(run, 1000);
         }); 
-
-        
-        
-
-        /*let chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ["g", "f", "m", "m", "e", "r", "u"],
-                datasets: [{
-                    label: 'My First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            }
-
-        }); */
-        //chart.update(); 
-
         
         ws.addEventListener("message", (event) => {
             count++;
@@ -369,12 +349,6 @@
 
                 sensors_properties = list.slice();
                 console.log(sensors_properties); 
-                
-                // if(elements_changed.length > 0 || elements_added.length > 0 || elements_removed.length > 0){
-                //     show_sensors_state();
-                // }
-                //clearTimeout(timeout); 
-                //timeout = setTimeout(show_sensors_state, 2000);   
 
                 if (elements_added.length > 0 || elements_removed.length > 0){
                     remove_sensor_options();
@@ -382,110 +356,55 @@
                 }
                 if (elements_added.length > 0 || elements_removed.length > 0 || temperatures_changed.length > 0){
                     show_sensors_state();
-
-                    var myChart = document.getElementById("myChart").getContext('2d');;
-                    /* 
-                    var divProva = document.createElement("div");
-                    divProva.textContent = "prova";
-                    myChart.appendChild(divProva);  */
-                    /* if (myChart) {
-                        myChart.destroy();
-                    } */
-                    create_graph(myChart); 
                 }
                    
             }
-            if (count == 3){
-                const openDoor = {
-                    action: ON_OPEN,
-                    sensor_type: 'door',
-                    sensor_name: 'door1',
-                };
-                //ws.send(JSON.stringify(openDoor));
-    
-                const changeHeatpump = {
-                    action: ON_OPEN,
-                    sensor_type: 'heatpump',
-                    sensor_name: 'heatpump1',
-                    state: ON_OPEN, 
-                    temperature: 24
-                };
-                //ws.send(JSON.stringify(changeHeatpump));
-    
-                const offHeatpump = {
-                    action: OFF_CLOSE,
-                    sensor_type: 'heatpump',
-                    sensor_name: 'heatpump2'
-                };
-                //ws.send(JSON.stringify(offHeatpump));
-    
-                const addWindow = {
-                    action: ADD,
-                    sensor_type: 'window',
-                    sensor_name: 'window4',
-                    state: ON_OPEN
-                };
-                //ws.send(JSON.stringify(addWindow));
-    
-                const removeWindow = {
-                    action: REMOVE,
-                    sensor_type: 'window',
-                    sensor_name: 'window1'
-                };
-                //ws.send(JSON.stringify(removeWindow));
-    
-                const removeHeatpump = {
-                    action: REMOVE,
-                    sensor_type: 'heatpump',
-                    sensor_name: 'heatpump2'
-                };
-                //ws.send(JSON.stringify(removeHeatpump));
-    
-                const addHeatpump = {
-                    action: ADD,
-                    sensor_type: 'heatpump',
-                    sensor_name: 'heatpump3',
-                    state: ON_OPEN,
-                    temperature: 30
-                };
-                //ws.send(JSON.stringify(addHeatpump));
-    
-                const addTherm = {
-                    action: ADD,
-                    sensor_type: 'thermometer',
-                    sensor_name: 'therm2',
-                    state: ON_OPEN,
-                    temperature: 20
-                };
-                //ws.send(JSON.stringify(addTherm));
-    
-                const removeTherm = {
-                    action: REMOVE,
-                    sensor_type: 'thermometer',
-                    sensor_name: 'therm1'
-                };
-                //ws.send(JSON.stringify(removeTherm));
-            }
-            /*
-            if (count == 5){
-                ws.send('{"type": "unsubscribe", "target": "room_properties"}');
-            }
-            */
-
             
         });
-        setTimeout(show_sensors_state, 2000);
-        setTimeout(show_sensors_state, 2000);
+        //setTimeout(show_sensors_state, 2000);
 
+         //var myChart = document.getElementById("myChart").getContext('2d');
+        /* 
+        var divProva = document.createElement("div");
+        divProva.textContent = "prova";
+        myChart.appendChild(divProva);  */
+        /* if (myChart) {
+            myChart.destroy();
+        } */
+
+        // var ctx = document.getElementById("myChart").getContext("2d"), 
+
+        var chartsDiv = document.getElementById("charts");
+
+        var chartCanvas = document.createElement("canvas");
+        chartCanvas.id = "myGraph";
+        chartCanvas.height = "50px";
+        chartCanvas.width = "50px";
+        
+        var chartCanvas2 = document.createElement("canvas");
+        chartCanvas2.id = "myGraph2";
+        chartCanvas2.height = "50px";
+        chartCanvas2.width = "50px";
+
+        chartsDiv.appendChild(chartCanvas);
+        chartsDiv.appendChild(chartCanvas2);
+
+        var chart = create_graph(chartCanvas);
+        var chart2 = create_graph(chartCanvas2);
+
+        /*
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(create_graph, 2000); 
+        });*/
         
     }
-    run();
 
     /* Exports components and functions */
     win.add_sensor ||= add_sensor; 
     win.remove_sensor ||= remove_sensor; 
     win.show_temperature_field ||= show_temperature_field; 
     win.hide_temperature_field ||= hide_temperature_field; 
+    win.run ||= run;
 
 })(window); 
 
