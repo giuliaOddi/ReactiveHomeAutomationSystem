@@ -271,14 +271,12 @@
 
     function create_graph(chart) {
         
-        const labels = { 1: "g", 2: "f", 3: "m", 4: "m", 5: "e", 6: "r", 7: "u"};
         const data = {
-            labels: ['Label 1', 'Label 2', 'Label 3'],
+            labels: ['', '', ''],
             datasets: [
                 {
                     label: 'Dataset Label',
                     data: [10, 20, 30],
-                    backgroundColor: ['red', 'blue', 'green'],
                 }
             ]
         };
@@ -302,16 +300,23 @@
             map (current => 
             {               
                 var sensors_differences = current
-                                            .map(item => sensors_properties
-                                            .find(item2 => (item2.type === item.type) && (item2.name === item.name) && (item2.state === item.state) && (item2.temperature === item.temperature) ) ? null : item)
-                                            .filter(item => item != null);
+                    .map(item => sensors_properties
+                    .find(item2 => (item2.type === item.type) && (item2.name === item.name) && (item2.state === item.state) && (item2.temperature === item.temperature) ) ? null : item)
+                    .filter(item => item != null);
                 //return _.difference(current, sensors_properties); 
-                return sensors_differences; 
+                return sensors_differences;     // ritorna aggiunte e modifiche ma NON rimozione sensori
             })
         );
 
-        userListChanged$.subscribe(value => console.log('list', value));
-        userListDifference$.subscribe(value => console.log('diff', value));
+        //userListChanged$.subscribe(value => console.log('list', value));
+        userListDifference$.subscribe(value => {
+            value.forEach(item => {
+                console.log(item);
+                // creazione o modifica grafici 
+                // rimozione grafici di sensori rimossi
+            });
+
+        });
 
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
@@ -376,21 +381,60 @@
 
         var chartsDiv = document.getElementById("charts");
 
+        // var chartDiv = document.createElement("div");
+        // var chartDiv2 = document.createElement("div");
+        // var chartDiv3 = document.createElement("div");
+        // //chartDiv.width = "50%";
+        // //chartDiv2.width = "50%";
+        // //chartDiv3.width = "50%";
+
+        // chartsDiv.appendChild(chartDiv);
+        // chartsDiv.appendChild(chartDiv2);
+        // chartsDiv.appendChild(chartDiv3);
+
         var chartCanvas = document.createElement("canvas");
         chartCanvas.id = "myGraph";
-        chartCanvas.height = "50px";
-        chartCanvas.width = "50px";
+        chartCanvas.height = "50";
+        
         
         var chartCanvas2 = document.createElement("canvas");
         chartCanvas2.id = "myGraph2";
-        chartCanvas2.height = "50px";
-        chartCanvas2.width = "50px";
+        chartCanvas2.height = "50";
 
-        chartsDiv.appendChild(chartCanvas);
-        chartsDiv.appendChild(chartCanvas2);
+
+        var chartCanvas3 = document.createElement("canvas");
+        chartCanvas3.id = "myGraph3";
+        chartCanvas3.height = "50";
+        
 
         var chart = create_graph(chartCanvas);
         var chart2 = create_graph(chartCanvas2);
+        var chart3 = create_graph(chartCanvas3);
+
+        chart3.data.labels.push('');
+        chart3.data.datasets[0].data.push(15);
+        chart3.update();
+
+        chart2.data.labels = ['','','',''];
+        chart2.data.datasets[0].data = [10,0,20,0];
+        chart2.update();
+
+        chartsDiv.appendChild(chartCanvas);
+        chartsDiv.appendChild(chartCanvas2);
+        chartsDiv.appendChild(chartCanvas3);
+
+        var chartnew = Chart.getChart("myGraph");
+        chartnew.data.labels.push('');
+        chartnew.data.datasets[0].data.push(0);
+        chartnew.update();
+
+        //////////////////////////
+        // per rimuovere un grafico: 
+        //var chart = Chart.getChart("myGraph");
+        //chart.destroy();
+        //var chartSpan = document.getElementById("myGraph");
+        //chartsDiv.removeChild(chartSpan);
+
 
         /*
         document.addEventListener("DOMContentLoaded", function() {

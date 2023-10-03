@@ -8,11 +8,16 @@ body {
   font-family: -apple-system, ".SFNSText-Regular", "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
 }
 
+form {
+  display: ruby;
+}
+
+#sensor_name{
+  margin-left: 20px;
+}
 .toggle {
   cursor: pointer;
-  display: inline-block;
-  /* width: 4000px;  */
-  height: 4px;
+  display: ruby;
 }
 
 .toggle-switch {
@@ -84,7 +89,7 @@ body {
   align-items: center;
   width: 120px; 
   height: 40px;
-  /* margin: 0 auto;     */
+  margin: 20px;
 }
 
 .quantity-field .value-button{ 

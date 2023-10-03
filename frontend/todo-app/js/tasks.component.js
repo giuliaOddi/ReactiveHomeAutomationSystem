@@ -76,12 +76,7 @@
         form_remove.reset();
       });  
 
-      const a = this.#element.querySelector('a[data-action=complete-selected]');
-      a.addEventListener('click', ($event) => {
-        $event.preventDefault();
-        this.removeSelectedTasks();
-      });
-
+      /*
       try {
         const resp = await this.#client.get('tasks');
         resp.results.forEach(dto => {
@@ -91,6 +86,7 @@
       } catch (e) {
         console.error('Something went wrong getting tasks', e);
       }
+      */
 
       return this.#element;
     }
