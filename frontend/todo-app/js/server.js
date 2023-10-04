@@ -164,6 +164,7 @@
             }
             
             var temperatureAlert = document.createElement("div");
+            temperatureAlert.id = "tempAlert";
             temperatureAlert.style.color = "red";
 
            
@@ -269,20 +270,33 @@
         });     
     }
 
-    function create_graph(chart, title) {
+    function create_graph(chart, title, value, color) {
         
         const data = {
-            labels: ['', '', ''],
+            labels: [''],
             datasets: [
                 {
                     label: title,
-                    data: [10, 20, 30],
+                    data: [value],
+                    borderColor: color,
                 }
             ]
         };
         const config = {
             type: 'line',
-            data: data,
+            data: data, 
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: 20
+                            }
+                        }
+                    }
+                }
+            }
         };
 
         return new Chart(
@@ -315,21 +329,71 @@
                 // creazione o modifica grafici 
                 var chartsDiv = document.getElementById("charts");
 
+                
                 var chart = Chart.getChart(item.name);
+
+                var stateGraphName = item.name + "-state";
+                var tempGraphName = item.name + "-temp";
+
+                if (item.type === "heatpump"){
+                    
+                    chart = Chart.getChart(stateGraphName);
+                }
+                
                 // grafico già esiste aggiungo nuovo stato 
                 if(chart != null) { 
                     chart.data.labels.push('');
-                    chart.data.datasets[0].data.push(item.state);
+                    if (item.type === 'thermometer' || item.type === "weather"){
+                        chart.data.datasets[0].data.push(item.temperature);
+                    }
+                    else if (item.type === 'heatpump'){
+                        chart.data.datasets[0].data.push(item.state);
+
+                        // modifica al chart temperatura
+                        var tempChart = Chart.getChart(tempGraphName);
+                        tempChart.data.labels.push('');
+                        tempChart.data.datasets[0].data.push(item.temperature);
+                        tempChart.update();
+
+                    }
+                    else {
+                        chart.data.datasets[0].data.push(item.state);
+                    }
                     chart.update();
                 }
                 // grafico non esiste -> creazione 
                 else {
-                    console.log("nuovo grafico"); 
-                    var chartnew = document.createElement("canvas");
-                    chartnew.id = item.name;
-                    chartnew.height = "50";      
-                    create_graph(chartnew, item.name);       
-                    chartsDiv.appendChild(chartnew);
+                    var div = document.createElement("div");
+                    div.id = "sensorChart";
+                    var canvas = document.createElement("canvas");
+                    canvas.id = item.name;
+                    canvas.height = "250";  
+                    canvas.width = "700";   
+                    div.appendChild(canvas); 
+                       
+                    if (item.type === 'thermometer' || item.type === "weather"){
+                        create_graph(canvas, item.name, item.temperature, "rgb(255, 100, 100)");    
+                    }
+                    else if (item.type === 'heatpump'){
+                        canvas.id = stateGraphName;
+                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)"); 
+
+                        var divTemp = document.createElement("div");
+                        divTemp.id = "sensorChart";
+                        var canvasTemp = document.createElement("canvas");
+                        canvasTemp.id = tempGraphName;
+                        canvasTemp.height = "250";  
+                        canvasTemp.width = "700";   
+                        divTemp.appendChild(canvasTemp);
+                        chartsDiv.appendChild(divTemp);
+                        create_graph(canvasTemp, tempGraphName, item.temperature, "rgb(255, 100, 100)"); 
+
+                    }
+                    else {
+                        create_graph(canvas, item.name, item.state, "rgb(100, 100, 255)");    
+                    }
+                    
+                    chartsDiv.appendChild(div);
                 }
 
                 // rimozione grafici di sensori rimossi

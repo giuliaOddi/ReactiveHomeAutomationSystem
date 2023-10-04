@@ -12,9 +12,26 @@ form {
   display: ruby;
 }
 
+#sensorChart {
+  display: ruby;
+}
+
+#tempAlert {
+  margin-left: 20px;
+}
+
+#temperature{
+  margin-left : 20px;
+}
+
+canvas {
+  margin-right: 20px;
+}
+
 #sensor_name{
   margin-left: 20px;
 }
+
 .toggle {
   cursor: pointer;
   display: ruby;

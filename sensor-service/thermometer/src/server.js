@@ -240,9 +240,9 @@ async function run() {
         clearTimeout(timeout);
 
         // Calcolo differenze temperature con weather service
-        if (sensors_properties.find(item => (item.name == 'weather-service'))){
-          var weather_temperature = sensors_properties.find(item => (item.name == 'weather-service'));
-          temp_diff_weather = weather_temperature.property - temperature; 
+        if (sensors_properties.find(item => (item.type == 'weather'))){
+          var weather_temperature = sensors_properties.find(item => (item.type == 'weather')).temperature;
+          temp_diff_weather = weather_temperature - temperature; 
         }
         // Calcolo differenze temperature con heat pump
         if (sensors_properties.find(item => (item.type == 'heatpump'))){

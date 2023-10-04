@@ -96,9 +96,9 @@ export class SensorHandler extends EventEmitter {
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
     this.#death = setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
-      this.#ws.close();
-      this.stop();
-      this.emit('error', 'Simulated death', {handler: this.#name});
+      //this.#ws.close();
+      //this.stop();
+      //this.emit('error', 'Simulated death', {handler: this.#name});
     }, secs * 10000);
   }
 
