@@ -398,7 +398,7 @@
 
         // var ctx = document.getElementById("myChart").getContext("2d"), 
 
-        var chartsDiv = document.getElementById("charts");
+        //var chartsDiv = document.getElementById("charts");
 
         // var chartDiv = document.createElement("div");
         // var chartDiv2 = document.createElement("div");
@@ -411,7 +411,7 @@
         // chartsDiv.appendChild(chartDiv2);
         // chartsDiv.appendChild(chartDiv3);
 
-        var chartCanvas = document.createElement("canvas");
+        /* var chartCanvas = document.createElement("canvas");
         chartCanvas.id = "myGraph";
         chartCanvas.height = "50";
         
@@ -445,7 +445,7 @@
         var chartnew = Chart.getChart("myGraph");
         chartnew.data.labels.push('');
         chartnew.data.datasets[0].data.push(0);
-        chartnew.update();
+        chartnew.update(); */
 
         //////////////////////////
         // per rimuovere un grafico: 
