@@ -269,13 +269,13 @@
         });     
     }
 
-    function create_graph(chart) {
+    function create_graph(chart, title) {
         
         const data = {
             labels: ['', '', ''],
             datasets: [
                 {
-                    label: 'Dataset Label',
+                    label: title,
                     data: [10, 20, 30],
                 }
             ]
@@ -313,6 +313,25 @@
             value.forEach(item => {
                 console.log(item);
                 // creazione o modifica grafici 
+                var chartsDiv = document.getElementById("charts");
+
+                var chart = Chart.getChart(item.name);
+                // grafico già esiste aggiungo nuovo stato 
+                if(chart != null) { 
+                    chart.data.labels.push('');
+                    chart.data.datasets[0].data.push(item.state);
+                    chart.update();
+                }
+                // grafico non esiste -> creazione 
+                else {
+                    console.log("nuovo grafico"); 
+                    var chartnew = document.createElement("canvas");
+                    chartnew.id = item.name;
+                    chartnew.height = "50";      
+                    create_graph(chartnew, item.name);       
+                    chartsDiv.appendChild(chartnew);
+                }
+
                 // rimozione grafici di sensori rimossi
             });
 
@@ -407,9 +426,9 @@
         chartCanvas3.height = "50";
         
 
-        var chart = create_graph(chartCanvas);
-        var chart2 = create_graph(chartCanvas2);
-        var chart3 = create_graph(chartCanvas3);
+        var chart = create_graph(chartCanvas, "myGraph");
+        var chart2 = create_graph(chartCanvas2, "myGraph2");
+        var chart3 = create_graph(chartCanvas3, "myGraph3");
 
         chart3.data.labels.push('');
         chart3.data.datasets[0].data.push(15);
