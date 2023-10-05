@@ -9,8 +9,8 @@
     var sensors_properties = []; 
 
     // Stati sensori
-    const ON_OPEN = 0;
-    const OFF_CLOSE = 1;
+    const ON_OPEN = 1;
+    const OFF_CLOSE = 0;
     const ERROR = -1; 
     const ADD = 2;
     const REMOVE = 3;
@@ -270,39 +270,127 @@
         });     
     }
 
-    function create_graph(chart, title, value, color) {
+    function create_graph(chart, title, value, color, type) {
+        var data;
+        var config;
+        var date = new Date();
+        var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
         
-        const data = {
-            labels: [''],
-            datasets: [
-                {
-                    label: title,
-                    data: [value],
-                    borderColor: color,
-                }
-            ]
-        };
-        const config = {
-            type: 'line',
-            data: data, 
-            options: {
-                responsive: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            font: {
-                                size: 20
+        if (type === 'state'){
+            data = {
+                labels: [label],
+                datasets: [
+                    {
+                        label: title,
+                        data: [value],
+                        borderColor: color,
+                    }
+                ]
+            };
+            config = {
+                type: 'line',
+                data: data, 
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            position: 'bottom', 
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'State'                                
+                            },
+                            ticks: {
+                                callback: function(value, index, ticks) {
+                                    var a;
+                                    if (value === 0){
+                                        a = 'CLOSE';
+                                    }
+                                    else if (value === 1) {
+                                        a = 'OPEN';
+                                    }
+                                    else if (value === -1){
+                                        a = 'ERROR'
+                                    }
+                                    return a; 
+                                }
+                            }
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 20
+                                }
                             }
                         }
                     }
                 }
-            }
-        };
+            };
 
+        }
+        else if (type === 'temperature'){
+            data = {
+                labels: [label],
+                datasets: [
+                    {
+                        label: title,
+                        data: [value],
+                        borderColor: color,
+                    }
+                ]
+            };
+            config = {
+                type: 'line',
+                data: data, 
+                options: {
+                    responsive: false,
+                    scales: {
+                        x: {
+                            position: 'bottom', 
+                            title: {
+                                display: true,
+                                text: 'Time'
+                            }
+                        },
+                        y: {
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Temperature'
+                            },
+                            ticks: {
+                                callback: function(value, index, ticks) {                                    
+                                    return value + '°C'; 
+                                }
+                            }
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                font: {
+                                    size: 20
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+        }
         return new Chart(
             chart, 
             config
         )
+
     }
 
     function run() {     
@@ -352,12 +440,20 @@
                 // grafico già esiste aggiungo nuovo stato 
                 if(chartState != null || chartTemp != null) { 
                     if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
-                        chartState.data.labels.push('');
-                        chartState.data.datasets[0].data.push(item.state);
+
+                        var date = new Date();
+                        var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
+        
+                        chartState.data.labels.push(label);
+                        chartState.data.datasets[0].data.push(item.state);  
                         chartState.update();
                     }
                     if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
-                        chartTemp.data.labels.push('');
+
+                        var date = new Date();
+                        var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
+        
+                        chartTemp.data.labels.push(label);
                         chartTemp.data.datasets[0].data.push(item.temperature);
                         chartTemp.update();
 
@@ -373,8 +469,8 @@
                         var canvas = document.createElement("canvas");
                         canvas.id = stateGraphName;
                         canvas.height = "250";  
-                        canvas.width = "700";   
-                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)");
+                        canvas.width = "700"; 
+                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)", "state");
                         div.appendChild(canvas); 
                         chartsDiv.appendChild(div);
                     }
@@ -386,7 +482,7 @@
                         canvas.id = tempGraphName;
                         canvas.height = "250";  
                         canvas.width = "700";   
-                        create_graph(canvas, tempGraphName, item.temperature, "rgb(255, 100, 100)");    
+                        create_graph(canvas, tempGraphName, item.temperature, "rgb(255, 100, 100)", "temperature");    
                         div.appendChild(canvas); 
                         chartsDiv.appendChild(div);
                     }

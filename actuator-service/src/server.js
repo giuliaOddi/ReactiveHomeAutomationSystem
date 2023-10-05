@@ -4,8 +4,8 @@ import fetch from 'node-fetch';
 // Lista sensori e loro stati 
 var sensor_properties = [];
 
-const ON_OPEN = 0;
-const OFF_CLOSE = 1;
+const ON_OPEN = 1;
+const OFF_CLOSE = 0;
 const ADD = 2;
 const REMOVE = 3;
 

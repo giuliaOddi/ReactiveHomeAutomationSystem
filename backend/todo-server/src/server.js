@@ -34,8 +34,8 @@ const command_endpoint = '/command'; // Il percorso dell'endpoint desiderato sul
 export var sensors_properties = []; 
 
 // Stati sensori
-const ON_OPEN = 0;
-const OFF_CLOSE = 1;
+const ON_OPEN = 1;
+const OFF_CLOSE = 0;
 const ERROR = -1; 
 
 /**

@@ -14,8 +14,8 @@ import opts from './options.js';
 import {routes} from './routes.js';
 
 // states of heat pump
-const ON = 0;
-const OFF = 1;
+const ON = 1;
+const OFF = 0;
 const ERROR = -1;
 
 const ADD = 2;

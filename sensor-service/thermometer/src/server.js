@@ -19,8 +19,8 @@ var temp_diff_weather = 0;
 var temp_diff_heatpump = 0; 
 
 // Stati sensori
-const ON_OPEN = 0;
-const OFF_CLOSE = 1;
+const ON_OPEN = 1;
+const OFF_CLOSE = 0;
 const ERROR = -1; 
 const ADD = 2;
 const REMOVE = 3;
