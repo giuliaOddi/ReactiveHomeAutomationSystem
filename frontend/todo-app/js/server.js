@@ -307,18 +307,18 @@
                                 text: 'State'                                
                             },
                             ticks: {
-                                callback: function(value, index, ticks) {
-                                    var a;
+                                callback: function(value) {
+                                    var label;
                                     if (value === 0){
-                                        a = 'CLOSE';
+                                        label = 'CLOSE';
                                     }
                                     else if (value === 1) {
-                                        a = 'OPEN';
+                                        label = 'OPEN';
                                     }
                                     else if (value === -1){
-                                        a = 'ERROR'
+                                        label = 'ERROR'
                                     }
-                                    return a; 
+                                    return label; 
                                 }
                             }
                         },
@@ -367,7 +367,7 @@
                                 text: 'Temperature'
                             },
                             ticks: {
-                                callback: function(value, index, ticks) {                                    
+                                callback: function(value) {                                    
                                     return value + '°C'; 
                                 }
                             }
