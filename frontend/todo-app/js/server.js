@@ -318,85 +318,106 @@
                     .find(item2 => (item2.type === item.type) && (item2.name === item.name) && (item2.state === item.state) && (item2.temperature === item.temperature) ) ? null : item)
                     .filter(item => item != null);
                 //return _.difference(current, sensors_properties); 
-                return sensors_differences;     // ritorna aggiunte e modifiche ma NON rimozione sensori
+
+                var removed_sensors = sensors_properties
+                    .map(item => (current
+                    .find(item2 => (item2.type === item.type && item2.name === item.name))) ? null : item )
+                    .filter(item => item !== null);
+
+                return [sensors_differences, removed_sensors];     // ritorna aggiunte e modifiche ma NON rimozione sensori
             })
         );
 
         //userListChanged$.subscribe(value => console.log('list', value));
-        userListDifference$.subscribe(value => {
-            value.forEach(item => {
-                console.log(item);
+        userListDifference$.subscribe(differences => {
+            differences[0].forEach(item => {
+                //console.log(item);
                 // creazione o modifica grafici 
                 var chartsDiv = document.getElementById("charts");
 
-                
-                var chart = Chart.getChart(item.name);
+                var stateGraphName = item.type + ": " + item.name + "-state";
+                var tempGraphName = item.type + ": " + item.name + "-temperature";
 
-                var stateGraphName = item.name + "-state";
-                var tempGraphName = item.name + "-temp";
+                var chartState = null;
+                var chartTemp = null;
 
-                if (item.type === "heatpump"){
-                    
-                    chart = Chart.getChart(stateGraphName);
+                if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
+                    chartState = Chart.getChart(stateGraphName);
                 }
+                if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
+                    chartTemp = Chart.getChart(tempGraphName);
+                }
+
                 
                 // grafico già esiste aggiungo nuovo stato 
-                if(chart != null) { 
-                    chart.data.labels.push('');
-                    if (item.type === 'thermometer' || item.type === "weather"){
-                        chart.data.datasets[0].data.push(item.temperature);
+                if(chartState != null || chartTemp != null) { 
+                    if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
+                        chartState.data.labels.push('');
+                        chartState.data.datasets[0].data.push(item.state);
+                        chartState.update();
                     }
-                    else if (item.type === 'heatpump'){
-                        chart.data.datasets[0].data.push(item.state);
-
-                        // modifica al chart temperatura
-                        var tempChart = Chart.getChart(tempGraphName);
-                        tempChart.data.labels.push('');
-                        tempChart.data.datasets[0].data.push(item.temperature);
-                        tempChart.update();
+                    if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
+                        chartTemp.data.labels.push('');
+                        chartTemp.data.datasets[0].data.push(item.temperature);
+                        chartTemp.update();
 
                     }
-                    else {
-                        chart.data.datasets[0].data.push(item.state);
-                    }
-                    chart.update();
                 }
                 // grafico non esiste -> creazione 
                 else {
-                    var div = document.createElement("div");
-                    div.id = "sensorChart";
-                    var canvas = document.createElement("canvas");
-                    canvas.id = item.name;
-                    canvas.height = "250";  
-                    canvas.width = "700";   
-                    div.appendChild(canvas); 
-                       
-                    if (item.type === 'thermometer' || item.type === "weather"){
-                        create_graph(canvas, item.name, item.temperature, "rgb(255, 100, 100)");    
-                    }
-                    else if (item.type === 'heatpump'){
+
+                    if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
+                        var div = document.createElement("div");
+                        div.id = "div-" + stateGraphName;
+                        div.className = "sensorChart";
+                        var canvas = document.createElement("canvas");
                         canvas.id = stateGraphName;
-                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)"); 
-
-                        var divTemp = document.createElement("div");
-                        divTemp.id = "sensorChart";
-                        var canvasTemp = document.createElement("canvas");
-                        canvasTemp.id = tempGraphName;
-                        canvasTemp.height = "250";  
-                        canvasTemp.width = "700";   
-                        divTemp.appendChild(canvasTemp);
-                        chartsDiv.appendChild(divTemp);
-                        create_graph(canvasTemp, tempGraphName, item.temperature, "rgb(255, 100, 100)"); 
-
+                        canvas.height = "250";  
+                        canvas.width = "700";   
+                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)");
+                        div.appendChild(canvas); 
+                        chartsDiv.appendChild(div);
                     }
-                    else {
-                        create_graph(canvas, item.name, item.state, "rgb(100, 100, 255)");    
+                    if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
+                        var div = document.createElement("div");
+                        div.id = "div-" + tempGraphName;
+                        div.className = "sensorChart";
+                        var canvas = document.createElement("canvas");
+                        canvas.id = tempGraphName;
+                        canvas.height = "250";  
+                        canvas.width = "700";   
+                        create_graph(canvas, tempGraphName, item.temperature, "rgb(255, 100, 100)");    
+                        div.appendChild(canvas); 
+                        chartsDiv.appendChild(div);
                     }
-                    
-                    chartsDiv.appendChild(div);
                 }
 
-                // rimozione grafici di sensori rimossi
+                
+            });
+
+            // rimozione grafici di sensori rimossi
+            differences[1].forEach(item => {
+                console.log(item);
+                var stateGraphName = item.type + ": " + item.name + "-state";
+                var tempGraphName = item.type + ": " + item.name + "-temperature";
+                var chartsDiv = document.getElementById("charts");
+
+                if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
+                    var chart = Chart.getChart(stateGraphName);
+                    chart.destroy();
+                    var chartSpan = document.getElementById(stateGraphName);
+                    var chartDiv = document.getElementById("div-" + stateGraphName);
+                    chartDiv.removeChild(chartSpan);
+                    chartsDiv.removeChild(chartDiv);
+                }
+                if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
+                    var chart = Chart.getChart(tempGraphName);
+                    chart.destroy();
+                    var chartSpan = document.getElementById(tempGraphName);
+                    var chartDiv = document.getElementById("div-" + tempGraphName);
+                    chartDiv.removeChild(chartSpan);
+                    chartsDiv.removeChild(chartDiv);
+                }
             });
 
         });

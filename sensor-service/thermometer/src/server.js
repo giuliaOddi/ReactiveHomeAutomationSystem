@@ -14,7 +14,7 @@ import opts from './options.js';
 import {routes} from './routes.js';
 
 // temperature in °C 
-export var temperature = 20; 
+var temperature = 20; 
 var temp_diff_weather = 0;
 var temp_diff_heatpump = 0; 
 

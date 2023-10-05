@@ -4,11 +4,10 @@ import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
 
-import {temperature} from './server.js'; 
 import { sensors } from './server.js';
 
-// Temperatura 
-var temp = 0;
+
+var old_sensors_list = [];
 
 class ValidationError extends Error {
   #message;
@@ -181,9 +180,9 @@ export class SensorHandler extends EventEmitter {
 
     console.debug('🌡 Subscribing to temperature', {handler: this.#name});
     const callback = () => {
-      if (temp != temperature){
+      if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)){
         this._sendTemperature();
-        temp = temperature;
+        old_sensors_list = sensors.slice(); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

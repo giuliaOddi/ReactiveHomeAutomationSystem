@@ -392,7 +392,7 @@ function connect_to_thermometer_sensor(){
                 .forEach(item => sensors_properties.push(item));
 
         // Rimozione sensori non presenti nella lista che mi è arrivata
-        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name))) ? null : item )
           .filter(item => item !== null && item.type === "thermometer");
 
         sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
