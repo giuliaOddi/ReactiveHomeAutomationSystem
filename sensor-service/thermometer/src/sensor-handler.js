@@ -85,9 +85,11 @@ export class SensorHandler extends EventEmitter {
     console.debug('New connection received', {handler: this.#name});
 
     // simulate a client disconnection
+    /*
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
+    */
   }
 
   _scheduleDeath() {
@@ -182,7 +184,7 @@ export class SensorHandler extends EventEmitter {
     const callback = () => {
       if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)){
         this._sendTemperature();
-        old_sensors_list = sensors.slice(); 
+        old_sensors_list = JSON.parse(JSON.stringify(sensors)); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

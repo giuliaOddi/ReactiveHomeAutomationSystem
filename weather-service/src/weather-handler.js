@@ -81,9 +81,11 @@ export class WeatherHandler extends EventEmitter {
     console.debug('New connection received', {handler: this.#name});
 
     // simulate a client disconnection
+    /*
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
+    */
   }
 
   _scheduleDeath() {

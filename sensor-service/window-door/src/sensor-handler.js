@@ -7,7 +7,7 @@ import {EventEmitter} from 'events';
 import {sensors} from './server.js'; 
 
 var old_sensors_list = [];
-
+const ERROR = -1; 
 
 class ValidationError extends Error {
   #message;
@@ -93,12 +93,18 @@ export class SensorHandler extends EventEmitter {
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
-    this.#death = setTimeout(() => {
+    setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
-      this.#ws.close();
-      this.stop();
-      this.emit('error', 'Simulated death', {handler: this.#name});
-    }, secs * 10000);
+      //this.#ws.close();
+      //this.stop();
+      //this.emit('error', 'Simulated death', {handler: this.#name});
+
+      var sensorDead = Number((Math.random()*(sensors.length-1)).toFixed(0));
+      sensors[sensorDead].state = ERROR;
+      //this._sendState();
+      this._scheduleDeath();
+
+    }, secs * 500);
   }
 
   /**
@@ -204,9 +210,11 @@ export class SensorHandler extends EventEmitter {
     //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
+      console.log(old_sensors_list);
+      console.log(sensors);
       if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)) {
+        old_sensors_list = JSON.parse(JSON.stringify(sensors)); 
         this._sendState();
-        old_sensors_list = sensors.slice(); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
