@@ -147,126 +147,7 @@
 
         sensors_to_choose_from.forEach(item => {
 
-            var labelSwitch = document.createElement("label");
-            labelSwitch.className = "toggle";
-            sensorList.appendChild(labelSwitch);
-
-            var switchSpan = document.createElement("span");
-            switchSpan.className = "toggle-label"; 
-            switchSpan.textContent = item.type + ": " + item.name + " "; 
-            labelSwitch.appendChild(switchSpan);
-
-            var inputSwitch = document.createElement("input");
-            inputSwitch.className = "toggle-checkbox";
-
-            if (item.state === ON_OPEN) {
-                inputSwitch.checked = true; 
-            }
-            
-            var temperatureAlert = document.createElement("div");
-            temperatureAlert.id = "tempAlert";
-            temperatureAlert.style.color = "red";
-
            
-            inputSwitch.type = "checkbox";
-            labelSwitch.appendChild(inputSwitch);
-
-            var switchDiv = document.createElement("div");
-            switchDiv.className = "toggle-switch";
-            if (item.type === "heatpump"){
-                switchDiv.id = "heatpump";
-            }
-            else {
-                switchDiv.id = "window-door";
-            }
-            switchDiv.addEventListener("click", () => {
-                var state = (item.state === ON_OPEN) ? OFF_CLOSE : ON_OPEN;
-                if (item.type == 'heatpump'){
-                    change_sensor_state(item.type, item.name, state, item.temperature); 
-                }
-                else{
-                    change_sensor_state(item.type, item.name, state, null); 
-                }
-
-                if (state === ON_OPEN) {
-                    temperatureAlert.textContent = "";
-                }
-                
-                
-                clearTimeout(timeout); 
-                timeout = setTimeout(show_sensors_state, 4000);  
-            }); 
-            labelSwitch.appendChild(switchDiv);
-
-            if (item.type === "heatpump"){
-                var temperature = item.temperature;
-                var divField = document.createElement("div");
-                divField.className = "quantity-field";
-
-                var buttonDecrease = document.createElement("button");
-                buttonDecrease.className = "value-button decrease-button";
-                
-                buttonDecrease.addEventListener("click", () => {
-                    if (inputSwitch.checked){
-                        temperature--; 
-                        temperature < 15 ? temperature = 15 : ''; 
-                        divNumber.textContent = temperature; 
-                    }
-                    else {
-                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
-                    }
-                }); 
-                buttonDecrease.textContent = "-";
-                divField.appendChild(buttonDecrease);
-
-                var divNumber = document.createElement("div");
-                divNumber.className = "number";
-                divNumber.textContent = temperature; 
-                divField.appendChild(divNumber);
-
-                var buttonIncrease = document.createElement("button");
-                buttonIncrease.className = "value-button increase-button";
-                buttonIncrease.addEventListener("click", () => {
-                    if (inputSwitch.checked){
-                        temperature++; 
-                        temperature > 35 ? temperature = 35 : ''; 
-                        divNumber.textContent = temperature; 
-                    }
-                    else {
-                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
-                    }
-                }); 
-                buttonIncrease.textContent = "+"; 
-                divField.appendChild(buttonIncrease);
-
-                labelSwitch.appendChild(document.createElement("br")); 
-                labelSwitch.appendChild(document.createElement("br")); 
-                //sensorList.appendChild(divField); 
-                labelSwitch.appendChild(divField); 
-
-                var setTempButton = document.createElement("button"); 
-                setTempButton.textContent = "Set new temperature"; 
-                
-                //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
-                setTempButton.addEventListener("click", () => {
-                    if (inputSwitch.checked){
-                        change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
-                        clearTimeout(timeout);
-                        setTimeout(show_sensors_state, 4000);
-                    }
-                    else {
-                        temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
-                    }
-                    
-                }); 
-                labelSwitch.appendChild(document.createElement("br")); 
-                labelSwitch.appendChild(setTempButton); 
-                labelSwitch.appendChild(temperatureAlert);
-            }
-            
-            
-            sensorList.appendChild(document.createElement("br")); 
-            sensorList.appendChild(document.createElement("br")); 
         });     
     }
 
@@ -416,8 +297,203 @@
             })
         );
 
-        //userListChanged$.subscribe(value => console.log('list', value));
         userListDifference$.subscribe(differences => {
+            
+            var sensorList = document.getElementById("sensorsStateChange");
+
+            // rimozione sensori
+            var sensors_to_remove = differences[1].filter(item => item.type !== 'weather' && item.type !== 'thermometer');
+            sensors_to_remove.forEach(item => {
+                var divId = item.type + ": " + item.name + "-div";
+                var brId = item.type + ": " + item.name + "-br";
+
+                var divSensor = document.getElementById(divId);
+
+                /*
+                while (divSensor.options.length > 0) {
+                    divSensor.remove(0);
+                }*/
+
+                sensorList.removeChild(divSensor);
+                sensorList.removeChild(document.getElementById(brId));
+                sensorList.removeChild(document.getElementById(brId));
+            })
+
+            // Filtra gli elementi con type diverso da 'weather'
+            var sensors_to_choose_from = differences[0].filter(item => item.type !== 'weather' && item.type !== 'thermometer');
+
+            // creazione o modifica buttons per cambio stati sensori
+            sensors_to_choose_from.forEach(item => {
+
+                var divId = item.type + ": " + item.name + "-div";
+                var brId = item.type + ": " + item.name + "-br";
+                var inputSwitchId = item.type + ": " + item.name + "-inputSwitch";
+
+                var divSensor = document.getElementById(divId);
+
+                if (divSensor === null) {
+
+                    var divSensor = document.createElement("div");
+                    divSensor.id = divId;
+                    divSensor.className = "stateChange"
+                    sensorList.appendChild(divSensor);
+
+                    var labelSwitch = document.createElement("label");
+                    labelSwitch.className = "toggle";
+                    divSensor.appendChild(labelSwitch);
+        
+                    var switchSpan = document.createElement("span");
+                    switchSpan.className = "toggle-label"; 
+                    switchSpan.textContent = item.type + ": " + item.name + " "; 
+                    labelSwitch.appendChild(switchSpan);
+        
+                    var inputSwitch = document.createElement("input");
+                    inputSwitch.id = inputSwitchId;
+                    inputSwitch.className = "toggle-checkbox";
+        
+                    if (item.state === ON_OPEN) {
+                        inputSwitch.checked = true; 
+                    }
+                    
+                    var temperatureAlert = document.createElement("div");
+                    temperatureAlert.id = "tempAlert";
+                    temperatureAlert.style.color = "red";
+        
+                
+                    inputSwitch.type = "checkbox";
+                    labelSwitch.appendChild(inputSwitch);
+        
+                    var switchDiv = document.createElement("div");
+                    switchDiv.className = "toggle-switch";
+                    if (item.type === "heatpump"){
+                        switchDiv.id = "heatpump";
+                    }
+                    else {
+                        switchDiv.id = "window-door";
+                    }
+                    switchDiv.addEventListener("click", () => {
+                        var state = OFF_CLOSE;
+                        if (item.state === ON_OPEN){
+                            state = OFF_CLOSE;
+                        }
+                        else if (item.state === OFF_CLOSE){
+                            state = ON_OPEN;
+                        }
+                        else {  // errore
+                            state = ON_OPEN;
+                        }
+
+
+                        if (item.type == 'heatpump'){
+                            change_sensor_state(item.type, item.name, state, item.temperature); 
+                        }
+                        else{
+                            change_sensor_state(item.type, item.name, state, null); 
+                        }
+        
+                        if (state === ON_OPEN) {
+                            temperatureAlert.textContent = "";
+                        }
+                        
+                        
+                        //clearTimeout(timeout); 
+                        //timeout = setTimeout(show_sensors_state, 4000);  
+                    }); 
+                    labelSwitch.appendChild(switchDiv);
+        
+                    if (item.type === "heatpump"){
+                        var temperature = item.temperature;
+                        var divField = document.createElement("div");
+                        divField.className = "quantity-field";
+        
+                        var buttonDecrease = document.createElement("button");
+                        buttonDecrease.className = "value-button decrease-button";
+                        
+                        buttonDecrease.addEventListener("click", () => {
+                            if (inputSwitch.checked){
+                                temperature--; 
+                                temperature < 15 ? temperature = 15 : ''; 
+                                divNumber.textContent = temperature; 
+                            }
+                            else {
+                                temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
+                            }
+                        }); 
+                        buttonDecrease.textContent = "-";
+                        divField.appendChild(buttonDecrease);
+        
+                        var divNumber = document.createElement("div");
+                        divNumber.className = "number";
+                        divNumber.textContent = temperature; 
+                        divField.appendChild(divNumber);
+        
+                        var buttonIncrease = document.createElement("button");
+                        buttonIncrease.className = "value-button increase-button";
+                        buttonIncrease.addEventListener("click", () => {
+                            if (inputSwitch.checked){
+                                temperature++; 
+                                temperature > 35 ? temperature = 35 : ''; 
+                                divNumber.textContent = temperature; 
+                            }
+                            else {
+                                temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
+                            }
+                        }); 
+                        buttonIncrease.textContent = "+"; 
+                        divField.appendChild(buttonIncrease);
+        
+                        //sensorList.appendChild(divField); 
+                        divSensor.appendChild(divField); 
+        
+                        var setTempButton = document.createElement("button"); 
+                        setTempButton.textContent = "Set new temperature"; 
+                        
+                        //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
+                        setTempButton.addEventListener("click", () => {
+                            if (inputSwitch.checked){
+                                change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
+                                //clearTimeout(timeout);
+                                //setTimeout(show_sensors_state, 4000);
+                            }
+                            else {
+                                temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
+                            }
+                            
+                        }); 
+                        divSensor.appendChild(setTempButton); 
+                        divSensor.appendChild(temperatureAlert);
+                    }
+                    
+                    var br = document.createElement("br");
+                    br.id = brId;
+
+                    var br2 = document.createElement("br");
+                    br2.id = brId;
+
+                    sensorList.appendChild(br); 
+                    sensorList.appendChild(br2); 
+
+                }
+                /*
+                else {
+                    var inputSwitch = document.getElementById(inputSwitchId);
+                    if (item.state === ON_OPEN) {
+                        inputSwitch.checked = true; 
+                    }
+                    else if (item.state === OFF_CLOSE){
+                        inputSwitch.checked = false;
+                    }
+                }
+                */
+
+            });
+
+            
+        });
+
+        //userListChanged$.subscribe(value => console.log('list', value));
+        userListDifference$.subscribe(differences => {            
+
             differences[0].forEach(item => {
                 //console.log(item);
                 // creazione o modifica grafici 
@@ -499,19 +575,19 @@
                 var chartsDiv = document.getElementById("charts");
 
                 if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
-                    var chart = Chart.getChart(stateGraphName);
-                    chart.destroy();
-                    var chartSpan = document.getElementById(stateGraphName);
+                    //var chart = Chart.getChart(stateGraphName);
+                    //chart.destroy();
+                    //var chartSpan = document.getElementById(stateGraphName);
                     var chartDiv = document.getElementById("div-" + stateGraphName);
-                    chartDiv.removeChild(chartSpan);
+                    //chartDiv.removeChild(chartSpan);
                     chartsDiv.removeChild(chartDiv);
                 }
                 if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
                     var chart = Chart.getChart(tempGraphName);
-                    chart.destroy();
-                    var chartSpan = document.getElementById(tempGraphName);
+                    //chart.destroy();
+                    //var chartSpan = document.getElementById(tempGraphName);
                     var chartDiv = document.getElementById("div-" + tempGraphName);
-                    chartDiv.removeChild(chartSpan);
+                    //chartDiv.removeChild(chartSpan);
                     chartsDiv.removeChild(chartDiv);
                 }
             });
@@ -539,7 +615,7 @@
 
             if(tmp.type == 'sensors_list'){
 
-                list = tmp.list.slice();                
+                list = tmp.list;                
                 userListChanged$.next(list);  
                 
                 var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
@@ -552,16 +628,17 @@
                     .filter(item => item!=false);
 
 
-                sensors_properties = list.slice();
+                sensors_properties = list;
                 console.log(sensors_properties); 
 
                 if (elements_added.length > 0 || elements_removed.length > 0){
                     remove_sensor_options();
                     //show_sensors_state();
                 }
+                /*
                 if (elements_added.length > 0 || elements_removed.length > 0 || temperatures_changed.length > 0){
                     show_sensors_state();
-                }
+                }*/
                    
             }
             

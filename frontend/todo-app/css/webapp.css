@@ -16,6 +16,10 @@ form {
   display: ruby;
 }
 
+.stateChange {
+  display: ruby;
+}
+
 #tempAlert {
   margin-left: 20px;
 }
@@ -106,7 +110,8 @@ canvas {
   align-items: center;
   width: 120px; 
   height: 40px;
-  margin: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .quantity-field .value-button{ 
