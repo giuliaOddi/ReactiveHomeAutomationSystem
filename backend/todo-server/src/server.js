@@ -174,7 +174,7 @@ function connect_to_weather_service(){
         console.log('Risposta POST ricevuta:');
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error('Si è verificato un errore:', error);
       });
 
       /*
@@ -257,7 +257,7 @@ function connect_to_window_sensor(){
         console.log('Risposta POST ricevuta:');
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error('Si è verificato un errore:', error);
       });
 
     }
@@ -337,7 +337,7 @@ function connect_to_heat_pump(){
         console.log('Risposta POST ricevuta:');
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error('Si è verificato un errore:', error);
       });
 
     }

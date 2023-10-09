@@ -55,7 +55,7 @@ async function run() {
       console.log('Risposta POST ricevuta:');
     })
     .catch((error) => {
-      console.error('Si è verificato un errore:', error);
+      //console.error('Si è verificato un errore:', error);
     });
   });
 
@@ -97,7 +97,7 @@ async function run() {
           console.log('Risposta POST ricevuta:');
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error('Si è verificato un errore:', error);
         });
       }
       else if (postData.action == ADD || postData.action == REMOVE){
@@ -125,7 +125,7 @@ async function run() {
           console.log('Risposta POST ricevuta:');
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error('Si è verificato un errore:', error);
         });
       }
     }
@@ -162,7 +162,7 @@ async function run() {
           console.log('Risposta POST ricevuta:');
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error('Si è verificato un errore:', error);
         });
       }
       else if (postData.action == ADD || postData.action == REMOVE){
@@ -189,7 +189,7 @@ async function run() {
           console.log('Risposta POST ricevuta:');
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error('Si è verificato un errore:', error);
         });
       }
     }
@@ -218,7 +218,7 @@ async function run() {
         console.log('Risposta POST ricevuta:');
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error('Si è verificato un errore:', error);
       });
     }
   });

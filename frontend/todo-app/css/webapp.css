@@ -24,6 +24,10 @@ form {
   margin-left: 20px;
 }
 
+#sensor_error {
+  margin-left: 20px;
+}
+
 #temperature{
   margin-left : 20px;
 }
