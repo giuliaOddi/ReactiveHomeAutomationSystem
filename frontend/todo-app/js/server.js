@@ -372,13 +372,6 @@
                         else{
                             change_sensor_state(item.type, item.name, state, null); 
                         }
-                        
-        
-                        //item.state = state;
-                        
-                        
-                        //clearTimeout(timeout); 
-                        //timeout = setTimeout(show_sensors_state, 4000);  
                     }); 
                     labelSwitch.appendChild(switchDiv);
 
