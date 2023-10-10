@@ -69,7 +69,7 @@ async function run() {
       var not_valid_command = sensor_properties.some(item => item.type == postData.sensor_type && item.name == postData.sensor_name && item.state == postData.action); 
       // Ricevo comando == stato attuale del sensore 
       if (sensor_properties.length > 0 && not_valid_command) {
-        console.log('...error...');
+        console.log("ERROR: can not execute the command: " + postData);
         response.sendStatus(304);
       }
       // Ricevo comando diverso da stato attuale: posso propagarlo a sensore porta 
@@ -134,7 +134,7 @@ async function run() {
       // Ricevo comando == stato attuale del sensore 
       if (sensor_properties.length > 0 && not_valid_command) {
         // errore 
-        console.log('...error...');
+        console.log("ERROR: can not execute the command: " + postData);
         response.sendStatus(304);
       }
       else if (postData.action == OFF_CLOSE || postData.action == ON_OPEN) {

@@ -104,7 +104,7 @@ export class SensorHandler extends EventEmitter {
       //this._sendState();
       this._scheduleDeath();
 
-    }, secs * 5000);
+    }, secs * 3000);
   }
 
   /**

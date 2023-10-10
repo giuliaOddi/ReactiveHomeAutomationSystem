@@ -24,8 +24,9 @@ form {
   margin-left: 20px;
 }
 
-#sensor_error {
+.sensor_error {
   margin-left: 20px;
+  margin-right: 20px;
 }
 
 #temperature{
@@ -114,7 +115,6 @@ canvas {
   align-items: center;
   width: 120px; 
   height: 40px;
-  margin-left: 20px;
   margin-right: 20px;
 }
 
@@ -166,14 +166,6 @@ canvas {
 .quantity-field .number::selection{
   background: none;
 }
-
-/*
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-*/
 
 canvas#myChart {
   width: auto;

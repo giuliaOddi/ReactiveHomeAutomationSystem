@@ -106,7 +106,7 @@ export function routesWss(wss, config) {
           //console.log('Risposta POST ricevuta:', data);
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error('Si è verificato un errore:', error);
         });
       }
     

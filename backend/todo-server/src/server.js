@@ -146,7 +146,7 @@ function connect_to_weather_service(){
       else{
         if (sensors_properties.find(item => item.type === 'weather')){
           // Aggiornamento proprietà weather 
-          sensors_properties = sensors_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(3)) }: item); 
+          sensors_properties = sensors_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(2)) }: item); 
         }
         else {
           // Aggiunta weather 
