@@ -8,26 +8,24 @@ import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import {WebSocketServer} from 'ws';
-
-// own modules
 import opts from './options.js';
 import {routes} from './routes.js';
 
-// states of windows and door
-/////// NB FORSE MEGLIO STRINGHE??? ///////
+// possible states of windows and door
 const OPEN = 1;
 const CLOSE = 0;
 const ERROR = -1;
 
+// possible actions
 const ADD = 2;
 const REMOVE = 3;
 
+// list of actual windows and doors  
 export var sensors = [ 
   { type: 'window', name: 'window1', state: CLOSE},
   { type: 'window',  name: 'window2', state: CLOSE},
   { type: 'door',  name: 'door1', state: CLOSE},
 ]; 
-
 
 /**
  * Initializes the application middlewares.
@@ -104,25 +102,20 @@ function fallbacks(app) {
 }
 
 async function run() {
-  // creates the configuration options and the logger
+  // creates the configuration options
   const options = opts();
   console.debug('🔧 Configuration', options);
-
   console.debug(`🔧 Initializing Express...`);
   const app = express();
   init(app);
-
   const {iface, port} = options.config;
   const server = app.listen(port, iface, () => {
-    // noinspection HttpUrlsUsage
     console.info(`🏁 Server listening: http://${iface}:${port}`);
   });
 
-  // comunication with backend
-
+  // communication with backend
   console.debug(`🔧 Initializing WSS...`);
   const wss = initWss(server, options.config);
-
   console.debug(`🔧 Initializing routes...`);
   routes(app, wss, options.config);
   fallbacks(app);
@@ -130,39 +123,35 @@ async function run() {
   // backchannel with actuator
   const appBack = express();
   appBack.use(express.json());
-
   const portBack = 3000;
-
   appBack.listen(portBack, () => {
-      console.log("Server Listening on PORT:", portBack);
+    console.log("Server Listening on PORT:", portBack);
   });
 
-
+  // data received from actuator to change states
   appBack.post("/change-state", (request, response) => {
-      // Accedi ai dati inviati nel corpo della richiesta POST
-      const postData = request.body;
-      // Puoi eseguire ulteriori operazioni con i dati inviati...
-      console.log('Dati ricevuti:', postData);
-      
-      sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action} : item ); 
-      console.log(sensors);
-      //response.sendStatus(200);
+    const postData = request.body;
+    
+    // update the list -> changing state 
+    sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action} : item ); 
+    console.log("Update sensors list: ", sensors);
   });
   
+  // data received from actuator to remove a window-door or add a new one 
   appBack.post("/add-sensor", (request, response) => {
-    // Accedi ai dati inviati nel corpo della richiesta POST
     const postData = request.body;
 
+    // received action: add a new sensor 
     if(postData.action == ADD){
+      // update the window-doors list -> adding a new one 
       sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state}); 
     }
+    // received action: remove an existing sensor 
     else if(postData.action == REMOVE){
+      // update the widnow-doors list -> removing the specific one 
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
-    
-    console.log(sensors);
-
-    //response.sendStatus(200);
+    console.log("Update sensors list: ", sensors);
   });
 }
 

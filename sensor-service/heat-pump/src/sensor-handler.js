@@ -3,11 +3,12 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
-
 import {sensors} from './server.js';
 
-
+// list of heatpump used to check differences 
 var old_sensors_list = [];
+
+// error state 
 const ERROR = -1; 
 
 class ValidationError extends Error {
@@ -96,15 +97,14 @@ export class SensorHandler extends EventEmitter {
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
     setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
-      //this.#ws.close();
-      //this.stop();
-      //this.emit('error', 'Simulated death', {handler: this.#name});
+      /*this.#ws.close();
+      this.stop();
+      this.emit('error', 'Simulated death', {handler: this.#name});*/
 
+      // simulating sensors error 
       var sensorDead = Number((Math.random()*(sensors.length-1)).toFixed(0));
       sensors[sensorDead].state = ERROR;
-      //this._sendState();
       this._scheduleDeath();
-
     }, secs * 5000);
   }
 
@@ -122,9 +122,7 @@ export class SensorHandler extends EventEmitter {
     if (json.type !== 'subscribe' && json.type !== 'unsubscribe') {
       throw new ValidationError('Invalid message type');
     }
-    /* if (json.target !== 'temperature') {
-      throw new ValidationError('Invalid subscription target');
-    } */
+    // valid messages only if target == heatpump
     if (json.target !== 'heatpump') {
       throw new ValidationError('Invalid subscription target');
     }
@@ -141,30 +139,10 @@ export class SensorHandler extends EventEmitter {
   }
 
   /**
-   * Sends the temperature message.
+   * Sends the sensors list.
    * @private
    */
-  /* _sendTemperature() {
-    const value = temperatureAt(DateTime.now());
-    const msg = {type: 'temperature', dateTime: DateTime.now().toISO(), value};
-
-    // message is always appended to the buffer
-    this.#buffer.push(msg);
-
-    // messages are dispatched immediately if delays are disabled or a random number is
-    // generated greater than `delayProb` messages
-    if (!this.#config.delays || Math.random() > this.#config.delayProb) {
-      for (const bMsg of this.#buffer) {
-        this._send(bMsg);
-      }
-      this.#buffer = [];
-    } else {
-      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
-    }
-  } */
-
-
-  _sendState() {
+  _sendList() {
     const msg =  {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
 
     // message is always appended to the buffer
@@ -182,7 +160,6 @@ export class SensorHandler extends EventEmitter {
     }*/
   } 
 
-
   /**
    * Sends any message through the WebSocket channel.
    * @param msg Any message
@@ -197,7 +174,6 @@ export class SensorHandler extends EventEmitter {
       setTimeout(callback, this._someMillis());
       return;
     }
-
     console.debug('💬 Dispatching message', {handler: this.#name});
     this.#ws.send(JSON.stringify(msg));
   }
@@ -206,17 +182,14 @@ export class SensorHandler extends EventEmitter {
     if (this.#timeout) {
       return;
     }
-
-    //////// MODIFICATO ////////
-    // Per heat pump sensor si sottoscrive allo stato, non alla temperatura // 
-    //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {
+      // check if the the heatmpums list is changed 
       if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)) {
-        old_sensors_list = JSON.parse(JSON.stringify(sensors)); 
-        this._sendState();
+        old_sensors_list = JSON.parse(JSON.stringify(sensors));   // update the list
+        this._sendList();    
       }
-      this.#timeout = setTimeout(callback, this._someMillis()); //this._someMillis()
+      this.#timeout = setTimeout(callback, this._someMillis()); 
     };
     this.#timeout = setTimeout(callback, 0);
   }

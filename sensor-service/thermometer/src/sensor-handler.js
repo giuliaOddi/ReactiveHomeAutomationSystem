@@ -3,10 +3,9 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
-
 import { sensors } from './server.js';
 
-
+// list of thermometers used to check differences 
 var old_sensors_list = [];
 
 class ValidationError extends Error {
@@ -119,6 +118,7 @@ export class SensorHandler extends EventEmitter {
     if (json.type !== 'subscribe' && json.type !== 'unsubscribe') {
       throw new ValidationError('Invalid message type');
     }
+    // valid messages only if target == thermometer_temperature
     if (json.target !== 'thermometer_temperature') {
       throw new ValidationError('Invalid subscription target');
     }
@@ -135,11 +135,10 @@ export class SensorHandler extends EventEmitter {
   }
 
   /**
-   * Sends the temperature message.
+   * Sends the thermometers list.
    * @private
    */
   _sendTemperature() {
-    //const value = temperatureAt(DateTime.now());
     const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list: sensors};
 
     // message is always appended to the buffer
@@ -181,12 +180,12 @@ export class SensorHandler extends EventEmitter {
     if (this.#timeout) {
       return;
     }
-
     console.debug('🌡 Subscribing to temperature', {handler: this.#name});
     const callback = () => {
+      // check if the the thermometers list is changed 
       if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)){
         this._sendTemperature();
-        old_sensors_list = JSON.parse(JSON.stringify(sensors)); 
+        old_sensors_list = JSON.parse(JSON.stringify(sensors));    // update the list
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
