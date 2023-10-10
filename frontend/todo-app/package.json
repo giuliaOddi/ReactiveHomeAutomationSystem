@@ -15,6 +15,9 @@
   "author": "Giulia Oddi & Luca Taverna",
   "license": "ISC",
   "dependencies": {
-    "ws": "^8.13.0"
+    "chart.js": "^4.4.0",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1",
+    "ws": "^8.14.1"
   }
 }

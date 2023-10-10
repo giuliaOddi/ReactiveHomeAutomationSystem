@@ -3,12 +3,10 @@
 import {DateTime} from 'luxon';
 import {anIntegerWithPrecision} from './random.js';
 import {EventEmitter} from 'events';
-
-import {temperature} from './server.js'; 
 import { sensors } from './server.js';
 
-// Temperatura 
-var temp = 0;
+// list of thermometers used to check differences 
+var old_sensors_list = [];
 
 class ValidationError extends Error {
   #message;
@@ -86,20 +84,24 @@ export class SensorHandler extends EventEmitter {
     console.debug('New connection received', {handler: this.#name});
 
     // simulate a client disconnection
+    /*
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
+    */
   }
 
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
+    /*
     this.#death = setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
-      this.#ws.close();
-      this.stop();
-      this.emit('error', 'Simulated death', {handler: this.#name});
-    }, secs * 1000);
+      //this.#ws.close();
+      //this.stop();
+      //this.emit('error', 'Simulated death', {handler: this.#name});
+    }, secs * 10000);
+    */
   }
 
   /**
@@ -116,6 +118,7 @@ export class SensorHandler extends EventEmitter {
     if (json.type !== 'subscribe' && json.type !== 'unsubscribe') {
       throw new ValidationError('Invalid message type');
     }
+    // valid messages only if target == thermometer_temperature
     if (json.target !== 'thermometer_temperature') {
       throw new ValidationError('Invalid subscription target');
     }
@@ -132,11 +135,10 @@ export class SensorHandler extends EventEmitter {
   }
 
   /**
-   * Sends the temperature message.
+   * Sends the thermometers list.
    * @private
    */
   _sendTemperature() {
-    //const value = temperatureAt(DateTime.now());
     const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list: sensors};
 
     // message is always appended to the buffer
@@ -162,6 +164,11 @@ export class SensorHandler extends EventEmitter {
   _send(msg) {
     if (this.#config.failures && Math.random() < this.#config.errorProb) {
       console.info('🐛 There\'s a bug preventing the message to be sent', {handler: this.#name});
+      const callback = () => {
+        console.debug('💬 Dispatching message', {handler: this.#name});
+        this.#ws.send(JSON.stringify(msg));
+      }
+      setTimeout(callback, this._someMillis());
       return;
     }
 
@@ -173,12 +180,12 @@ export class SensorHandler extends EventEmitter {
     if (this.#timeout) {
       return;
     }
-
     console.debug('🌡 Subscribing to temperature', {handler: this.#name});
     const callback = () => {
-      if (temp != temperature){
+      // check if the the thermometers list is changed 
+      if (JSON.stringify(old_sensors_list) !== JSON.stringify(sensors)){
         this._sendTemperature();
-        temp = temperature;
+        old_sensors_list = JSON.parse(JSON.stringify(sensors));    // update the list
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };

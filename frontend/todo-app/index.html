@@ -2,11 +2,11 @@
 <html class="no-js" lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SOI - Lab</title>
-  <meta name="description" content="Laboratory of Sistemi Orientati ad Internet">
+  <title>Reactive Home Automation System</title>
+  <meta name="description" content="Project of Sistemi Orientati ad Internet">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <meta property="og:title" content="Lab of Sistemi Orientati ad Internet">
+  <meta property="og:title" content="Project of Sistemi Orientati ad Internet">
   <meta property="og:type" content="website">
   <meta property="og:image" content="./icon.png">
 
@@ -19,6 +19,10 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/custom.css">
   <link rel="stylesheet" href="css/eos-icons.css">
+  <link rel="stylesheet" href="css/webapp.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/7.8.1/rxjs.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <meta name="theme-color" content="#fafafa">
 </head>
@@ -28,7 +32,7 @@
 
   <!-- Header -->
   <div class="header">
-    <h1 class="text-center"><img class="logo" src="icon.png" width="52" alt="UniPR Logo">Things to do</h1>
+    <h1 class="text-center"><img class="logo" src="icon.png" width="52" alt="UniPR Logo">Reactive Home Automation System</h1>
   </div>
 
   <div id="root"></div>
@@ -59,13 +63,31 @@
 <script type="text/html" id="tasks-template">
   <!-- Panels -->
   <div class="panel">
-    <h3>Enter new things to do</h3>
+    <h3>Add a new sensor</h3>
 
-    <form name="new-task">
+    <form name="add-sensor" >
+      <label for="sensors"> Select the sensor type</label>
+      <select id="sensors" name ="sensor" onchange="show_temperature_field()" >
+        <option value="window"> Window </option>
+        <option value="door"> Door </option>
+        <option value="heatpump"> Heat pump </option>
+        <option value="thermometer"> Thermometer </option>
+      </select>
+      <br>
+      <br>
+      <div id="sensor_name" class="input-group">
+        <label for="sensor_name"> Type the sensor name: </label>
+        <input type="text" id="sensor_name" name="sensor_name" value="" placeholder="Type sensor name">
+      </div>
+      <br>
+      <div id="temperature" style="display: none;" class="input-group">
+        <label for="temperature"> Temperature: </label>
+        <input type="text" id="temperature" name="temperature" value="" placeholder="Type temperature">
+      </div>
+      <br>
       <div class="form-group">
         <div class="input-group">
-          <input name="task" type="text" value="" placeholder="Type some task">
-          <button type="submit">
+          <button type="submit" onclick="hide_temperature_field()">
             <i class="eos-icons">add</i>
             <span>Add</span>
           </button>
@@ -75,39 +97,37 @@
   </div>
 
   <div class="panel">
-    <h3><i class="eos-icons">list</i> Your pending tasks</h3>
-
-    <div class="panel-commands">
-      <a href="#" data-action="complete-selected" title="Mark tasks as complete">Complete selected</a>
-    </div>
-
-    <!-- Tasks -->
-    <div class="tasks"></div>
+    <h3>Remove a sensor</h3>
+    <form name="remove-sensor" >
+      <label for="sensorsToRemove"> Select the sensor to remove:</label>
+      <select id="sensorsToRemove">
+      </select>
+      <br>
+      <br>
+      <div class="form-group">
+        <div class="input-group">
+          <button type="submit">
+            <i class="eos-icons">remove</i>
+            <span>Remove</span>
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-</script>
 
-<script type="text/html" id="task-template">
-  <div class="task-left">
-    <input type="checkbox" id="" name="">
-    <label for="" class="task-item"></label>
-  </div>
-
-  <div class="task-right">
-    <button class="task-btn" name="edit" title="Edit this task"><i class="eos-icons">edit</i></button>
-    <button class="task-btn" name="complete" title="Complete this task"><i class="eos-icons">done</i></button>
-  </div>
-</script>
-
-<script type="text/html" id="task-edit-template">
-  <div class="form-group">
-    <div class="input-group">
-      <input type="text" placeholder="Please enter some description">
-      <button name="save" class="primary"><i class="eos-icons">save</i></button>
-      <button name="cancel" class="warn"><i class="eos-icons">cancel</i></button>
+  <div class="panel">
+    <h3>Change sensors states</h3>
+    <div id="sensorsStateChange">
     </div>
   </div>
+
+  <div class="panel">
+    <h3>Charts</h3>
+    <div id="charts"></div>
+  </div>
 </script>
 
+<script src="js/server.js"></script>
 <script src="js/vendor/modernizr-3.11.2.min.js"></script>
 <script src="js/plugins.js"></script>
 <script src="js/commons.js"></script>
@@ -117,6 +137,7 @@
 <script src="js/task.component.js"></script>
 <script src="js/tasks.component.js"></script>
 <script src="js/main.js"></script>
+
 
 </body>
 </html>

@@ -4,9 +4,9 @@ import {SensorHandler} from './wss-handler.js';
 import {v4 as uuid} from 'uuid';
 import fetch from 'node-fetch';
 
-// comunicazione con actuator
-const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-const endpoint = '/command'; // Il percorso dell'endpoint desiderato sul server
+
+const actuatorAddress = 'http://10.88.0.41:3000'; 
+const endpoint = '/command'; 
 
 /**
  * Registers a new handler for the WS channel.
@@ -78,38 +78,35 @@ export function routesWss(wss, config) {
       ws.close();
     }
     ws.on('message', function message(data) {
-      console.log('received: %s', data);
-          // Invio comando per porta
 
+      console.log('received: %s', data);
       var tmp = JSON.parse(data);
 
-      console.log(tmp);
+      // forwards commands to the actuator
       if (tmp.sensor_type == "door" || tmp.sensor_type == "window" || tmp.sensor_type == "heatpump" || tmp.sensor_type == "thermometer"){
         fetch(actuatorAddress + endpoint, {
-          method: 'POST', // Metodo della richiesta
+          method: 'POST', 
           headers: {
-            'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+            'Content-Type': 'application/json', 
           },
-          body: JSON.stringify(tmp), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+          body: JSON.stringify(tmp),
         })
         .then((response) => {
           if (response.status == 304){
             console.log("ERROR: can not execute the command");
           }
           if (!response.status) {
-            throw new Error('Errore nella richiesta HTTP: ' + response);
+            throw new Error('Error with HTTP request: ' + response);
           }
-          return response; 
+          return response;
         })
         .then((data) => {
-          // Usa i dati ottenuti dalla risposta
-          //console.log('Risposta POST ricevuta:', data);
+          //console.log(data);
         })
         .catch((error) => {
-          console.error('Si è verificato un errore:', error);
+          //console.error(error);
         });
       }
-    
     });
   });
   

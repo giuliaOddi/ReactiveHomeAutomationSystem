@@ -22,20 +22,19 @@ import {routesWss} from './routes-wss.js';
 import {WebSocket} from 'ws';
 
 import fetch from 'node-fetch';
-import { connect } from 'http2';
 
-// comunicazione con actuator
-const actuatorAddress = 'http://10.88.0.41:3000'; // Indirizzo del tuo server
-const sensor_properties_endpoint = '/sensor_properties'; // Il percorso dell'endpoint desiderato sul server
-const command_endpoint = '/command'; // Il percorso dell'endpoint desiderato sul server
+// communication with actuator
+const actuatorAddress = 'http://10.88.0.41:3000'; 
+const sensor_properties_endpoint = '/sensor_properties'; 
+const command_endpoint = '/command'; 
 
 
-// Lista sensori e loro stati 
-export var sensor_properties = []; 
+// sensors list with their states
+export var sensors_properties = []; 
 
-// Stati sensori
-const ON_OPEN = 0;
-const OFF_CLOSE = 1;
+// sensors states
+const ON_OPEN = 1;
+const OFF_CLOSE = 0;
 const ERROR = -1; 
 
 /**
@@ -115,9 +114,8 @@ function fallbacks(app) {
 
 
 function connect_to_weather_service(){
-  // comunicazione con weather service
+  // communication with weather service
   let ws_weather = new WebSocket('ws://10.88.0.31:5000');
-  let count = 0;
 
   ws_weather.on('error', err => {
     console.log("Error connecting to the weather service ...");
@@ -132,87 +130,83 @@ function connect_to_weather_service(){
   });
   
   ws_weather.on('message', function message(data) {
-    count++;
 
-    // Ricevo temperatura da wheater service 
+    // receives temperatures from weather
     console.log('received: %s', data);
 
     var tmp = JSON.parse(data); 
 
     if (tmp.type == "temperature"){
-      if (sensor_properties.length == 0){
-        sensor_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }, ];
+      if (sensors_properties.length == 0){
+        // initializes the sensors_properties list
+        sensors_properties = [{ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }, ];
       }
       else{
-        if (sensor_properties.find(item => item.type === 'weather')){
-          // Aggiornamento proprietà weather 
-          sensor_properties = sensor_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(3)) }: item); 
+        if (sensors_properties.find(item => item.type === 'weather')){
+          // updates sensors_properties weather entry
+          sensors_properties = sensors_properties.map(item => item.type === 'weather' ? { type : item.type, name : item.name, state : item.state, temperature : Number((tmp.value).toFixed(2)) }: item); 
         }
         else {
-          // Aggiunta weather 
-          sensor_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }); 
+          // creates weather entry in the sensors_properties list
+          sensors_properties.push({ type : "weather", name : "weather", state : ON_OPEN, temperature : Number((tmp.value).toFixed(2)) }); 
         }
       }    
-      console.log(sensor_properties); 
+      console.log(sensors_properties); 
 
-      // Invio comando per cambio temperature
+      // forwards the list to the actuator
       fetch(actuatorAddress + sensor_properties_endpoint, {
-        method: 'POST', // Metodo della richiesta
+        method: 'POST', 
         headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          'Content-Type': 'application/json', 
         },
-        body: JSON.stringify(sensor_properties), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
+        body: JSON.stringify(sensors_properties), 
       })
       .then((response) => {
         if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
+          throw new Error('Error with HTTP request: ' + response);
         }
-        return response; 
+        return response;
       })
       .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
+        //console.log(data);
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error(error);
       });
-
-      if (count == 10){
-          ws_weather.send('{"type": "unsubscribe", "target": "temperature"}');
-      }
     }
   });
 }
 
-function connect_to_window_sensor(){
-  // comunicazione con window sensor service
-  let ws_window = new WebSocket('ws://10.88.0.50:4000');
-  let count = 0;
+function connect_to_window_door_sensor(){
+  // communication with window_door sensor
+  let ws_window_door = new WebSocket('ws://10.88.0.50:4000');
 
-  ws_window.on('error', err => {
+  ws_window_door.on('error', err => {
     console.log("Error connecting to the window door...");
     console.log("Trying to reconnect to the window door...");
-    ws_window = null;
-    setTimeout(connect_to_window_sensor, 1000);
+    ws_window_door = null;
+    setTimeout(connect_to_window_door_sensor, 1000);
   });
 
-  ws_window.on('open', function open() {
+  ws_window_door.on('open', function open() {
     console.log("Successfully connected to the window door...");
-    ws_window.send('{"type": "subscribe", "target": "window-door"}');
+    ws_window_door.send('{"type": "subscribe", "target": "window-door"}');
   });
   
-  ws_window.on('message', function message(data) {
-    count++;
+  ws_window_door.on('message', function message(data) {
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
 
-    // {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors};
+    
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        // initializes the sensors_properties list
+        sensors_properties = tmp.list;
       }
       else{
-        sensor_properties = sensor_properties.map( item => {
+
+        // changes the entries on the sensors_properties list 
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -223,76 +217,73 @@ function connect_to_window_sensor(){
           }
         });
 
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+        // updates the entries for new sensors
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
-        // rimozione
-
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+                .forEach(item => sensors_properties.push(item)); // pushes the sensors into the list
+        
+        // removes the sensors that the user deleted
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && (item.type === "window" || item.type === "door"));
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
       
-      console.log(sensor_properties);
-      // Inoltro stato ad attuatore
+      console.log(sensors_properties);
+
+      // forwards the list to the actuator
       fetch(actuatorAddress + sensor_properties_endpoint, {
-        method: 'POST', // Metodo della richiesta
+        method: 'POST', 
         headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          'Content-Type': 'application/json', 
         },
-        body: JSON.stringify(sensor_properties),
+        body: JSON.stringify(sensors_properties), 
       })
       .then((response) => {
         if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
+          throw new Error('Error with HTTP request: ' + response);
         }
-        return response; 
+        return response;
       })
       .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
+        //console.log(data);
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error(error);
       });
-
-    }
-    if (count == 5){
-        ws_window.send('{"type": "unsubscribe", "target": "window-door"}');
     }
   });
 }
 
-function connect_to_heat_pump(){
-  // comunicazione con heat pump sensor service
-  let ws_heat = new WebSocket('ws://10.88.0.52:4000');
-  let count3 = 0;
+function connect_to_heatpump(){
+  // communication with heatpump sensor 
+  let ws_heatpump = new WebSocket('ws://10.88.0.52:4000');
 
-  ws_heat.on('error', err => {
+  ws_heatpump.on('error', err => {
     console.log("Error connecting to the heat pump...");
     console.log("Trying to reconnect to the heat pump...");
-    ws_heat = null;
-    setTimeout(connect_to_heat_pump, 1000);
+    ws_heatpump = null;
+    setTimeout(connect_to_heatpump, 1000);
   });
 
-  ws_heat.on('open', function open() {
+  ws_heatpump.on('open', function open() {
     console.log("Successfully connected to the heat pump...");
-    ws_heat.send('{"type": "subscribe", "target": "heatpump"}');
+    ws_heatpump.send('{"type": "subscribe", "target": "heatpump"}');
   });
   
-  ws_heat.on('message', function message(data) {
-    count3++;
+  ws_heatpump.on('message', function message(data) {
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
 
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        // initializes the list
+        sensors_properties = tmp.list;
       }
       else{
-        sensor_properties = sensor_properties.map( item => {
+        // updates the entries on the sensors_properties list 
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -303,75 +294,74 @@ function connect_to_heat_pump(){
           }
         });
 
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+        // creates the entries for new sensors
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
+                .forEach(item => sensors_properties.push(item));  // pushes the sensor into the list
 
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        // removes the sensors that the user deleted
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item !== null && item.type === "heatpump");
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
 
+      console.log(sensors_properties); 
 
+      // forwards the list to the actuator
       fetch(actuatorAddress + sensor_properties_endpoint, {
-        method: 'POST', // Metodo della richiesta
+        method: 'POST', 
         headers: {
-          'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
+          'Content-Type': 'application/json', 
         },
-        body: JSON.stringify(sensor_properties), 
+        body: JSON.stringify(sensors_properties), 
       })
       .then((response) => {
         if (!response.status) {
-          throw new Error('Errore nella richiesta HTTP: ' + response);
+          throw new Error('Error with HTTP request: ' + response);
         }
-        return response; 
+        return response;
       })
       .then((data) => {
-        // Usa i dati ottenuti dalla risposta
-        console.log('Risposta POST ricevuta:');
+        //console.log(data);
       })
       .catch((error) => {
-        console.error('Si è verificato un errore:', error);
+        //console.error(error);
       });
 
     }
-    console.log(sensor_properties); 
-    if (count3 == 5){
-      ws_heat.send('{"type": "unsubscribe", "target": "heatpump"}');
-    }
+ 
   });
 }
 
-function connect_to_thermometer_sensor(){
-  // comunicazione con thermometer sensor service
-  let ws_therm = new WebSocket('ws://10.88.0.54:4000');
-  let count_therm = 0;
+function connect_to_thermometer(){
+  // communication with thermometer sensor 
+  let ws_thermometer = new WebSocket('ws://10.88.0.54:4000');
 
-  ws_therm.on('error', err => {
+  ws_thermometer.on('error', err => {
     console.log("Error connecting to the thermometer sensor...");
     console.log("Trying to reconnect to the thermometer sensor...");
-    ws_therm = null;
-    setTimeout(connect_to_thermometer_sensor, 1000);
+    ws_thermometer = null;
+    setTimeout(connect_to_thermometer, 1000);
   });
 
-  ws_therm.on('open', function open() {
+  ws_thermometer.on('open', function open() {
     console.log("Successfully connected to the thermometer sensor...");
-    ws_therm.send('{"type": "subscribe", "target": "thermometer_temperature"}');
+    ws_thermometer.send('{"type": "subscribe", "target": "thermometer_temperature"}');
   });
   
-  ws_therm.on('message', function message(data) {
-    count_therm++;
+  ws_thermometer.on('message', function message(data) {
     console.log('received: %s', data);
     var tmp = JSON.parse(data); 
     if (tmp.type == "sensors_list"){
-      if (sensor_properties.length == 0){
-        sensor_properties = tmp.list;
+      if (sensors_properties.length == 0){
+        // initializes the sensors_properties list
+        sensors_properties = tmp.list;
       }
       else{
-        // Aggiornamento proprietà sensori 
-        sensor_properties = sensor_properties.map( item => {
+        // updates the entries on the sensors_properties list 
+        sensors_properties = sensors_properties.map( item => {
           let item2  = tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name)); 
           if (item2) {
             if (item2.type === 'heatpump' || item2.type === 'thermometer' || item2.type === 'weather') { return  { "type" : item.type, "name" : item.name, "state" : item2.state, "temperature" : item2.temperature }; }
@@ -381,32 +371,25 @@ function connect_to_thermometer_sensor(){
             return item;
           }
         });
-        // Aggiunta elementi alla lista
-        tmp.list.map(item => (sensor_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
+       
+        // creates the entries for new sensors
+        tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? null : item))
                 .filter(item => item!== null)
-                .forEach(item => sensor_properties.push(item));
+                .forEach(item => sensors_properties.push(item));
 
-        // Rimozione sensori non presenti nella lista che mi è arrivata
-        var sensors_to_remove = sensor_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        // removes the sensors that the user deleted
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name))) ? null : item )
           .filter(item => item !== null && item.type === "thermometer");
 
-        sensor_properties = sensor_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
     }
-    console.log(sensor_properties);
-    if (count_therm == 15){
-      ws_therm.send('{"type": "unsubscribe", "target": "thermometer_temperature"}');
-    }
+    console.log(sensors_properties);
   });
 }
 
 async function run() {
-
-    // comunicazione con frontend
-    //const appFront = express();
-    //init(appFront);
-
     
     var config = {
       iface: "0.0.0.0",
@@ -416,15 +399,8 @@ async function run() {
       frequency: 2000
     }
 
-    /*
-    const serverFront = appFront.listen(config.iface, config.port, () => {
-      console.info(`🏁 Server listening: http://${config.iface}:${config.port}`);
-    })*/
-
-    //const wss = initWss(serverFront);
     const wss = new WebSocketServer({ port: config.port });
     routesWss(wss, config);
-    //fallbacks(appFront);
 
     // creates the configuration options and the logger
     const options = opts();
@@ -443,143 +419,20 @@ async function run() {
 
     const {iface, port} = options.config;
     app.listen(port, iface, () => {
-        // noinspection HttpUrlsUsage
         console.info(`🏁 Server listening: http://${iface}:${port}`);
     });
 
-    
+
+    // functions that starts web socket communications with sensors and weather service
+
     connect_to_weather_service();
 
-    connect_to_window_sensor();
+    connect_to_window_door_sensor();
 
-    connect_to_heat_pump();
+    connect_to_heatpump();
 
-    connect_to_thermometer_sensor();
-
-    // Backend invia comandi all'attuatore 
-
-    ////// NB SARA' UN FORWARD DEI COMANDI DATI DA WEB APP //////
-
-    
-
-    // const closeWindow = {
-    //   action: OFF_CLOSE,
-    //   sensor: 'window-sensor',
-    // };
-
-    // const closeWindow2 = {
-    //   action: OFF_CLOSE,
-    //   sensor: 'window-sensor_2',
-    // };
-
-    // const offHeatPump = {
-    //   action: ON_OPEN,
-    //   sensor: 'heat-pump',
-    // };
-    
-
-    // // Invio comando per porta
-    // fetch(actuatorAddress + endpoint, {
-    //   method: 'POST', // Metodo della richiesta
-    //   headers: {
-    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-    //   },
-    //   body: JSON.stringify(openDoor), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    // })
-    // .then((response) => {
-    //   if (response.status == 304){
-    //     console.log("ERROR: can not execute the command");
-    //   }
-    //   if (!response.status) {
-    //     throw new Error('Errore nella richiesta HTTP: ' + response);
-    //   }
-    //   return response; 
-    // })
-    // .then((data) => {
-    //   // Usa i dati ottenuti dalla risposta
-    //   //console.log('Risposta POST ricevuta:', data);
-    // })
-    // .catch((error) => {
-    //   console.error('Si è verificato un errore:', error);
-    // });
-
-    // // Invio comando per finestra
-    // fetch(actuatorAddress + endpoint, {
-    //   method: 'POST', // Metodo della richiesta
-    //   headers: {
-    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-    //   },
-    //   body: JSON.stringify(closeWindow), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    // })
-    // .then((response) => {
-    //   if (response.status == 304){
-    //     console.log("ERROR: can not execute the command");
-    //   }
-    //   if (!response.status) {
-    //     throw new Error('Errore nella richiesta HTTP: ' + response);
-    //   }
-    //   return response; 
-    // })
-    // .then((data) => {
-    //   // Usa i dati ottenuti dalla risposta
-    //   //console.log('Risposta POST ricevuta:', data);
-    // })
-    // .catch((error) => {
-    //   console.error('Si è verificato un errore:', error);
-    // });
-
-    //  // Invio comando per finestra2
-    //  fetch(actuatorAddress + endpoint, {
-    //   method: 'POST', // Metodo della richiesta
-    //   headers: {
-    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-    //   },
-    //   body: JSON.stringify(closeWindow2), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    // })
-    // .then((response) => {
-    //   if (response.status == 304){
-    //     console.log("ERROR: can not execute the command");
-    //   }
-    //   if (!response.status) {
-    //     throw new Error('Errore nella richiesta HTTP: ' + response);
-    //   }
-    //   return response; 
-    // })
-    // .then((data) => {
-    //   // Usa i dati ottenuti dalla risposta
-    //   console.log('Risposta POST ricevuta:');
-    // })
-    // .catch((error) => {
-    //   console.error('Si è verificato un errore:', error);
-    // });
-
-    // // Invio comando per la pompa di calore 
-    // fetch(actuatorAddress + endpoint, {
-    //   method: 'POST', // Metodo della richiesta
-    //   headers: {
-    //     'Content-Type': 'application/json', // Specifica che i dati inviati sono in formato JSON
-    //   },
-    //   body: JSON.stringify(offHeatPump), // Converti i dati in formato JSON e inseriscili nel corpo della richiesta
-    // })
-    // .then((response) => {
-    //   if (response.status == 304){
-    //     console.log("ERROR: can not execute the command");
-    //   }
-    //   if (!response.status) {
-    //     throw new Error('Errore nella richiesta HTTP: ' + response);
-    //   }
-    //   return response; 
-    // })
-    // .then((data) => {
-    //   // Usa i dati ottenuti dalla risposta
-    //   //console.log('Risposta POST ricevuta:', data.response.response);
-    // })
-    // .catch((error) => {
-    //   console.error('Si è verificato un errore:', error);
-    // });
-
-    
+    connect_to_thermometer();
 }
 
-// noinspection JSIgnoredPromiseFromCall
+
 run();

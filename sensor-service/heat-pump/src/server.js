@@ -8,27 +8,25 @@ import methodOverride from 'method-override';
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import {WebSocketServer} from 'ws';
-
-// own modules
 import opts from './options.js';
 import {routes} from './routes.js';
 
-// states of heat pump
-const ON = 0;
-const OFF = 1;
+// possible states of heatpumps 
+const ON = 1;
+const OFF = 0;
 const ERROR = -1;
 
+// possible actions
 const ADD = 2;
 const REMOVE = 3;
 
+// list of actual heatmpus 
 export var sensors = [ 
-  { type: 'heatpump', name: 'heatpump1', state: ON, temperature : 22},
-  { type: 'heatpump', name: 'heatpump2', state: ON, temperature : 32},
+  { type: 'heatpump', name: 'heatpump1', state: OFF, temperature : 25},
 ]; 
 
 /**
  * Initializes the application middlewares.
- *
  * @param {Express} app Express application
  */
 function init(app) {
@@ -68,14 +66,12 @@ function initWss(server, config) {
     concurrencyLimit: 10, // Limits zlib concurrency for perf
     threshold: 1024 // Size (in bytes) below which messages should not be compressed if context takeover is disabled
   };
-
   const opts = {server, perMessageDeflate};
   return new WebSocketServer(opts);
 }
 
 /**
  * Installs fallback error handlers.
- *
  * @param app Express application
  * @returns {void}
  */
@@ -102,25 +98,21 @@ function fallbacks(app) {
 
 
 async function run() {
-  // creates the configuration options and the logger
+
+  // creates the configuration options 
   const options = opts();
   console.debug('🔧 Configuration', options);
-
   console.debug(`🔧 Initializing Express...`);
   const app = express();
   init(app);
-
   const {iface, port} = options.config;
   const server = app.listen(port, iface, () => {
-    // noinspection HttpUrlsUsage
     console.info(`🏁 Server listening: http://${iface}:${port}`);
   });
 
-  // comunication with backend
-
+  // communication with backend
   console.debug(`🔧 Initializing WSS...`);
   const wss = initWss(server, options.config);
-
   console.debug(`🔧 Initializing routes...`);
   routes(app, wss, options.config);
   fallbacks(app);
@@ -128,45 +120,44 @@ async function run() {
   // backchannel with actuator
   const appBack = express();
   appBack.use(express.json());
-
   const portBack = 3000;
-
   appBack.listen(portBack, () => {
-      console.log("Server Listening on PORT:", portBack);
+    console.log("Server Listening on PORT:", portBack);
   });
 
+  // data received from actuator to change states
   appBack.post("/change-state", (request, response) => {
-    // Accedi ai dati inviati nel corpo della richiesta POST
     const postData = request.body;
-    // Puoi eseguire ulteriori operazioni con i dati inviati...
-    console.log('Dati ricevuti:', postData);
     
+    // received action: on 
     if(postData.action == ON){
+      // update the heatmpumps list -> changing state 
       sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action, "temperature" : postData.temperature} : item ); 
     }
+    // received action: off
     else if (postData.action == OFF){
+      // update the heatmpumps list -> changing state 
       sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action, "temperature" : item.temperature} : item ); 
     }
-    console.log(sensors);
-    //response.sendStatus(200);
+    console.log("Update sensors list: ", sensors);
   });
 
+  // data received from actuator to remove an heatpump or add a new one 
   appBack.post("/add-sensor", (request, response) => {
-    // Accedi ai dati inviati nel corpo della richiesta POST
     const postData = request.body;
 
+    // received action: add a new sensor 
     if(postData.action == ADD){
+      // update the heatmpumps list -> adding a new heatpump 
       sensors.push({"type" : postData.sensor_type, "name" : postData.sensor_name, "state" : postData.state, "temperature" : postData.temperature}); 
     }
+    // received action: remove an existing sensor 
     else if(postData.action == REMOVE){
+      // update the heatmpumps list -> removing the specific heatpump 
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
-    
-    console.log(sensors);
-
-    //response.sendStatus(200);
+    console.log("Update sensors list: ", sensors);
   });
-
 }
 
 run().then(() => {
