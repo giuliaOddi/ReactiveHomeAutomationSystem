@@ -28,7 +28,10 @@
     components.forEach(c => c.destroy());
     await root.appendChild(elem);
     components.push(comp);
-    run();  // serverjs run() method
+
+    document.addEventListener("DOMContentLoaded", () => {
+      run();  // server.js run() method
+    }); 
   }
 
   // initializes the components

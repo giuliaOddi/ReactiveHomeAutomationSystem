@@ -1,10 +1,7 @@
-//import {WebSocket} from './ws';
-
 (function (win) {
 
     const { BehaviorSubject } = rxjs;
     const { map } = rxjs;
-    //const {Chart} = import("chart.js");
 
     var sensors_properties = []; 
 
@@ -115,38 +112,6 @@
             option.value = item.type + ':' + item.name;
             sensorsToRemove.add(option);
         });
-    }
-/* 
-    function increaseValue(temperature) {
-        const numberInput = button.parentElement.querySelector('.number');
-        var value = parseInt(numberInput.innerHTML, 10);
-        if(isNaN(value)) value = 0;
-        value > 34 ? value = 34 : ''; 
-        numberInput.innerHTML = value+1;
-    }
-        
-    function decreaseValue(temperature) {
-        const numberInput = button.parentElement.querySelector('.number');
-        var value = parseInt(numberInput.innerHTML, 10);
-        if(isNaN(value)) value = 0;  
-        value < 16 ? value = 16 : ''; 
-        numberInput.innerHTML = value-1;
-    } */
-
-    function show_sensors_state(){
-        var sensorList = document.getElementById("sensorsStateChange");
-
-        while (sensorList.childNodes.length > 0) {
-            sensorList.removeChild(sensorList.firstChild); 
-        }
-
-        // Filtra gli elementi con type diverso da 'weather'
-        var sensors_to_choose_from = sensors_properties.filter(item => item.type !== 'weather' && item.type !== 'thermometer');
-
-        sensors_to_choose_from.forEach(item => {
-
-           
-        });     
     }
 
     function create_graph(chart, title, value, color, type, sensor) {

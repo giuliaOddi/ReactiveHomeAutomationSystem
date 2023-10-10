@@ -83,11 +83,14 @@ export class SensorHandler extends EventEmitter {
     console.debug('New connection received', {handler: this.#name});
 
     // simulate a client disconnection
+    /*
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
+    */
   }
 
+  /*
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
@@ -98,6 +101,7 @@ export class SensorHandler extends EventEmitter {
       this.emit('error', 'Simulated death', {handler: this.#name});
     }, secs * 1000);
   }
+  */
 
   /**
    * Validates an incoming message.
@@ -131,31 +135,7 @@ export class SensorHandler extends EventEmitter {
     return anIntegerWithPrecision(this.#config.frequency, 0.2);
   }
 
-  /**
-   * Sends the temperature message.
-   * @private
-   */
-  /* _sendTemperature() {
-    const value = temperatureAt(DateTime.now());
-    const msg = {type: 'temperature', dateTime: DateTime.now().toISO(), value};
-
-    // message is always appended to the buffer
-    this.#buffer.push(msg);
-
-    // messages are dispatched immediately if delays are disabled or a random number is
-    // generated greater than `delayProb` messages
-    if (!this.#config.delays || Math.random() > this.#config.delayProb) {
-      for (const bMsg of this.#buffer) {
-        this._send(bMsg);
-      }
-      this.#buffer = [];
-    } else {
-      console.info(`💤 Due to network delays, ${this.#buffer.length} messages are still queued`, {handler: this.#name});
-    }
-  } */
-
-
-  _sendState() {
+  _sendList() {
     //const msg = JSON.stringify(sensor_properties);
     const msg = {type: 'sensors_list', dateTime: DateTime.now().toISO(), list : sensors_properties};
 
@@ -174,15 +154,19 @@ export class SensorHandler extends EventEmitter {
     }*/
   } 
 
-
   /**
-   * Sends any message through the WebSocket channel.
-   * @param msg Any message
-   * @private
-   */
+     * Sends any message through the WebSocket channel.
+     * @param msg Any message
+     * @private
+     */
   _send(msg) {
     if (this.#config.failures && Math.random() < this.#config.errorProb) {
       console.info('🐛 There\'s a bug preventing the message to be sent', {handler: this.#name});
+      const callback = () => {
+        console.debug('💬 Dispatching message', {handler: this.#name});
+        this.#ws.send(JSON.stringify(msg));
+      }
+      setTimeout(callback, this._someMillis());
       return;
     }
 
@@ -195,14 +179,12 @@ export class SensorHandler extends EventEmitter {
       return;
     }
 
-    //////// MODIFICATO ////////
-    // Per heat pump sensor si sottoscrive allo stato, non alla temperatura // 
-    //console.debug('🌡  Subscribing to temperature', {handler: this.#name});
-    console.debug('Subscribing to state', {handler: this.#name});
+    console.debug('Subscribing to frontend', {handler: this.#name});
     const callback = () => {
+      // checks if the list of sensors changed and if so forwards it
       if (JSON.stringify(list) !== JSON.stringify(sensors_properties)){
-        this._sendState(); 
-        list = sensors_properties.slice(); 
+        list = JSON.parse(JSON.stringify(sensors_properties)); 
+        this._sendList(); 
       }
       this.#timeout = setTimeout(callback, this._someMillis());
     };
