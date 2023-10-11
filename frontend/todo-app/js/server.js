@@ -313,7 +313,7 @@
 
                 var divId = item.type + ": " + item.name + "-div";
                 var brId = item.type + ": " + item.name + "-br";
-                var errorId = item.type + ": " + item.name + "-sensorError";
+                var iconId = item.type + ": " + item.name + "-stateIcon";
 
                 var divSensor = document.getElementById(divId);
 
@@ -325,6 +325,29 @@
                     divSensor.id = divId;
                     divSensor.className = "stateChange"
                     sensorList.appendChild(divSensor);
+
+                    // icon that shows the current state of the sensor
+                    var divIcon = document.createElement("div");
+                    divIcon.id = iconId;
+                    if(item.state===ON_OPEN){
+                        divIcon.className="fa fa-power-off";
+                        divIcon.style.color = "lime";
+                        divIcon.style.fontSize = "40px";
+                        divIcon.style.position = "absolute";
+                    }
+                    else if(item.state===OFF_CLOSE){
+                        divIcon.className="fa fa-power-off";
+                        divIcon.style.color = "grey";
+                        divIcon.style.fontSize = "40px";
+                        divIcon.style.position = "absolute";
+                    }
+                    else{
+                        divIcon.className="fa fa-times";
+                        divIcon.style.color = "red";
+                        divIcon.style.fontSize = "50px";
+                        divIcon.style.position = "absolute";
+                    }
+                    divSensor.appendChild(divIcon);
 
                     var labelSwitch = document.createElement("label");
                     labelSwitch.className = "toggle";
@@ -387,12 +410,6 @@
                         }
                     }); 
                     labelSwitch.appendChild(switchDiv);
-
-                    var sensor_error = document.createElement("div");
-                    sensor_error.id = errorId;
-                    sensor_error.className = "sensor_error";
-                    sensor_error.style.color = "red";
-                    divSensor.appendChild(sensor_error); 
         
                     // for heatpump sensors -> buttons used to change temperature and to send it 
                     if (item.type === "heatpump"){
@@ -454,19 +471,30 @@
                     sensorList.appendChild(br); 
                     sensorList.appendChild(br2); 
                 }
-
-                // shows if a sensors is on error state 
-                if (item.state === ERROR){
-                    var sensor_error = document.getElementById(errorId); 
-                    sensor_error.textContent = "ERROR!";
-                }
                 else {
-                    if (item.state === ON_OPEN){
-                        var temperatureAlert = document.getElementById("tempAlert"); 
-                        temperatureAlert.textContent = "";                
+
+                    // updates the icon with the current state of the sensor
+                    var divIcon = document.getElementById(iconId);
+                    if(item.state===ON_OPEN){
+                        divIcon.className="fa fa-power-off";
+                        divIcon.style.color = "lime";
+                        divIcon.style.fontSize = "40px";
                     }
-                    var sensor_error = document.getElementById(errorId); 
-                    sensor_error.textContent = ""; 
+                    else if(item.state===OFF_CLOSE){
+                        divIcon.className="fa fa-power-off";
+                        divIcon.style.color = "grey";
+                        divIcon.style.fontSize = "40px";
+                    }
+                    else{
+                        divIcon.className="fa fa-times";
+                        divIcon.style.color = "red";
+                        divIcon.style.fontSize = "50px";
+                    }
+                }
+
+                if (item.state === ON_OPEN){
+                    var temperatureAlert = document.getElementById("tempAlert"); 
+                    temperatureAlert.textContent = "";                
                 }
             });            
         });

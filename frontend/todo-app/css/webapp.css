@@ -24,11 +24,6 @@ form {
   margin-left: 20px;
 }
 
-.sensor_error {
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 #temperature{
   margin-left : 20px;
 }
@@ -52,6 +47,7 @@ canvas {
 .toggle {
   cursor: pointer;
   display: ruby;
+  margin-left: 70px;
 }
 
 .toggle-switch {
@@ -124,6 +120,7 @@ canvas {
   width: 120px; 
   height: 40px;
   margin-right: 20px;
+  margin-left: 20px;
 }
 
 .quantity-field .value-button{ 
