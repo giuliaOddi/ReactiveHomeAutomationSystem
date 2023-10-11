@@ -3,18 +3,23 @@
     const { BehaviorSubject } = rxjs;
     const { map } = rxjs;
 
+    // list of sensors  
     var sensors_properties = []; 
 
-    // Stati sensori
+    // possible states of sensors 
     const ON_OPEN = 1;
     const OFF_CLOSE = 0;
     const ERROR = -1; 
+
+    // possible actions
     const ADD = 2;
     const REMOVE = 3;
     var ws = null;
    
+    // sends a message to the backend to add the new sensor 
     function add_sensor(type, name, temperature){
         var addSensor = {};
+        // for heatpump and thermometer there is also the temperature 
         if (type === "heatpump" || type === "thermometer"){
             addSensor = {
                 action: ADD,
@@ -31,21 +36,21 @@
                 sensor_name: name,
                 state: OFF_CLOSE
             };
-        }
-        
+        }        
         ws.send(JSON.stringify(addSensor));
     }
 
+    // sends a message to the backend to remove the sensor 
     function remove_sensor(type, name){
         var removeSensor = {
             action: REMOVE,
             sensor_type: type,
             sensor_name: name
-        };
-        
+        };        
         ws.send(JSON.stringify(removeSensor));
     }
 
+    // sends a message to the backend to change the status of the sensor  
     function change_sensor_state(type, name, state, temperature){
         var changeState= {};
         if (type === "heatpump"){
@@ -66,6 +71,7 @@
         ws.send(JSON.stringify(changeState));
     }
 
+    // sends a message to the backend to change the temperature of the heatpump 
     function change_heatpump_temperature(name, state, temperature){
         const changeTemperature = {
             action: ON_OPEN,
@@ -77,9 +83,9 @@
         ws.send(JSON.stringify(changeTemperature));
     }
 
-
+    // shows the temperature field only for sensors with type == heatpump 
     function show_temperature_field() {
-
+        
         var error_name = document.getElementById("error_name"); 
         error_name.textContent = "";
   
@@ -96,23 +102,23 @@
         }
     }
 
+    // hide the temperature field for sensors with type != heatpump 
     function hide_temperature_field() {
-        var menu = document.getElementById("sensors");
         var temperature = document.getElementById("temperature");
         temperature.style.display = "none";
     }
 
+    // options shown to remove a sensor 
     function remove_sensor_options(){
-        // Filtra gli elementi con type diverso da 'weather'
+        // can remove only sensors with type != weather 
         var sensors_to_choose_from = sensors_properties.filter(item => item.type !== 'weather');
-
         var sensorsToRemove = document.getElementById("sensorsToRemove");
 
         while (sensorsToRemove.options.length > 0) {
             sensorsToRemove.remove(0);
         }
 
-        // Aggiungi gli elementi filtrati al menu a tendina
+        // show sensors in the menu 
         sensors_to_choose_from.forEach(item => {
             var option = document.createElement("option");
             option.text = item.type + ': ' + item.name;
@@ -121,12 +127,14 @@
         });
     }
 
-    function create_graph(chart, title, value, color, type, sensor) {
+    // create the specific graph 
+    function create_chart(chart, title, value, color, type, sensor) {
         var data;
         var config;
         var date = new Date();
         var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
         
+        // graph for sensors state 
         if (type === 'state'){
             data = {
                 labels: [label],
@@ -195,8 +203,9 @@
                     }
                 }
             };
-
         }
+
+        // graph for sensors temperature  
         else if (type === 'temperature'){
             data = {
                 labels: [label],
@@ -245,75 +254,73 @@
                     }
                 }
             };
-
         }
         return new Chart(
             chart, 
             config
         )
-
     }
 
     function run() {     
 
         var list = []
 
+        // subjects used to check new events -> new list 
         const userListChanged$ = new BehaviorSubject(list);
         const userListDifference$ = userListChanged$.pipe(
             map (current => 
             {               
+                // finds differences between the new list and the old one -> sensors added or modified 
                 var sensors_differences = current
                     .map(item => sensors_properties
                     .find(item2 => (item2.type === item.type) && (item2.name === item.name) && (item2.state === item.state) && (item2.temperature === item.temperature) ) ? null : item)
                     .filter(item => item != null);
-                //return _.difference(current, sensors_properties); 
 
+                // finds if some sensors where removed 
                 var removed_sensors = sensors_properties
                     .map(item => (current
                     .find(item2 => (item2.type === item.type && item2.name === item.name))) ? null : item )
                     .filter(item => item !== null);
 
-                return [sensors_differences, removed_sensors];     // ritorna aggiunte e modifiche ma NON rimozione sensori
+                return [sensors_differences, removed_sensors];     
             })
         );
 
+        // subscribes to differences to update the web app 
         userListDifference$.subscribe(differences => {
             
             var sensorList = document.getElementById("sensorsStateChange");
 
-            // rimozione sensori
+            // checks sensors removed 
             var sensors_to_remove = differences[1].filter(item => item.type !== 'weather' && item.type !== 'thermometer');
+            // removes sensors from the web app 
             sensors_to_remove.forEach(item => {
                 var divId = item.type + ": " + item.name + "-div";
                 var brId = item.type + ": " + item.name + "-br";
 
                 var divSensor = document.getElementById(divId);
 
-                /*
-                while (divSensor.options.length > 0) {
-                    divSensor.remove(0);
-                }*/
-
                 sensorList.removeChild(divSensor);
                 sensorList.removeChild(document.getElementById(brId));
                 sensorList.removeChild(document.getElementById(brId));
             })
 
-            // Filtra gli elementi con type diverso da 'weather'
+            // checks modified or added sensors 
             var sensors_to_choose_from = differences[0].filter(item => item.type !== 'weather' && item.type !== 'thermometer');
 
-            // creazione o modifica buttons per cambio stati sensori
+            // creates or modifies buttons for modified sensors 
             sensors_to_choose_from.forEach(item => {
 
                 var divId = item.type + ": " + item.name + "-div";
                 var brId = item.type + ": " + item.name + "-br";
-                //var inputSwitchId = item.type + ": " + item.name + "-inputSwitch";
                 var errorId = item.type + ": " + item.name + "-sensorError";
 
                 var divSensor = document.getElementById(divId);
 
+                // a new sensor was added -> creates the specific div in the web app 
                 if (divSensor === null) {
 
+                    // sensor name and switch to change status 
                     var divSensor = document.createElement("div");
                     divSensor.id = divId;
                     divSensor.className = "stateChange"
@@ -329,7 +336,6 @@
                     labelSwitch.appendChild(switchSpan);
         
                     var inputSwitch = document.createElement("input");
-                    //inputSwitch.id = inputSwitchId;
                     inputSwitch.className = "toggle-checkbox";
         
                     if (item.state === ON_OPEN) {
@@ -351,6 +357,7 @@
                     else {
                         switchDiv.id = "window-door";
                     }
+                    // changes status of the specific sensor 
                     switchDiv.addEventListener("click", () => {
 
                         var sensor_state = sensors_properties.filter(sensor => (sensor.type === item.type && sensor.name === item.name)).map(sensor => sensor.state)[0];
@@ -371,7 +378,6 @@
                                 inputSwitch.checked = false;
                                 state = ON_OPEN;
                             }
-
                         }
                         if (item.type == 'heatpump'){
                             change_sensor_state(item.type, item.name, state, temperature); 
@@ -388,6 +394,7 @@
                     sensor_error.style.color = "red";
                     divSensor.appendChild(sensor_error); 
         
+                    // for heatpump sensors -> buttons used to change temperature and to send it 
                     if (item.type === "heatpump"){
                         var temperature = item.temperature;
                         var divField = document.createElement("div");
@@ -398,7 +405,7 @@
                         
                         buttonDecrease.addEventListener("click", () => {
                             temperature--; 
-                            temperature < 15 ? temperature = 15 : ''; 
+                            temperature < 15 ? temperature = 15 : '';   // not valid temperature under 15°C 
                             divNumber.textContent = temperature; 
                         }); 
                         buttonDecrease.textContent = "-";
@@ -413,25 +420,21 @@
                         buttonIncrease.className = "value-button increase-button";
                         buttonIncrease.addEventListener("click", () => {
                             temperature++; 
-                            temperature > 35 ? temperature = 35 : ''; 
+                            temperature > 35 ? temperature = 35 : '';   // not valid temperature over 35°C 
                             divNumber.textContent = temperature; 
                         }); 
                         buttonIncrease.textContent = "+"; 
                         divField.appendChild(buttonIncrease);
-        
-                        //sensorList.appendChild(divField); 
                         divSensor.appendChild(divField); 
         
                         var setTempButton = document.createElement("button"); 
                         setTempButton.textContent = "Set new temperature"; 
                         
-                        //setTempButton.onclick = function() { change_heatpump_temperature(item.name, item.state, parseInt(divNumber.querySelector('.number').innerHTML, 10)); }; 
+                        // sends the specified temperature only if the specific heatpump is on 
                         setTempButton.addEventListener("click", () => {
                             var sensor_state = sensors_properties.filter(sensor => (sensor.type === item.type && sensor.name === item.name)).map(sensor => sensor.state)[0];
                             if (sensor_state === ON_OPEN){
                                 change_heatpump_temperature(item.name, item.state, parseInt(divNumber.textContent, 10)); 
-                                //clearTimeout(timeout);
-                                //setTimeout(show_sensors_state, 4000);
                             }
                             else {
                                 temperatureAlert.textContent = "You can change the temperature only if the heatpump is on!";
@@ -450,20 +453,9 @@
 
                     sensorList.appendChild(br); 
                     sensorList.appendChild(br2); 
-
-                }
-                else {
-                                        // var inputSwitch = document.getElementById(inputSwitchId);
-                    // if (item.state === ON_OPEN) {
-                    //     inputSwitch.checked = true; 
-                    // }
-                    // else if (item.state === OFF_CLOSE){
-                    //     inputSwitch.checked = false;
-                    // }
-
-
                 }
 
+                // shows if a sensors is on error state 
                 if (item.state === ERROR){
                     var sensor_error = document.getElementById(errorId); 
                     sensor_error.textContent = "ERROR!";
@@ -476,18 +468,13 @@
                     var sensor_error = document.getElementById(errorId); 
                     sensor_error.textContent = ""; 
                 }
-
-            });
-
-            
+            });            
         });
 
-        //userListChanged$.subscribe(value => console.log('list', value));
+        // subscribes to event to update charts 
         userListDifference$.subscribe(differences => {            
 
             differences[0].forEach(item => {
-                //console.log(item);
-                // creazione o modifica grafici 
                 var chartsDiv = document.getElementById("charts");
 
                 var stateGraphName = item.type + ": " + item.name + "-state";
@@ -502,33 +489,33 @@
                 if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
                     chartTemp = Chart.getChart(tempGraphName);
                 }
-
                 
-                // grafico già esiste aggiungo nuovo stato 
+                // if the chart already exists -> update it 
                 if(chartState != null || chartTemp != null) { 
+                    // for windows, doors and heatpump, updates the chart for states 
                     if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
-
+                        // current time 
                         var date = new Date();
                         var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
-        
+                        // add to the chart the current state 
                         chartState.data.labels.push(label);
                         chartState.data.datasets[0].data.push(item.state);  
                         chartState.update();
                     }
+                    // for weather, doors and heatpump, updates the chart for temperatures  
                     if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
-
+                        // current time 
                         var date = new Date();
                         var label = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds(); 
-        
+                        // add to the chart the current temperature          
                         chartTemp.data.labels.push(label);
                         chartTemp.data.datasets[0].data.push(item.temperature);
                         chartTemp.update();
-
                     }
                 }
-                // grafico non esiste -> creazione 
+                // if the chart doesn't exist -> create a new one 
                 else {
-
+                    // for windows, doors and heatpump, creates the chart for states 
                     if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
                         var div = document.createElement("div");
                         div.id = "div-" + stateGraphName;
@@ -537,10 +524,13 @@
                         canvas.id = stateGraphName;
                         canvas.height = "250";  
                         canvas.width = "700"; 
-                        create_graph(canvas, stateGraphName, item.state, "rgb(100, 100, 255)", "state", item.type);
+                        
+                        create_chart(canvas, stateGraphName, item.state, "rgb(100, 100, 255)", "state", item.type);
+
                         div.appendChild(canvas); 
                         chartsDiv.appendChild(div);
                     }
+                    // for weather, doors and heatpump, creates the chart for temperatures  
                     if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
                         var div = document.createElement("div");
                         div.id = "div-" + tempGraphName;
@@ -548,43 +538,34 @@
                         var canvas = document.createElement("canvas");
                         canvas.id = tempGraphName;
                         canvas.height = "250";  
-                        canvas.width = "700";   
-                        create_graph(canvas, tempGraphName, item.temperature, "rgb(255, 100, 100)", "temperature", item.type);    
+                        canvas.width = "700";  
+
+                        create_chart(canvas, tempGraphName, item.temperature, "rgb(255, 100, 100)", "temperature", item.type);
+
                         div.appendChild(canvas); 
                         chartsDiv.appendChild(div);
                     }
-                }
-
-                
+                }                
             });
 
-            // rimozione grafici di sensori rimossi
+            // used to remove graphs of removed sensors 
             differences[1].forEach(item => {
-                console.log(item);
                 var stateGraphName = item.type + ": " + item.name + "-state";
                 var tempGraphName = item.type + ": " + item.name + "-temperature";
                 var chartsDiv = document.getElementById("charts");
 
                 if (item.type === "window" || item.type === "door" || item.type === "heatpump"){
-                    //var chart = Chart.getChart(stateGraphName);
-                    //chart.destroy();
-                    //var chartSpan = document.getElementById(stateGraphName);
                     var chartDiv = document.getElementById("div-" + stateGraphName);
-                    //chartDiv.removeChild(chartSpan);
                     chartsDiv.removeChild(chartDiv);
                 }
                 if (item.type === "weather" || item.type === "thermometer" || item.type === "heatpump"){
-                    var chart = Chart.getChart(tempGraphName);
-                    //chart.destroy();
-                    //var chartSpan = document.getElementById(tempGraphName);
                     var chartDiv = document.getElementById("div-" + tempGraphName);
-                    //chartDiv.removeChild(chartSpan);
                     chartsDiv.removeChild(chartDiv);
                 }
             });
-
         });
 
+        // communication with backend 
         ws = new WebSocket('ws://10.88.0.11:7000/ws');
         let count = 0;
     
@@ -609,108 +590,27 @@
                 list = tmp.list;                
                 userListChanged$.next(list);  
                 
+                // finds new sensors 
                 var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
                     .filter(item => item!=false);
 
+                // finds removed sensors 
                 var elements_removed = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? false : true )
                 .filter(item => item!=false);
 
-                var temperatures_changed = tmp.list.filter(item => (item.type === 'heatpump')).map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name && item.temperature === item2.temperature) ) ? false : true))
-                    .filter(item => item!=false);
-
-
+                // updates the sensors list 
                 sensors_properties = list;
                 console.log(sensors_properties); 
 
+                // updates the menu of sensors to remove 
                 if (elements_added.length > 0 || elements_removed.length > 0){
                     remove_sensor_options();
-                    //show_sensors_state();
-                }
-                /*
-                if (elements_added.length > 0 || elements_removed.length > 0 || temperatures_changed.length > 0){
-                    show_sensors_state();
-                }*/
-                   
-            }
-            
-        });
-        //setTimeout(show_sensors_state, 2000);
-
-         //var myChart = document.getElementById("myChart").getContext('2d');
-        /* 
-        var divProva = document.createElement("div");
-        divProva.textContent = "prova";
-        myChart.appendChild(divProva);  */
-        /* if (myChart) {
-            myChart.destroy();
-        } */
-
-        // var ctx = document.getElementById("myChart").getContext("2d"), 
-
-        //var chartsDiv = document.getElementById("charts");
-
-        // var chartDiv = document.createElement("div");
-        // var chartDiv2 = document.createElement("div");
-        // var chartDiv3 = document.createElement("div");
-        // //chartDiv.width = "50%";
-        // //chartDiv2.width = "50%";
-        // //chartDiv3.width = "50%";
-
-        // chartsDiv.appendChild(chartDiv);
-        // chartsDiv.appendChild(chartDiv2);
-        // chartsDiv.appendChild(chartDiv3);
-
-        /* var chartCanvas = document.createElement("canvas");
-        chartCanvas.id = "myGraph";
-        chartCanvas.height = "50";
-        
-        
-        var chartCanvas2 = document.createElement("canvas");
-        chartCanvas2.id = "myGraph2";
-        chartCanvas2.height = "50";
-
-
-        var chartCanvas3 = document.createElement("canvas");
-        chartCanvas3.id = "myGraph3";
-        chartCanvas3.height = "50";
-        
-
-        var chart = create_graph(chartCanvas, "myGraph");
-        var chart2 = create_graph(chartCanvas2, "myGraph2");
-        var chart3 = create_graph(chartCanvas3, "myGraph3");
-
-        chart3.data.labels.push('');
-        chart3.data.datasets[0].data.push(15);
-        chart3.update();
-
-        chart2.data.labels = ['','','',''];
-        chart2.data.datasets[0].data = [10,0,20,0];
-        chart2.update();
-
-        chartsDiv.appendChild(chartCanvas);
-        chartsDiv.appendChild(chartCanvas2);
-        chartsDiv.appendChild(chartCanvas3);
-
-        var chartnew = Chart.getChart("myGraph");
-        chartnew.data.labels.push('');
-        chartnew.data.datasets[0].data.push(0);
-        chartnew.update(); */
-
-        //////////////////////////
-        // per rimuovere un grafico: 
-        //var chart = Chart.getChart("myGraph");
-        //chart.destroy();
-        //var chartSpan = document.getElementById("myGraph");
-        //chartsDiv.removeChild(chartSpan);
-
-
-        /*
-        document.addEventListener("DOMContentLoaded", function() {
-            setTimeout(create_graph, 2000); 
-        });*/
-        
+                }                   
+            }            
+        });        
     }
 
+    // return the list of sensors 
     function get_sensors_properties(){
         return sensors_properties; 
     }

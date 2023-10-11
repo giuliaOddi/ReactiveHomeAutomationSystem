@@ -126,8 +126,10 @@
       var error_temperature = document.getElementById("error_temperature"); 
       error_temperature.textContent = "";
 
+      // sensor type choose
       var type = form.querySelector('#sensors');
       type = (type.value || '').trim();
+      //sensor name inserted
       var sensor_name = form.querySelector('input#sensor_name');
       sensor_name = (sensor_name.value || '').trim();
 
@@ -138,8 +140,10 @@
         error_name.textContent = "Sensor already added!"; 
       }
 
+      // temperature inserted
       var temperature = form.querySelector('input#temperature');
       temperature = parseFloat((temperature.value || '20').trim());
+      
       // check if the temperature is valid  
       if (temperature < 15 || temperature > 35){
         error_temperature.textContent = "Not valid temperature!"; 
