@@ -79,6 +79,13 @@
 
 
     function show_temperature_field() {
+
+        var error_name = document.getElementById("error_name"); 
+        error_name.textContent = "";
+  
+        var error_temperature = document.getElementById("error_temperature"); 
+        error_temperature.textContent = "";
+
         var menu = document.getElementById("sensors");
         var temperature = document.getElementById("temperature");
         if (menu.value == "heatpump"){
@@ -704,7 +711,12 @@
         
     }
 
+    function get_sensors_properties(){
+        return sensors_properties; 
+    }
+
     /* Exports components and functions */
+    win.get_sensors_properties ||= get_sensors_properties; 
     win.add_sensor ||= add_sensor; 
     win.remove_sensor ||= remove_sensor; 
     win.show_temperature_field ||= show_temperature_field; 

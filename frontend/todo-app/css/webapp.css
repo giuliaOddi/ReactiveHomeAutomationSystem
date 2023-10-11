@@ -41,6 +41,14 @@ canvas {
   margin-left: 50px;
 }
 
+#error_name{
+  margin-left: 20px;
+}
+
+#error_temperature{
+  margin-left: 20px;
+}
+
 .toggle {
   cursor: pointer;
   display: ruby;
