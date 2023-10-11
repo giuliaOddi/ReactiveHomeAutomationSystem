@@ -76,20 +76,21 @@ canvas {
   left: 4px;
   transition: left 0.25s;
 }
+
 #window-door.toggle-switch:before{
-  content: "CLOSED";
+  content: "";
 }
 
 #heatpump.toggle-switch:before{
-  content: "OFF";
+  content: "";
 }
 .toggle-checkbox:checked + #window-door.toggle-switch:before{
-  content: "OPEN";
+  content: "";
 }
 
 .toggle-checkbox:checked + #heatpump.toggle-switch:before{
-  content: "ON";
-}
+  content: "";
+} 
 
 .toggle:hover .toggle-switch:before {
   background: linear-gradient(to bottom, #fff 0%, #fff 100%);
