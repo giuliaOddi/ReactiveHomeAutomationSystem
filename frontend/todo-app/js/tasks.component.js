@@ -1,8 +1,6 @@
 'use strict';
 (function (win) {
 
-  const { fromEvent } = rxjs;
-
   /**
    * Given an HTML element representing a task, extracts the task's ID.
    * @param el {HTMLElement} An HTML element representing a task
@@ -45,6 +43,7 @@
       this.#element.className = 'tasks';
       this.#element.innerHTML = document.querySelector('script#tasks-template').textContent;
 
+      // form used to add new sensors 
       const form_add = this.#element.querySelector('form[name="add-sensor"]');
       if (!form_add) {
         toast('Cannot initialize components: no <b>form</b> found', 'error');
@@ -53,16 +52,10 @@
       form_add.addEventListener('submit', ($event) => {
         $event.preventDefault();
         this.addSensor(form_add); 
-        //this.addTask(form_add);
-        //add_window(); 
         form_add.reset();
       }); 
-      /* fromEvent(form_add, 'submit').subscribe(() => {
-        this.addSensor(form_add); 
-        //form_add.reset();
-      });  */
-      
 
+      // form used to remove sensors 
       const form_remove = this.#element.querySelector('form[name="remove-sensor"]');
       if (!form_remove) {
         toast('Cannot initialize components: no <b>form</b> found', 'error');
@@ -71,27 +64,13 @@
       form_remove.addEventListener('submit', ($event) => {
         $event.preventDefault();
         this.removeSensor(form_remove); 
-        //this.addTask(form_add);
-        //add_window(); 
         form_remove.reset();
       });  
-
-      /*
-      try {
-        const resp = await this.#client.get('tasks');
-        resp.results.forEach(dto => {
-          const model = new RestTaskModel(dto.id, dto.description, this.#client);
-          this.createTaskComponent(model);
-        });
-      } catch (e) {
-        console.error('Something went wrong getting tasks', e);
-      }
-      */
 
       return this.#element;
     }
 
-    async removeTask(task) {
+    /*async removeTask(task) {
       try {
         let i = this.#tasks.findIndex(t => t.model.id === task.id);
         if (i >= 0) {
@@ -136,35 +115,51 @@
         console.log('Task successfully saved', {model: model.toDto()});
         this.createTaskComponent(model);
       }
-    }
+    }*/
 
-    async addSensor(form) {
+    // function that takes the input from the form to add a new sensor 
+    addSensor(form) {
+
+      var error_name = document.getElementById("error_name"); 
+      error_name.textContent = "";
+
+      var error_temperature = document.getElementById("error_temperature"); 
+      error_temperature.textContent = "";
+
+      // sensor type choose
       var type = form.querySelector('#sensors');
       type = (type.value || '').trim();
+      //sensor name inserted
       var sensor_name = form.querySelector('input#sensor_name');
       sensor_name = (sensor_name.value || '').trim();
+
+      // check if the sensor already exists 
+      var sensors_properties = get_sensors_properties(); 
+      var sensor_found = sensors_properties.find(item => (item.type === type) && (item.name === sensor_name)); 
+      if(sensor_found){
+        error_name.textContent = "Sensor already added!"; 
+      }
+
+      // temperature inserted
       var temperature = form.querySelector('input#temperature');
       temperature = parseFloat((temperature.value || '20').trim());
-      /**const desc = (inp.value || '').trim();
-      if (desc) {
-        console.log(`Saving new task '${desc}'...`);
-        const model = new RestTaskModel(undefined, desc, this.#client);
-        await model.create();
-        console.log('Task successfully saved', {model: model.toDto()});
-        this.createTaskComponent(model);
-      }**/
-      //if (type == "heatpump"){
-      add_sensor(type, sensor_name, temperature); 
-      //}
+      
+      // check if the temperature is valid  
+      if (temperature < 15 || temperature > 35){
+        error_temperature.textContent = "Not valid temperature!"; 
+      }
+
+      add_sensor(type, sensor_name, temperature);   // server.js file
     }
 
-    async removeSensor(form) {
+    // function that takes the input from the form to remove a sensor 
+    removeSensor(form) {
       var value = form.querySelector('#sensorsToRemove');
       value = (value.value || '').trim();
       var type = value.split(':')[0];
       var sensor_name = value.split(':')[1];
 
-      remove_sensor(type, sensor_name); 
+      remove_sensor(type, sensor_name);   // server.js file
     }
 
   }

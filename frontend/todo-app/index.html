@@ -15,6 +15,8 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/custom.css">
@@ -77,13 +79,15 @@
       <br>
       <div id="sensor_name" class="input-group">
         <label for="sensor_name"> Type the sensor name: </label>
-        <input type="text" id="sensor_name" name="sensor_name" value="" placeholder="Type sensor name">
+        <input type="text" id="sensor_name" name="sensor_name" value="" placeholder="Sensor name">
       </div>
+      <div id="error_name" style="color: red"></div>
       <br>
       <div id="temperature" style="display: none;" class="input-group">
         <label for="temperature"> Temperature: </label>
-        <input type="text" id="temperature" name="temperature" value="" placeholder="Type temperature">
+        <input type="text" id="temperature" name="temperature" value="" placeholder="Temperature (15°C - 35°C)">
       </div>
+      <div id="error_temperature" style="color: red"></div>
       <br>
       <div class="form-group">
         <div class="input-group">
@@ -134,7 +138,7 @@
 <script src="js/rest-client.js"></script>
 <script src="js/models.js"></script>
 <script src="js/login.component.js"></script>
-<script src="js/task.component.js"></script>
+<!--<script src="js/task.component.js"></script>-->
 <script src="js/tasks.component.js"></script>
 <script src="js/main.js"></script>
 

@@ -24,11 +24,6 @@ form {
   margin-left: 20px;
 }
 
-.sensor_error {
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 #temperature{
   margin-left : 20px;
 }
@@ -41,17 +36,26 @@ canvas {
   margin-left: 50px;
 }
 
+#error_name{
+  margin-left: 20px;
+}
+
+#error_temperature{
+  margin-left: 20px;
+}
+
 .toggle {
   cursor: pointer;
   display: ruby;
+  margin-left: 70px;
 }
 
 .toggle-switch {
   display: inline-block;
   background: #ccc;
   border-radius: 16px;
-  width: 116px;
-  height: 48px;
+  width: 58px;
+  height: 32px;
   position: relative;
   vertical-align: middle;
   transition: background 0.25s;
@@ -65,27 +69,28 @@ canvas {
   background: linear-gradient(to bottom, #fff 0%, #eee 100%);
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
-  width: 48px;
-  height: 36px;
+  width: 24px;
+  height: 24px;
   position: absolute;
   top: 4px;
   left: 4px;
   transition: left 0.25s;
 }
+
 #window-door.toggle-switch:before{
-  content: "CLOSED";
+  content: "";
 }
 
 #heatpump.toggle-switch:before{
-  content: "OFF";
+  content: "";
 }
 .toggle-checkbox:checked + #window-door.toggle-switch:before{
-  content: "OPEN";
+  content: "";
 }
 
 .toggle-checkbox:checked + #heatpump.toggle-switch:before{
-  content: "ON";
-}
+  content: "";
+} 
 
 .toggle:hover .toggle-switch:before {
   background: linear-gradient(to bottom, #fff 0%, #fff 100%);
@@ -95,7 +100,7 @@ canvas {
   background: #56c080;
 }
 .toggle-checkbox:checked + .toggle-switch:before {
-  left: 60px;
+  left: 30px;
 }
 
 .toggle-checkbox {
@@ -116,6 +121,7 @@ canvas {
   width: 120px; 
   height: 40px;
   margin-right: 20px;
+  margin-left: 20px;
 }
 
 .quantity-field .value-button{ 
