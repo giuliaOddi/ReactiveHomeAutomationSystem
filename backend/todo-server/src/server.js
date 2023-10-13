@@ -300,9 +300,7 @@ function connect_to_heatpump(){
       .catch((error) => {
         //console.error(error);
       });
-
     }
- 
   });
 }
 
@@ -357,6 +355,27 @@ function connect_to_thermometer(){
       }
     }
     console.log(sensors_properties);
+    
+    // forwards the list to the actuator
+    fetch(actuatorAddress + sensor_properties_endpoint, {
+      method: 'POST', 
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+      body: JSON.stringify(sensors_properties), 
+    })
+    .then((response) => {
+      if (!response.status) {
+        throw new Error('Error with HTTP request: ' + response);
+      }
+      return response;
+    })
+    .then((data) => {
+      //console.log(data);
+    })
+    .catch((error) => {
+      //console.error(error);
+    });
   });
 }
 
