@@ -266,8 +266,8 @@
         var list = []
 
         // subjects used to check new events -> new list 
-        const userListChanged$ = new BehaviorSubject(list);
-        const userListDifference$ = userListChanged$.pipe(
+        const sensorsListChanged$ = new BehaviorSubject(list);
+        const sensorsListDifference$ = sensorsListChanged$.pipe(
             map (current => 
             {               
                 // finds differences between the new list and the old one -> sensors added or modified 
@@ -287,7 +287,7 @@
         );
 
         // subscribes to differences to update the web app 
-        userListDifference$.subscribe(differences => {
+        sensorsListDifference$.subscribe(differences => {
             
             var sensorList = document.getElementById("sensorsStateChange");
 
@@ -500,7 +500,7 @@
         });
 
         // subscribes to event to update charts 
-        userListDifference$.subscribe(differences => {            
+        sensorsListDifference$.subscribe(differences => {            
 
             differences[0].forEach(item => {
                 var chartsDiv = document.getElementById("charts");
@@ -616,7 +616,7 @@
             if(tmp.type == 'sensors_list'){
 
                 list = tmp.list;                
-                userListChanged$.next(list);  
+                sensorsListChanged$.next(list);  
                 
                 // finds new sensors 
                 var elements_added = tmp.list.map(item => (sensors_properties.find(item2 => (item2.type === item.type && item2.name === item.name) ) ? false : true))
