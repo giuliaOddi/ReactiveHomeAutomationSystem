@@ -30,7 +30,7 @@ var sensors_properties = [];
 
 // thermometers list  
 export var sensors = [
-  { type : 'thermometer', name : 'therm1', state: ON_OPEN, temperature : temperature},
+  { type : 'thermometer', name : 'therm1', state: OFF_CLOSE, temperature : temperature},
 ]; 
 
 // milliseconds used to update and save the actual temperature
@@ -274,7 +274,7 @@ async function run() {
       // update the thermometers list -> removing the specific thermometer  
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }    
-    console.log("Update sensors list: ", sensors);
+    console.log("Updated sensors list: ", sensors);
   });
 }
 

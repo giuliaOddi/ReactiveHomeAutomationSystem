@@ -94,7 +94,6 @@ export class SensorHandler extends EventEmitter {
 
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
-    console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
     
     // simulates error states
     setTimeout(() => {
@@ -103,13 +102,14 @@ export class SensorHandler extends EventEmitter {
       this._scheduleDeath();
     }, secs * 5000);
 
+    // stops the container
     this.#death = setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
       this.#ws.close();
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
       process.exit();
-    }, secs * 5000);
+    }, secs * 15000);
   }
 
   /**
@@ -129,6 +129,11 @@ export class SensorHandler extends EventEmitter {
     // valid messages only if target == heatpump
     if (json.target !== 'heatpump') {
       throw new ValidationError('Invalid subscription target');
+    }
+    if (json.list !== null){
+      sensors.splice(0, sensors.length);
+      json.list.forEach(item => sensors.push(item));
+      console.log(sensors);
     }
     return json;
   }

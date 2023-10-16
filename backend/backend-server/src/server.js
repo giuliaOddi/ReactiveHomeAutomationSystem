@@ -37,6 +37,16 @@ const ON_OPEN = 1;
 const OFF_CLOSE = 0;
 const ERROR = -1; 
 
+var timeout_weather;
+
+var first_heatpump_connection = false;
+var timeout_heatpump;
+
+var first_windowdoor_connection = false;
+var timeout_windowdoor;
+var first_thermometer_connection = false;
+var timeout_thermometer;
+
 /**
  * Initializes the application middlewares.
  *
@@ -92,7 +102,8 @@ function connect_to_weather_service(){
     console.log("Error connecting to the weather service ...");
     console.log("Trying to reconnect to the weather service...");
     ws_weather = null;
-    setTimeout(connect_to_weather_service, 1000);
+    clearTimeout(timeout_weather);
+    timeout_weather = setTimeout(connect_to_weather_service, 1000);
   });
 
   ws_weather.on('open', function open() {
@@ -104,7 +115,8 @@ function connect_to_weather_service(){
     console.log("Connection to the weather service closed...");
     console.log("Trying to reconnect to the weather service...");
     ws_weather = null;
-    setTimeout(connect_to_weather_service, 2000);
+    clearTimeout(timeout_weather);
+    timeout_weather = setTimeout(connect_to_weather_service, 1000);
   });
   
   ws_weather.on('message', function message(data) {
@@ -163,19 +175,28 @@ function connect_to_window_door_sensor(){
     console.log("Error connecting to the window door...");
     console.log("Trying to reconnect to the window door...");
     ws_window_door = null;
-    setTimeout(connect_to_window_door_sensor, 1000);
+    clearTimeout(timeout_windowdoor);
+    timeout_windowdoor = setTimeout(connect_to_window_door_sensor, 1000);
   });
 
   ws_window_door.on('open', function open() {
     console.log("Successfully connected to the window door...");
-    ws_window_door.send('{"type": "subscribe", "target": "window-door"}');
+    if (!first_windowdoor_connection){
+      ws_window_door.send('{"type": "subscribe", "target": "window-door", "list":' +  null + '}');
+      first_windowdoor_connection = true;
+    }
+    else {
+      var window_door_sensors = sensors_properties.filter(item => (item.type === "window" || item.type === "door"));
+      ws_window_door.send('{"type": "subscribe", "target": "window-door", "list": ' + JSON.stringify(window_door_sensors) + '}'); 
+    }
   });
 
   ws_window_door.on('close', err => {
     console.log("Connection to the window door closed...");
     console.log("Trying to reconnect to the window door...");
     ws_window_door = null;
-    setTimeout(connect_to_window_door_sensor, 2000);
+    clearTimeout(timeout_windowdoor);
+    timeout_windowdoor = setTimeout(connect_to_window_door_sensor, 1000);
   });
   
   ws_window_door.on('message', function message(data) {
@@ -249,19 +270,28 @@ function connect_to_heatpump(){
     console.log("Error connecting to the heat pump...");
     console.log("Trying to reconnect to the heat pump...");
     ws_heatpump = null;
-    setTimeout(connect_to_heatpump, 1000);
+    clearTimeout(timeout_heatpump);
+    timeout_heatpump = setTimeout(connect_to_heatpump, 1000);
   });
 
   ws_heatpump.on('open', function open() {
     console.log("Successfully connected to the heat pump...");
-    ws_heatpump.send('{"type": "subscribe", "target": "heatpump"}');
+    if (!first_heatpump_connection){
+      ws_heatpump.send('{"type": "subscribe", "target": "heatpump", "list":' +  null + '}');
+      first_heatpump_connection = true;
+    }
+    else {
+      var heatpump_sensors = sensors_properties.filter(item => item.type === "heatpump");
+      ws_heatpump.send('{"type": "subscribe", "target": "heatpump", "list": ' + JSON.stringify(heatpump_sensors) + '}'); 
+    }
   });
 
   ws_heatpump.on('close', err => {
     console.log("Connection to the heatpump closed...");
     console.log("Trying to reconnect to the heatpump...");
     ws_heatpump = null;
-    setTimeout(connect_to_heatpump, 2000);
+    clearTimeout(timeout_heatpump);
+    timeout_heatpump = setTimeout(connect_to_heatpump, 1000);
   });
   
   ws_heatpump.on('message', function message(data) {
@@ -333,19 +363,28 @@ function connect_to_thermometer(){
     console.log("Error connecting to the thermometer sensor...");
     console.log("Trying to reconnect to the thermometer sensor...");
     ws_thermometer = null;
-    setTimeout(connect_to_thermometer, 1000);
+    clearTimeout(timeout_thermometer);
+    timeout_thermometer = setTimeout(connect_to_thermometer, 1000);
   });
 
   ws_thermometer.on('open', function open() {
     console.log("Successfully connected to the thermometer sensor...");
-    ws_thermometer.send('{"type": "subscribe", "target": "thermometer_temperature"}');
+    if (!first_thermometer_connection){
+      ws_thermometer.send('{"type": "subscribe", "target": "thermometer_temperature", "list":' +  null + '}');
+      first_thermometer_connection = true;
+    }
+    else {
+      var thermometer_sensors = sensors_properties.filter(item => item.type === "thermometer");
+      ws_thermometer.send('{"type": "subscribe", "target": "thermometer_temperature", "list": ' + JSON.stringify(thermometer_sensors) + '}'); 
+    }
   });
 
   ws_thermometer.on('close', err => {
     console.log("Connection to the thermometer closed...");
     console.log("Trying to reconnect to the thermometer...");
     ws_thermometer = null;
-    setTimeout(connect_to_thermometer, 2000);
+    clearTimeout(timeout_thermometer);
+    timeout_thermometer = setTimeout(connect_to_thermometer, 1000);
   });
   
   ws_thermometer.on('message', function message(data) {

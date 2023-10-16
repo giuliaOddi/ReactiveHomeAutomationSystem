@@ -139,7 +139,7 @@ async function run() {
       // update the heatmpumps list -> changing state 
       sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action, "temperature" : item.temperature} : item ); 
     }
-    console.log("Update sensors list: ", sensors);
+    console.log("Updated sensors list: ", sensors);
   });
 
   // data received from actuator to remove an heatpump or add a new one 
@@ -156,7 +156,7 @@ async function run() {
       // update the heatmpumps list -> removing the specific heatpump 
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
-    console.log("Update sensors list: ", sensors);
+    console.log("Updated sensors list: ", sensors);
   });
 }
 

@@ -134,7 +134,7 @@ async function run() {
     
     // update the list -> changing state 
     sensors = sensors.map(item => (item.type == postData.sensor_type && item.name == postData.sensor_name) ? { "type" : item.type, "name" : item.name, "state" : postData.action} : item ); 
-    console.log("Update sensors list: ", sensors);
+    console.log("Updated sensors list: ", sensors);
   });
   
   // data received from actuator to remove a window-door or add a new one 
@@ -151,7 +151,7 @@ async function run() {
       // update the widnow-doors list -> removing the specific one 
       sensors = sensors.filter( item => item.name !== postData.sensor_name );
     }
-    console.log("Update sensors list: ", sensors);
+    console.log("Updated sensors list: ", sensors);
   });
 }
 
