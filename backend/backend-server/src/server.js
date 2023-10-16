@@ -24,7 +24,7 @@ import {WebSocket} from 'ws';
 import fetch from 'node-fetch';
 
 // communication with actuator
-const actuatorAddress = 'http://10.88.0.41:3000'; 
+const actuatorAddress = 'http://actuator-service:3000'; 
 const sensor_properties_endpoint = '/sensor_properties'; 
 const command_endpoint = '/command'; 
 
@@ -86,7 +86,7 @@ function fallbacks(app) {
 
 function connect_to_weather_service(){
   // communication with weather service
-  let ws_weather = new WebSocket('ws://10.88.0.31:5000');
+  let ws_weather = new WebSocket('ws://weather-service:5000');
 
   ws_weather.on('error', err => {
     console.log("Error connecting to the weather service ...");
@@ -150,7 +150,7 @@ function connect_to_weather_service(){
 
 function connect_to_window_door_sensor(){
   // communication with window_door sensor
-  let ws_window_door = new WebSocket('ws://10.88.0.50:4000');
+  let ws_window_door = new WebSocket('ws://window-door:4000');
 
   ws_window_door.on('error', err => {
     console.log("Error connecting to the window door...");
@@ -229,7 +229,7 @@ function connect_to_window_door_sensor(){
 
 function connect_to_heatpump(){
   // communication with heatpump sensor 
-  let ws_heatpump = new WebSocket('ws://10.88.0.52:4000');
+  let ws_heatpump = new WebSocket('ws://heatpump-service:4000');
 
   ws_heatpump.on('error', err => {
     console.log("Error connecting to the heat pump...");
@@ -306,7 +306,7 @@ function connect_to_heatpump(){
 
 function connect_to_thermometer(){
   // communication with thermometer sensor 
-  let ws_thermometer = new WebSocket('ws://10.88.0.54:4000');
+  let ws_thermometer = new WebSocket('ws://thermometer-service:4000');
 
   ws_thermometer.on('error', err => {
     console.log("Error connecting to the thermometer sensor...");

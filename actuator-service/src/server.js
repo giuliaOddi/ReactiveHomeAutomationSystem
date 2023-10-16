@@ -32,7 +32,7 @@ async function run() {
     console.log(sensor_properties);
 
     // backchannel with thermometer
-    const thermAddress = 'http://10.88.0.54:3000'; 
+    const thermAddress = 'http://thermometer-service:3000'; 
     const thermEndpoint = '/room_properties'; 
 
     fetch(thermAddress + thermEndpoint, {
@@ -75,7 +75,7 @@ async function run() {
       else if (postData.action == OFF_CLOSE || postData.action == ON_OPEN) {
 
         // communication with window_door sensors
-        const windowDoorAddress = 'http://10.88.0.50:3000'; 
+        const windowDoorAddress = 'http://window-door:3000'; 
         const windowDoorEndpoint = '/change-state'; 
 
         fetch(windowDoorAddress + windowDoorEndpoint, {
@@ -103,7 +103,7 @@ async function run() {
       else if (postData.action == ADD || postData.action == REMOVE){
 
         // comunication with window_door
-        const windowDoorAddress = 'http://10.88.0.50:3000'; 
+        const windowDoorAddress = 'http://window-door:3000'; 
         const windowDoorEndpoint = '/add-sensor'; 
 
         fetch(windowDoorAddress + windowDoorEndpoint, {
@@ -144,7 +144,7 @@ async function run() {
       else if (postData.action == OFF_CLOSE || postData.action == ON_OPEN) {
 
         // communication with heatpump
-        const heatpumpAddress = 'http://10.88.0.52:3000'; 
+        const heatpumpAddress = 'http://heatpump-service:3000'; 
         const heatpumpEndpoint = '/change-state'; 
 
         fetch(heatpumpAddress + heatpumpEndpoint, {
@@ -172,7 +172,7 @@ async function run() {
       else if (postData.action == ADD || postData.action == REMOVE){
 
         // communication with heatpump
-        const heatpumpAddress = 'http://10.88.0.52:3000'; 
+        const heatpumpAddress = 'http://heatpump-service:3000'; 
         const heatpumpEndpoint = '/add-sensor'; 
 
         fetch(heatpumpAddress + heatpumpEndpoint, {
@@ -201,7 +201,7 @@ async function run() {
     else if (postData.sensor_type == 'thermometer' && (postData.action == ADD || postData.action == REMOVE)){
      
       // communication with thermometer
-      const thermAddress = 'http://10.88.0.54:3000';
+      const thermAddress = 'http://thermometer-service:3000';
       const thermEndpoint = '/add-sensor'; 
 
       fetch(thermAddress + thermEndpoint, {

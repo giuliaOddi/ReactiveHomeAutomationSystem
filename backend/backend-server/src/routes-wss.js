@@ -5,7 +5,7 @@ import {v4 as uuid} from 'uuid';
 import fetch from 'node-fetch';
 
 
-const actuatorAddress = 'http://10.88.0.41:3000'; 
+const actuatorAddress = 'http://actuator-service:3000'; 
 const endpoint = '/command'; 
 
 /**
