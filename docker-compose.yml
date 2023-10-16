@@ -7,7 +7,7 @@ services:
     ports: 
       - 5000:5000
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.31"
         
   # Window-door
@@ -17,7 +17,7 @@ services:
       - 4000:4000
       - 3000
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.50"
         
   # HeatPump-service
@@ -27,7 +27,7 @@ services:
       - 4002:4000
       - 3000
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.52"
         
   # thermometer-service
@@ -37,7 +37,7 @@ services:
       - 4004:4000
       - 3000
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.54"
           
   # Actuator-service
@@ -51,11 +51,11 @@ services:
       heatpump-service:
         condition: service_started  
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.41"
       
   # Backend
-  todo-server:
+  backend-server:
     build: ./backend
     ports: 
       - 8000:8000
@@ -70,25 +70,25 @@ services:
       heatpump-service:
         condition: service_started  
     networks:
-      todo-app-network:
+      app-network:
         #bind to apache proxy pass
         ipv4_address: "10.88.0.11"
         
   # Frontend
-  todo-app:
+  web-app:
     build: ./frontend
     ports: 
       - 8080:80
     depends_on:
-      todo-server:
+      backend-server:
         condition: service_started  
     networks:
-      todo-app-network:
+      app-network:
         ipv4_address: "10.88.0.21"
 
 networks:
-  todo-app-network:    
-      name: todo-app-network
+  app-network:    
+      name: app-network
       driver: bridge
       ipam:
         config:

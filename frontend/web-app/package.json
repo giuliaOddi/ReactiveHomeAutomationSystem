@@ -1,0 +1,23 @@
+{
+  "name": "web-app",
+  "version": "1.0.0",
+  "description": "A reactive Web App",
+  "main": "js/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node js/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giuliaOddi/ReactiveHomeAutomationSystem/tree/main/frontend"
+  },
+  "author": "Giulia Oddi & Luca Taverna",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.4.0",
+    "lodash": "^4.17.21",
+    "rxjs": "^7.8.1",
+    "ws": "^8.14.1"
+  }
+}

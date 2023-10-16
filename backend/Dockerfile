@@ -1,5 +1,5 @@
 FROM node:12-alpine
-COPY ./todo-server/ .
-COPY ./todo-server/.env .
+COPY ./backend-server/ .
+COPY ./backend-server/.env .
 RUN npm install 
 CMD ["npm", "start"] 

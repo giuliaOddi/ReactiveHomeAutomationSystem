@@ -1,0 +1,179 @@
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, ".SFNSText-Regular", "Helvetica Neue", "Roboto", "Segoe UI", sans-serif;
+}
+
+form {
+  display: ruby;
+}
+
+.sensorChart {
+  display: ruby;
+}
+
+.stateChange {
+  display: ruby;
+}
+
+#tempAlert {
+  margin-left: 20px;
+}
+
+#temperature{
+  margin-left : 20px;
+}
+
+canvas {
+  margin-right: 20px;
+}
+
+#sensor_name{
+  margin-left: 50px;
+}
+
+#error_name{
+  margin-left: 20px;
+}
+
+#error_temperature{
+  margin-left: 20px;
+}
+
+.toggle {
+  cursor: pointer;
+  display: ruby;
+  margin-left: 70px;
+}
+
+.toggle-switch {
+  display: inline-block;
+  background: #ccc;
+  border-radius: 16px;
+  width: 58px;
+  height: 32px;
+  position: relative;
+  vertical-align: middle;
+  transition: background 0.25s;
+}
+
+.toggle-switch:before {
+  font-size: 9pt;
+  text-align: center;
+  line-height: 35px;
+  display: block;
+  background: linear-gradient(to bottom, #fff 0%, #eee 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  transition: left 0.25s;
+}
+
+#window-door.toggle-switch:before{
+  content: "";
+}
+
+#heatpump.toggle-switch:before{
+  content: "";
+}
+.toggle-checkbox:checked + #window-door.toggle-switch:before{
+  content: "";
+}
+
+.toggle-checkbox:checked + #heatpump.toggle-switch:before{
+  content: "";
+} 
+
+.toggle:hover .toggle-switch:before {
+  background: linear-gradient(to bottom, #fff 0%, #fff 100%);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+}
+.toggle-checkbox:checked + .toggle-switch {
+  background: #56c080;
+}
+.toggle-checkbox:checked + .toggle-switch:before {
+  left: 30px;
+}
+
+.toggle-checkbox {
+  position: absolute;
+  visibility: hidden;
+}
+
+.toggle-label {
+  margin-left: 5px;
+  position: relative;
+  top: 2px;
+}
+
+.quantity-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 120px; 
+  height: 40px;
+  margin-right: 20px;
+  margin-left: 20px;
+}
+
+.quantity-field .value-button{ 
+  border: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 100%;   
+  padding: 0;
+  background: #eee; 
+  outline: none;
+  cursor: pointer;
+}
+
+.quantity-field .value-button:hover {
+  background: rgb(230, 230, 230);
+}
+
+.quantity-field .value-button:active{
+  background: rgb(210, 210, 210);
+}
+
+.quantity-field .decrease-button {
+  margin-right: -4px;
+  border-radius: 8px 0 0 8px;
+}
+
+.quantity-field .increase-button {
+  margin-left: -4px;
+  border-radius: 0 8px 8px 0;
+}
+ 
+.quantity-field .number{
+  display: inline-block;
+  text-align: center;
+  border: none;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  margin: 0px;
+  width: 40px;
+  height: 100%;
+  line-height: 40px;
+  font-size: 11pt;
+  box-sizing: border-box; 
+  background: white;
+  font-family: calibri;
+}
+
+.quantity-field .number::selection{
+  background: none;
+}
+
+canvas#myChart {
+  width: auto;
+  height: auto;
+}
