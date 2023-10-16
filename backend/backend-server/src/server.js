@@ -99,6 +99,13 @@ function connect_to_weather_service(){
     console.log("Successfully connected to weather service...");
     ws_weather.send('{"type": "subscribe", "target": "temperature"}');
   });
+
+  ws_weather.on('close', err => {
+    console.log("Connection to the weather service closed...");
+    console.log("Trying to reconnect to the weather service...");
+    ws_weather = null;
+    setTimeout(connect_to_weather_service, 2000);
+  });
   
   ws_weather.on('message', function message(data) {
 
@@ -162,6 +169,13 @@ function connect_to_window_door_sensor(){
   ws_window_door.on('open', function open() {
     console.log("Successfully connected to the window door...");
     ws_window_door.send('{"type": "subscribe", "target": "window-door"}');
+  });
+
+  ws_window_door.on('close', err => {
+    console.log("Connection to the window door closed...");
+    console.log("Trying to reconnect to the window door...");
+    ws_window_door = null;
+    setTimeout(connect_to_window_door_sensor, 2000);
   });
   
   ws_window_door.on('message', function message(data) {
@@ -242,6 +256,13 @@ function connect_to_heatpump(){
     console.log("Successfully connected to the heat pump...");
     ws_heatpump.send('{"type": "subscribe", "target": "heatpump"}');
   });
+
+  ws_heatpump.on('close', err => {
+    console.log("Connection to the heatpump closed...");
+    console.log("Trying to reconnect to the heatpump...");
+    ws_heatpump = null;
+    setTimeout(connect_to_heatpump, 2000);
+  });
   
   ws_heatpump.on('message', function message(data) {
     console.log('received: %s', data);
@@ -318,6 +339,13 @@ function connect_to_thermometer(){
   ws_thermometer.on('open', function open() {
     console.log("Successfully connected to the thermometer sensor...");
     ws_thermometer.send('{"type": "subscribe", "target": "thermometer_temperature"}');
+  });
+
+  ws_thermometer.on('close', err => {
+    console.log("Connection to the thermometer closed...");
+    console.log("Trying to reconnect to the thermometer...");
+    ws_thermometer = null;
+    setTimeout(connect_to_thermometer, 2000);
   });
   
   ws_thermometer.on('message', function message(data) {

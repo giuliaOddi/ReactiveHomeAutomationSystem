@@ -95,16 +95,20 @@ export class SensorHandler extends EventEmitter {
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
     console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
+    
+    // simulates error states
     setTimeout(() => {
-      console.error('✝ Farewell and goodnight', {handler: this.#name});
-      /*this.#ws.close();
-      this.stop();
-      this.emit('error', 'Simulated death', {handler: this.#name});*/
-
-      // simulating sensors error 
       var sensorDead = Number((Math.random()*(sensors.length-1)).toFixed(0));
       sensors[sensorDead].state = ERROR;
       this._scheduleDeath();
+    }, secs * 5000);
+
+    this.#death = setTimeout(() => {
+      console.error('✝ Farewell and goodnight', {handler: this.#name});
+      this.#ws.close();
+      this.stop();
+      this.emit('error', 'Simulated death', {handler: this.#name});
+      process.exit();
     }, secs * 5000);
   }
 

@@ -6,6 +6,7 @@ services:
     build: ./weather-service
     ports: 
       - 5000:5000
+    restart: unless-stopped
     networks:
       - app-network
         
@@ -15,6 +16,7 @@ services:
     ports: 
       - 4000:4000
       - 3000
+    restart: unless-stopped
     networks:
       - app-network
         
@@ -24,6 +26,7 @@ services:
     ports: 
       - 4002:4000
       - 3000
+    restart: unless-stopped
     networks:
       - app-network
         
@@ -33,6 +36,7 @@ services:
     ports: 
       - 4004:4000
       - 3000
+    restart: unless-stopped
     networks:
       - app-network
           
@@ -46,6 +50,7 @@ services:
         condition: service_started  
       heatpump-service:
         condition: service_started  
+    restart: unless-stopped
     networks:
       - app-network
       
@@ -64,6 +69,7 @@ services:
         condition: service_started  
       heatpump-service:
         condition: service_started  
+    restart: unless-stopped
     networks:
       app-network:
         #bind to apache proxy pass
@@ -76,7 +82,8 @@ services:
       - 8080:80
     depends_on:
       backend-server:
-        condition: service_started  
+        condition: service_started
+    restart: unless-stopped
     networks:
       - app-network
 
