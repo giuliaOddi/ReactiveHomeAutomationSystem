@@ -45,11 +45,6 @@ services:
     build: ./actuator-service
     ports: 
       - 3000:3000
-    depends_on:           
-      window-door:
-        condition: service_started  
-      heatpump-service:
-        condition: service_started  
     restart: unless-stopped
     networks:
       - app-network
@@ -61,13 +56,13 @@ services:
       - 8000:8000
       - 7000
     depends_on:
-      actuator-service:
-        condition: service_started   
       weather-service:
         condition: service_started        
       window-door:
         condition: service_started  
       heatpump-service:
+        condition: service_started  
+      thermometer-service:
         condition: service_started  
     restart: unless-stopped
     networks:
