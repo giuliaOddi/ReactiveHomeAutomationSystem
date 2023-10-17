@@ -4,6 +4,8 @@ import fetch from 'node-fetch';
 // sensors list containing their state
 var sensor_properties = [];
 
+var simulatingDeathCount = 0;
+
 // sensors states
 const ON_OPEN = 1;
 const OFF_CLOSE = 0;
@@ -26,6 +28,7 @@ async function run() {
   });
 
   app.post("/sensor_properties", (request, response) => {
+
 
     const postData = request.body;
     sensor_properties = postData;
@@ -199,6 +202,14 @@ async function run() {
 
     // if command refers to thermometer sensors
     else if (postData.sensor_type == 'thermometer' && (postData.action == ADD || postData.action == REMOVE)){
+
+      // simulating actuator death
+      simulatingDeathCount++;
+      console.log(3-simulatingDeathCount + " actions on the thermometer until death...");
+      if (simulatingDeathCount === 3){
+        console.log("✝ Simulating Death!");
+        process.exit();
+      }
      
       // communication with thermometer
       const thermAddress = 'http://thermometer-service:3000';
@@ -218,12 +229,13 @@ async function run() {
         return response;
       })
       .then((data) => {
-          //console.log(data);
-        })
-        .catch((error) => {
-          //console.error(error);
-        });
-      }
+        //console.log(data);
+      })
+      .catch((error) => {
+        //console.error(error);
+      });
+
+    }
   });
 }
 

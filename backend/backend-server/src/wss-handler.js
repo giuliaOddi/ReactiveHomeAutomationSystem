@@ -82,26 +82,28 @@ export class SensorHandler extends EventEmitter {
   start() {
     console.debug('New connection received', {handler: this.#name});
 
-    // simulate a client disconnection
-    /*
+    // simulating death
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
-    */
+
   }
 
-  /*
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
-    console.info(`💣 Be ready for the fireworks in ${secs} seconds...`, {handler: this.#name});
+    var time = secs * 3000;
+    console.info(`💣 Be ready for the fireworks in ${time/1000} seconds...`, {handler: this.#name});
+
     this.#death = setTimeout(() => {
       console.error('✝ Farewell and goodnight', {handler: this.#name});
       this.#ws.close();
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
-    }, secs * 1000);
+      process.exit();
+    }, time);
+
   }
-  */
+
 
   /**
    * Validates an incoming message.

@@ -68,10 +68,11 @@
 
       // sensor type choose
       var type = form.querySelector('#sensors');
-      type = (type.value || '').trim();
+      type = (type.value).trim();
+
       //sensor name inserted
       var sensor_name = form.querySelector('input#sensor_name');
-      sensor_name = (sensor_name.value || '').trim();
+      sensor_name = (sensor_name.value || type).trim();
 
       // check if the sensor already exists 
       var sensors_properties = get_sensors_properties(); 

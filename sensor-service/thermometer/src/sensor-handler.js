@@ -93,6 +93,9 @@ export class SensorHandler extends EventEmitter {
 
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
+
+    var time = secs * 15000;
+    console.info(`💣 Be ready for the fireworks in ${time} seconds...`, {handler: this.#name});
     
     // stops the container
     this.#death = setTimeout(() => {
@@ -101,7 +104,7 @@ export class SensorHandler extends EventEmitter {
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
       process.exit();
-    }, secs * 15000);
+    }, time);
     
   }
 
@@ -186,6 +189,9 @@ export class SensorHandler extends EventEmitter {
     if (this.#timeout) {
       return;
     }
+
+    old_sensors_list = [];
+
     console.debug('🌡 Subscribing to temperature', {handler: this.#name});
     const callback = () => {
       // check if the the thermometers list is changed 

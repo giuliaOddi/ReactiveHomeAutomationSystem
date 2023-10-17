@@ -66,6 +66,7 @@ function registerHandler(ws, handler) {
  * @param {Express} app Express application
  * @param {WebSocketServer} wss WebSocket server
  * @param {{iface: string, port: number}} config Configuration options
+ * 
  */
 export function routesWss(wss, config) {
 
@@ -77,13 +78,15 @@ export function routesWss(wss, config) {
       console.error('💥 Failed to register handler, closing connection', e);
       ws.close();
     }
+
     ws.on('message', function message(data) {
 
       console.log('received: %s', data);
       var tmp = JSON.parse(data);
 
       // forwards commands to the actuator
-      if (tmp.sensor_type == "door" || tmp.sensor_type == "window" || tmp.sensor_type == "heatpump" || tmp.sensor_type == "thermometer"){
+      if (tmp.sensor_type === "door" || tmp.sensor_type === "window" || tmp.sensor_type === "heatpump" || tmp.sensor_type === "thermometer"){
+
         fetch(actuatorAddress + endpoint, {
           method: 'POST', 
           headers: {

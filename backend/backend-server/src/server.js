@@ -451,9 +451,10 @@ async function run() {
     var config = {
       iface: "0.0.0.0",
       port: 7000,
-      failures: false,
+      failures: true,
       delays: false,
-      frequency: 2000
+      frequency: 2000, 
+      timeToLive : 60
     }
 
     const wss = new WebSocketServer({ port: config.port });

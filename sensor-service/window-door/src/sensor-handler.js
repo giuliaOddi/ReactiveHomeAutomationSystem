@@ -86,21 +86,29 @@ export class SensorHandler extends EventEmitter {
   start() {
     console.debug('New connection received', {handler: this.#name});
 
-    // simulate a client disconnection
+    // simulating deaths and errors
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
+      this._scheduleError();
     }
   }
 
-  _scheduleDeath() {
-    const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);    
-
+  _scheduleError(){
+    const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
+    var time = secs * 3000;
+    
     // simulates error states
     setTimeout(() => {
       var sensorDead = Number((Math.random()*(sensors.length-1)).toFixed(0));
       sensors[sensorDead].state = ERROR;
-      this._scheduleDeath();
-    }, secs * 3000);
+      this._scheduleError();
+    }, time);
+  }
+
+  _scheduleDeath() {
+    const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
+    var time = secs * 10000;
+    console.info(`💣 Be ready for the fireworks in ${time} seconds...`, {handler: this.#name});
 
     // stops the container
     this.#death = setTimeout(() => {
@@ -109,7 +117,7 @@ export class SensorHandler extends EventEmitter {
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
       process.exit();
-    }, secs * 15000);
+    }, time);
   }
 
   /**
@@ -192,6 +200,8 @@ export class SensorHandler extends EventEmitter {
     if (this.#timeout) {
       return;
     }
+
+    old_sensors_list = [];
 
     console.debug('Subscribing to state', {handler: this.#name});
     const callback = () => {

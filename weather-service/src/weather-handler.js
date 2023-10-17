@@ -89,6 +89,9 @@ export class WeatherHandler extends EventEmitter {
 
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
+
+    var time = secs * 10000;
+    console.info(`💣 Be ready for the fireworks in ${time/1000} seconds...`, {handler: this.#name});
     
     // stops the container
     this.#death = setTimeout(() => {
@@ -97,7 +100,7 @@ export class WeatherHandler extends EventEmitter {
       this.stop();
       this.emit('error', 'Simulated death', {handler: this.#name});
       process.exit();
-    }, secs * 10000);
+    }, time);
     
   }
 
