@@ -86,12 +86,11 @@ export class SensorHandler extends EventEmitter {
     if (this.#config.failures && this.#config.timeToLive > 0) {
       this._scheduleDeath();
     }
-
   }
 
   _scheduleDeath() {
     const secs = (Math.random() * this.#config.timeToLive + 5).toFixed(0);
-    var time = secs * 3000;
+    var time = secs * 12000;
     console.info(`💣 Be ready for the fireworks in ${time/1000} seconds...`, {handler: this.#name});
 
     this.#death = setTimeout(() => {

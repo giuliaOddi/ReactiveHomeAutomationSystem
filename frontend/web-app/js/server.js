@@ -27,6 +27,8 @@
     // sends a message to the backend to add the new sensor 
     function add_sensor(type, name, temperature){
         var addSensor = {};
+
+        
         // for heatpump and thermometer there is also the temperature 
         if (type === "heatpump" || type === "thermometer"){
             addSensor = {
