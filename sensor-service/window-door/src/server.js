@@ -149,7 +149,7 @@ async function run() {
     // received action: remove an existing sensor 
     else if(postData.action == REMOVE){
       // update the widnow-doors list -> removing the specific one 
-      sensors = sensors.filter( item => item.name !== postData.sensor_name );
+      sensors = sensors.filter( item => item.type !== postData.sensor_type || item.name !== postData.sensor_name);
     }
     console.log("Updated sensors list: ", sensors);
   });

@@ -229,10 +229,10 @@ function connect_to_window_door_sensor(){
                 .forEach(item => sensors_properties.push(item)); // pushes the sensors into the list
         
         // removes the sensors that the user deleted
-        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? null : item )
           .filter(item => item !== null && (item.type === "window" || item.type === "door"));
 
-        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.type === item.type && item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
       
@@ -322,10 +322,10 @@ function connect_to_heatpump(){
                 .forEach(item => sensors_properties.push(item));  // pushes the sensor into the list
 
         // removes the sensors that the user deleted
-        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.name === item.name )) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name )) ? null : item )
           .filter(item => item !== null && item.type === "heatpump");
 
-        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.type === item.type && item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
 
@@ -414,10 +414,10 @@ function connect_to_thermometer(){
                 .forEach(item => sensors_properties.push(item));
 
         // removes the sensors that the user deleted
-        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => (item2.type === item.type && item2.name === item.name))) ? null : item )
+        var sensors_to_remove = sensors_properties.map(item => (tmp.list.find(item2 => item2.type === item.type && item2.name === item.name)) ? null : item )
           .filter(item => item !== null && item.type === "thermometer");
 
-        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.name === item.name )) ? null : item )
+        sensors_properties = sensors_properties.map( item =>( sensors_to_remove.find(item2 => item2.type === item.type && item2.name === item.name )) ? null : item )
           .filter(item => item!= null);
       }
     }
