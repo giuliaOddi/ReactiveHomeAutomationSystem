@@ -124,13 +124,8 @@ function temperature_simulation(){
   // boolean value to know is there is an heatpump on 
   var heatpump_on = sensors_properties.find(item => (item.type == 'heatpump' && item.state == ON_OPEN));
 
-  // windows closed and heatpumps off -> the temperature isn't changing
-  if (!window_open && !heatpump_on){
-    console.log("Windows are closed and heatpumps are off... The temperature isn't changing"); 
-  }
-
   // heatpump on and with an higher temperature -> temperature is changing
-  else if (heatpump_on && temp_diff_heatpump > 0){
+  if (heatpump_on && temp_diff_heatpump > 0){
 
     // at least one window is open 
     if (window_open){
@@ -178,7 +173,7 @@ function temperature_simulation(){
   }
 
   // at least one window open and heatpump on
-  else if (window_open && !heatpump_on){
+  else if (window_open && (!heatpump_on || temp_diff_heatpump <= 0)){
     console.log("At least one window is open and heatpumps are off... The temperature is changing"); 
 
     // door open porta aperta 
@@ -206,6 +201,10 @@ function temperature_simulation(){
         timeout = setTimeout(temperature_simulation, millis);
       }
     }
+  }
+  // windows closed and heatpumps off (or operating temperature < room temperature) -> the temperature isn't changing
+  else {
+    console.log("The temperature isn't changing..."); 
   }
 }
 
