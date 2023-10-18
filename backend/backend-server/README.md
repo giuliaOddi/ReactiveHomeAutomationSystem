@@ -1,53 +1,16 @@
-# TODO REST Server
+# Backend 
 
-REST APIs for the [TODO web application][1] used as a training bench for the university course "Sistemi Orientati ad
-Internet" at the University of Parma, 2021-2022.
+Il backend è un’entità che si occupa di inoltrare i messaggi e permettere a tutte le altre componenti di comunicare. In particolare, oltre che a comunicare con il frontend, riceve gli aggiornamenti dei cambi di stato dai vari sensori, sotto forma di lista, tramite l’implementazione del paradigma publish-subscribe. 
 
-## How to run
+Quindi, gestisce le comunicazioni:
+* si sottoscrive tramite il messaggio {"type": "subscribe", "target": "temperature"} alla WS API esposta dal microservizio weather-service tramite  ws://weather-service:5000; 
+* si sottoscrive tramite il messaggio {"type": "subscribe", "target": "window-door", "list": null} alla WS API esposta dal microservizio window-door tramite ws://window-door:4000;
+* si sottoscrive tramite il messaggio {"type": "subscribe", "target": "heatpump", "list": null} alla WS API esposta dal microservizio heatpump tramite ws://heatpump-service:4000; 
+* si sottoscrive tramite il messaggio {"type": "subscribe", "target": "thermometer_temperature", "list": null} alla WS API esposta dal microservizio thermometer tramite ws://thermometer-service:4000. 
 
-```shell
-npm i
-npm start
-```
+Tramite il campo "list" nel messaggio di subscribe il backend può inviare ad un microservizio (window-door, heatpump, thermometer) appena riavviato la lista aggiornata dei sensori di cui si occupa, in questo modo il microservizio riesce a recuperare il suo stato prima di essere stato interrotto.
+Ogni volta che il backend riceve un aggiornamento da queste API, ricerca all’interno della lista ricevuta i cambiamenti di stato e/o temperatura e gli eventuali sensori rimossi per aggiornare la lista sensors_properties in memoria. Dopodiché, la lista aggiornata viene inoltrata all’attuatore tramite REST all’indirizzo http://actuator-service:3000/sensor_properties.
 
-This will start the server on port 8000.
+Inoltre, il backend mantiene anche una comunicazione attiva con il frontend. Ogni volta che la lista sensors_properties viene aggiornata, il backend la invia al frontend sottoscritto alla sua WS API.
 
-For development purpose, you can also automatically re-run the server if source files change:
-
-```shell
-npm run watch
-```
-
-## How to run with Traefik
-
-Traefik acts as a reverse proxy and we can exploit that to expose the web app and the server APIs as a whole. First
-download [Traefik][2].
-
-The install `http-server`:
-
-```shell
-npm i -g http-server
-```
-
-Now open three terminals:
-
-- in the first one, enter the `todo-server` project and run `npm start` (or `npm run watch`)
-- in the second one, enter the `todo-server` project (again) and run `traefik`
-- in the third terminal, enter the `todo-app` and run `http-server -p 7001 .`
-
-Finally, point your browser to `http://localhost:9000`.
-
-## Setting up OpenID Connect with Google
-
-First, make sure you have a Google account (a Gmail account will be just fine). Also, make sure you can login to
-the [Google Cloud Platform (GCP) console][3].
-
-Follow the steps describe in [this documentation][4] up to the playground section (included).
-
-[1]: https://github.com/SOI-Unipr/todo-app
-
-[2]: https://doc.traefik.io/traefik/getting-started/install-traefik/
-
-[3]: https://console.cloud.google.com
-
-[4]: https://developers.google.com/identity/protocols/oauth2/openid-connect
+Infine, il backend si occupa anche di propagare i comandi ricevuti dalla web app all’attuatore, tramite REST all’indirizzo http://actuator-service:3000/command. 
