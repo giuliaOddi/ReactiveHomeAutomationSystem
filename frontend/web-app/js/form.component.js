@@ -89,8 +89,9 @@
       if (temperature < 15 || temperature > 35){
         error_temperature.textContent = "Not valid temperature!"; 
       }
-
-      add_sensor(type, sensor_name, temperature);   // server.js file
+      else{
+        add_sensor(type, sensor_name, temperature);   // server.js file
+      }
     }
 
     // function that takes the input from the form to remove a sensor 
