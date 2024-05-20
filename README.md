@@ -1,6 +1,4 @@
 # ReactiveHomeAutomationSystem - Giulia Oddi & Luca Taverna
-
-## Progetto di Sistemi Orientati ad Internet - Anno accademico 2022/2023
 Il progetto ha avuto come obiettivo lo sviluppo di un sistema che effettui la simulazione di una singola stanza automatizzata caratterizzata dalla presenza di alcuni sensori. Le varie componenti del sistema sono realizzate come microservizi e vengono eseguite in container Docker. 
 
 Le componenti sono:
