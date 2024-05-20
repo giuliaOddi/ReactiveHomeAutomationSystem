@@ -33,7 +33,7 @@ Lo stato della stanza viene mostrato all’utente tramite una Single Page Applic
 
 ### Add a new sensor: 
 <div style="display: flex;">
-    <img src="../../img/add_sensor.png" alt="Aggiunta sensore" style="width: 70%;">
+    <img src="../../img/add_sensor.png" alt="Aggiunta sensore" style="width: 60%;">
 </div>
 <br>
 
@@ -53,7 +53,7 @@ Come si può notare, lo stato viene impostato di default a chiuso oppure spento,
 
 ### Remove a sensor: 
 <div style="display: flex;">
-    <img src="../../img/remove_sensor.png" alt="Aggiunta sensore" style="width: 70%;">
+    <img src="../../img/remove_sensor.png" alt="Aggiunta sensore" style="width: 60%;">
 </div>
 <br>
 
@@ -67,7 +67,7 @@ removeSensor = {    action: REMOVE,
 
 ### Change sensors states: 
 <div style="display: flex;">
-    <img src="../../img/change_status.png" alt="Aggiunta sensore" style="width: 70%;">
+    <img src="../../img/change_status.png" alt="Aggiunta sensore" style="width: 60%;">
 </div>
 <br>
 Sezione dedicata ai cambiamenti di stato dei vari sensori. Di ogni sensore viene indicato, a sinistra del nome, lo stato corrente, tramite un’icona:
@@ -100,7 +100,7 @@ Successivamente, tramite il metodo *.subscribe()*, vengono gestiti e/o creati gl
 
 ### Charts: 
 <div style="display: flex;">
-    <img src="../../img/charts.png" alt="Aggiunta sensore" style="width: 70%;">
+    <img src="../../img/charts.png" alt="Aggiunta sensore" style="width: 60%;">
 </div>
 <br>
 
