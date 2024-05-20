@@ -13,7 +13,7 @@ Le componenti sono:
 * **Thermometer**: definisce il comportamento del sensore termometro, che simula il cambiamento dI temperatura nella stanza in base agli stati degli altri sensori;  
 
 ### Containers Docker
-L’esecuzione dei microservizi avviene tramite l’utilizzo di Docker Compose. In particolare, nel file  docker-compose.yml viene definita una rete di tipo *bridge*, poiché i microservizi definiti all’interno dei containers sono standalone e necessitano di comunicare tra loro. La rete utilizza la subnet *10.88.0.0/16*, avente quindi una subnet mask di 16 bit. In alcuni servizi, per facilitare le connessioni websocket, è stato specificato tramite *depends_on* quali container devono già essere in esecuzione (*condition: service_started*) prima di potersi avviare. 
+L’esecuzione dei microservizi avviene tramite l’utilizzo di Docker Compose. In particolare, nel file docker-compose.yml viene definita una rete di tipo *bridge*, poiché i microservizi definiti all’interno dei containers sono standalone e necessitano di comunicare tra loro. La rete utilizza la subnet *10.88.0.0/16*, avente quindi una subnet mask di 16 bit. In alcuni servizi, per facilitare le connessioni websocket, è stato specificato tramite *depends_on* quali container devono già essere in esecuzione (*condition: service_started*) prima di potersi avviare. 
 Sono stati definiti i seguenti containers:
 
 * **weather-service**: crea l’immagine a partire dalla directory *./weather-service*.
@@ -28,6 +28,12 @@ Inoltre in ogni servizio è stato inserito *restart: unless-stopped*, per permet
 
 Ogni container viene costruito tramite il suo specifico Dockerfile, nel quale sono contenute le istruzioni necessarie alla sua esecuzione. Ad esempio, nel Dockerfile del backend viene specificato di utilizzare *node:12-alpine* come immagine base e vengono specificate le directory necessarie da copiare nel file system del container per poi eseguire il file server.js tramite npm. 
 
+Tutti i microservizi comunicano tra loro, tramite le interazioni riportate nel diagramma:
+<div style="display: flex;">
+    <img src="./img/microservizi.png" alt="Microservizi" style="width: 45%;">
+</div>
+<br>
+
 ## Per eseguire l'applicazione
 Scaricare la cartella: 
 ```shell
@@ -36,6 +42,7 @@ Scaricare la cartella:
 ```shell
     cd ReactiveHomeAutomationSystem
 ```
+L’esecuzione dell’applicazione avviene tramite l’utilizzo di Docker Compose ed in particolare l’applicazione viene avviata tramite il comando: 
 ```shell
     docker-compose up --build 
 ```
@@ -52,7 +59,7 @@ N.B: per effettuare l'accesso all'applicazione web è necessario autenticarsi tr
 ```
 
 ### Attenzione!
-Bisogna aver modificato il file /etc/hosts (sudo vim /etc/hosts) inserendo: 
+Per far in modo che l’url indicato venga risolto nell’indirizzo della macchina locale, è necessario aver modificato, tramite permessi di root, il file  /etc/hosts (sudo vim /etc/hosts) inserendo: 
 ```shell
     127.0.0.1       oddi-taverna.soi2223.unipr.it www.oddi-taverna.soi2223.unipr.it
 ```
