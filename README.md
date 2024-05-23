@@ -62,3 +62,13 @@ Per far in modo che l’url indicato venga risolto nell’indirizzo della macchi
     127.0.0.1       oddi-taverna.soi2223.unipr.it www.oddi-taverna.soi2223.unipr.it
 ```
 
+## Informazioni sulle componenti del sistema
+Si possono reperire ulteriori informazioni sulle singole componenti del sistema nei file README delle singole sezioni: 
+* [Backend](./backend/backend-server/README.md)
+* [Frontend](./frontend/web-app/README.md)
+* [Actuator](./actuator-service/README.md)
+* [Wheater](./weather-service/README.md)
+* [Sensors](./sensor-service/README.md)
+    * [Thermometer](./sensor-service/thermometer/README.md)
+    * [Heatpump](./sensor-service/heat-pump/README.md)
+    * [Window-Door](./sensor-service/window-door/README.md)
